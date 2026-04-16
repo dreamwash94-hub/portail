@@ -5,6 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dreamwash — Portail de gestion</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, setDoc, getDoc, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSZqfL3G-DK0VzNmptblT7F_kgq5R4Oww",
+    authDomain: "dreamwash-d4a2c.firebaseapp.com",
+    projectId: "dreamwash-d4a2c",
+    storageBucket: "dreamwash-d4a2c.firebasestorage.app",
+    messagingSenderId: "294836515742",
+    appId: "1:294836515742:web:3fdbe1b28db8f97b7cdc8f"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window._db = db;
+  window._fs = { collection, addDoc, getDocs, setDoc, getDoc, doc, deleteDoc, onSnapshot, query, orderBy };
+
+  // Sauvegarder toutes les données
+  window.saveToFirebase = async function(key, data) {
+    try {
+      await setDoc(doc(db, 'portail', key), { data: JSON.stringify(data), updated: Date.now() });
+    } catch(e) { console.log('Save error:', e); }
+  };
+
+  // Charger toutes les données
+  window.loadFromFirebase = async function(key, fallback) {
+    try {
+      const snap = await getDoc(doc(db, 'portail', key));
+      if (snap.exists()) return JSON.parse(snap.data().data);
+    } catch(e) { console.log('Load error:', e); }
+    return fallback;
+  };
+
+  // Charger les badgeages depuis la badgeuse
+  window.loadBadgeages = async function() {
+    try {
+      const now = new Date();
+      const dateStr = String(now.getDate()).padStart(2,'0') + '/' + String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+      const snap = await getDocs(query(collection(db, 'badgeages')));
+      const data = [];
+      snap.forEach(d => data.push(d.data()));
+      return data.filter(l => l.date === dateStr).sort((a,b) => b.timestamp - a.timestamp);
+    } catch(e) { return []; }
+  };
+
+  window._firebaseReady = true;
+  console.log('Firebase Portail connecté ✅');
+</script>
 <style>
 :root{--bg:#F0F4F8;--bg2:#FFFFFF;--bg3:#EBF2FA;--border:#D6E4F0;--accent:#2563EB;--accent2:#16A34A;--accent3:#D97706;--accent4:#DC2626;--accent5:#7C3AED;--text:#1E293B;--muted:#64748B;--light:#94A3B8;--shadow:0 1px 4px rgba(0,0,0,0.07);--shadow2:0 4px 16px rgba(0,0,0,0.10);}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -199,6 +246,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="topbar-title" id="page-title">Dashboard</div>
     <div class="topbar-right">
       <div class="tdate">Mercredi 15 Avril 2026</div>
+      <button onclick="saveAll()" style="background:#16A34A;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">💾 Sauvegarder</button>
       <div class="nb-btn" onclick="toggleNotif()" style="position:relative;">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         <div class="nb-dot"></div>
@@ -1333,7 +1381,7 @@ function openModal(id){
   if(id==='m-slot'){const sel=document.getElementById('sl-tech');sel.innerHTML=TECHS.map(t=>`<option>${t.nom}</option>`).join('');}
 }
 function closeModal(id){document.getElementById(id).style.display='none';}
-function addTech(){const nom=document.getElementById('nt-nom').value,centre=document.getElementById('nt-centre').value,tel=document.getElementById('nt-tel').value,contrat=document.getElementById('nt-contrat').value;if(!nom)return;TECHS.push({nom,centre,contrat,tel,jours:0,color:'#2563EB'});renderTechs();renderDashboard();closeModal('m-tech');}
+function addTech(){const nom=document.getElementById('nt-nom').value,centre=document.getElementById('nt-centre').value,tel=document.getElementById('nt-tel').value,contrat=document.getElementById('nt-contrat').value;if(!nom)return;TECHS.push({nom,centre,contrat,tel,jours:0,color:'#2563EB'});renderTechs();renderDashboard();closeModal('m-tech');saveAll();}
 let notifOpen=false;
 function toggleNotif(){notifOpen=!notifOpen;document.getElementById('np').style.display=notifOpen?'block':'none';}
 document.addEventListener('click',e=>{if(!e.target.closest('.nb-btn')&&!e.target.closest('.np')){document.getElementById('np').style.display='none';notifOpen=false;}});
@@ -1353,7 +1401,42 @@ function exportCSV(){
 // ═══════════════════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════════
-function init(){
+async function init(){
+  // Indicateur de chargement
+  document.body.insertAdjacentHTML('beforeend', '<div id="fb-loading" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;"><div style="font-size:32px;">💧</div><div style="font-size:15px;font-weight:700;color:#2563EB;">Chargement des données...</div></div>');
+
+  // Charger depuis Firebase si disponible
+  if (window.loadFromFirebase) {
+    try {
+      const savedTechs = await window.loadFromFirebase('techs', null);
+      if (savedTechs) TECHS = savedTechs;
+
+      const savedCharges = await window.loadFromFirebase('charges', null);
+      if (savedCharges) CHARGES = savedCharges;
+
+      const savedAssurances = await window.loadFromFirebase('assurances', null);
+      if (savedAssurances) ASSURANCES = savedAssurances;
+
+      const savedStock = await window.loadFromFirebase('stock', null);
+      if (savedStock) STOCK = savedStock;
+
+      const savedBox = await window.loadFromFirebase('box', null);
+      if (savedBox) BOX_DATA = savedBox;
+
+      const savedTel = await window.loadFromFirebase('tel', null);
+      if (savedTel) TEL_DATA = savedTel;
+
+      console.log('Données chargées depuis Firebase ✅');
+    } catch(e) {
+      console.log('Chargement Firebase erreur:', e);
+    }
+  }
+
+  // Supprimer l'indicateur
+  const loader = document.getElementById('fb-loading');
+  if (loader) loader.remove();
+
+  // Rendre toutes les sections
   renderDashboard();
   renderCentres();
   renderTechs();
@@ -1366,7 +1449,38 @@ function init(){
   renderStock();
   renderDocs();
   renderPresta();
+
+  // Auto-sauvegarder toutes les 30 secondes
+  if (window.saveToFirebase) {
+    setInterval(async () => {
+      await window.saveToFirebase('techs', TECHS);
+      await window.saveToFirebase('charges', CHARGES);
+      await window.saveToFirebase('assurances', ASSURANCES);
+      await window.saveToFirebase('stock', STOCK);
+      await window.saveToFirebase('box', BOX_DATA);
+      await window.saveToFirebase('tel', TEL_DATA);
+      console.log('Auto-sauvegarde Firebase ✅', new Date().toLocaleTimeString());
+    }, 30000);
+  }
 }
+
+// Sauvegarder manuellement après chaque action importante
+async function saveAll() {
+  if (!window.saveToFirebase) return;
+  await window.saveToFirebase('techs', TECHS);
+  await window.saveToFirebase('charges', CHARGES);
+  await window.saveToFirebase('assurances', ASSURANCES);
+  await window.saveToFirebase('stock', STOCK);
+  await window.saveToFirebase('box', BOX_DATA);
+  await window.saveToFirebase('tel', TEL_DATA);
+  // Notification visuelle
+  const notif = document.createElement('div');
+  notif.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#16A34A;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+  notif.textContent = '✅ Sauvegardé !';
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 2000);
+}
+
 init();
 </script>
 </body>
