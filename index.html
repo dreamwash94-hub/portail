@@ -1092,16 +1092,17 @@ function renderCharges() {
       <div style="display:flex;align-items:center;gap:10px;">
         <span style="font-size:18px;">${c.c}</span>
         <div>
-          <div style="font-size:13px;font-weight:600;" contenteditable="true" class="editable">${c.n}</div>
-          <div style="font-size:11px;color:var(--muted);">Échéance : <span contenteditable="true" class="editable">${c.e}</span></div>
+          <input value="${c.n}" style="font-size:13px;font-weight:600;border:none;background:transparent;color:var(--text);font-family:inherit;width:200px;cursor:pointer;" onfocus="this.style.background='#EFF6FF';this.style.borderBottom='2px solid var(--accent)'" onblur="CHARGES[${i}].n=this.value;this.style.background='transparent';this.style.borderBottom='none';">
+          <div style="font-size:11px;color:var(--muted);">Échéance : <input value="${c.e}" style="font-size:11px;border:none;background:transparent;color:var(--muted);font-family:inherit;width:100px;" onfocus="this.style.background='#EFF6FF'" onblur="CHARGES[${i}].e=this.value;this.style.background='transparent';"></div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="text-align:right;">
-          <div style="font-size:14px;font-weight:700;color:${c.s==='paid'?'var(--accent2)':'var(--accent3)'};" contenteditable="true" class="editable">${c.m.toLocaleString()} €</div>
-          <span class="badge ${c.s==='paid'?'gr':'yl'}">${c.s==='paid'?'✓ Payé':'⏳ À payer'}</span>
+          <input value="${c.m}" type="number" style="font-size:14px;font-weight:700;color:${c.s==='paid'?'var(--accent2)':'var(--accent3)'};border:none;background:transparent;font-family:inherit;width:80px;text-align:right;" onfocus="this.style.background='#EFF6FF'" onblur="CHARGES[${i}].m=parseFloat(this.value)||0;this.style.background='transparent';"> €
+          <div><span class="badge ${c.s==='paid'?'gr':'yl'}">${c.s==='paid'?'✓ Payé':'⏳ À payer'}</span></div>
         </div>
         <button class="btn btn-sm ${c.s==='paid'?'btn-o':'btn-g'}" onclick="toggleCharge(${i},this)">${c.s==='paid'?'Marqué payé':'Encaisser'}</button>
+        <button class="btn btn-sm btn-r" onclick="CHARGES.splice(${i},1);renderCharges();saveAll();">🗑️</button>
       </div>
     </div>`;
   });
@@ -1110,6 +1111,7 @@ function renderCharges() {
 function toggleCharge(i,btn) {
   CHARGES[i].s = CHARGES[i].s==='paid'?'due':'paid';
   renderCharges();
+  saveAll();
 }
 
 function addCharge() {
@@ -1121,6 +1123,7 @@ function addCharge() {
   CHARGES.push({n:nom,m:montant,e:ech||'—',s:'due',c:cat.split(' ')[0]});
   renderCharges();
   closeModal('m-charge');
+  saveAll();
 }
 
 function renderAssurances() {
@@ -1161,6 +1164,7 @@ function addAssurance() {
   ASSURANCES.push({nom,assureur,montant,expiration:exp,centres:centres||'Tous',jours,couleur:jours<30?'#D97706':'#16A34A'});
   renderAssurances();
   closeModal('m-assurance');
+  saveAll();
 }
 
 function renderStock() {
@@ -1209,6 +1213,7 @@ function addStock() {
   STOCK.unshift({date,centre,produit,qte,pu,statut:'en cours'});
   renderStock();
   closeModal('m-stock');
+  saveAll();
 }
 
 let stockFilter = 'tous';
