@@ -1486,8 +1486,19 @@ async function init(){
   }
 }
 
-// Sauvegarder manuellement après chaque action importante
-async function saveAll() {
+// Attendre que Firebase soit prêt puis lancer init
+function waitForFirebase(callback, attempts = 0) {
+  if (window._firebaseReady && window.loadFromFirebase) {
+    callback();
+  } else if (attempts < 30) {
+    setTimeout(() => waitForFirebase(callback, attempts + 1), 200);
+  } else {
+    console.log('Firebase timeout - démarrage sans Firebase');
+    callback();
+  }
+}
+
+waitForFirebase(() => init());
   if (!window.saveToFirebase) return;
   await window.saveToFirebase('techs', TECHS);
   await window.saveToFirebase('charges', CHARGES);
@@ -1503,7 +1514,7 @@ async function saveAll() {
   setTimeout(() => notif.remove(), 2000);
 }
 
-init();
+// FIN
 </script>
 </body>
 </html>
