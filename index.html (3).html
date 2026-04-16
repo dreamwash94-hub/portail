@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dreamwash — Portail de gestion</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F0F4F8;--bg2:#FFFFFF;--bg3:#EBF2FA;--border:#D6E4F0;--accent:#2563EB;--accent2:#16A34A;--accent3:#D97706;--accent4:#DC2626;--accent5:#7C3AED;--text:#1E293B;--muted:#64748B;--light:#94A3B8;--shadow:0 1px 4px rgba(0,0,0,0.07);--shadow2:0 4px 16px rgba(0,0,0,0.10);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-height:100vh;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;box-shadow:var(--shadow);}
+.logo{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.logo-text{font-size:16px;font-weight:800;color:var(--text);}
+.logo-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.nav{flex:1;padding:10px 8px;overflow-y:auto;}
+.nav-label{font-size:10px;color:var(--light);font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 10px 4px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;transition:all .15s;margin-bottom:1px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:#EFF6FF;color:var(--accent);font-weight:600;}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;}
+.nb{margin-left:auto;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;}
+.nb.g{background:var(--accent2)}.nb.r{background:var(--accent4)}.nb.b{background:var(--accent)}
+.nav-ext{margin-left:auto;font-size:11px;color:var(--light);}
+.main{margin-left:220px;flex:1;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--shadow);}
+.topbar-title{font-size:17px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.tdate{color:var(--muted);font-size:12px;}
+.nb-btn{width:32px;height:32px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+.nb-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--accent4);border-radius:50%;border:2px solid var(--bg2);}
+.avatar{width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;}
+.content{padding:24px;}
+.page{display:none;animation:fi .2s ease;}
+.page.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.sec-title{font-size:20px;font-weight:700;margin-bottom:4px;}
+.sec-sub{color:var(--muted);font-size:13px;margin-bottom:20px;}
+.rh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);}
+.card-t{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+.kpi-g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);}
+.kpi-i{font-size:22px;margin-bottom:8px;}
+.kpi-v{font-size:26px;font-weight:800;line-height:1;}
+.kpi-l{color:var(--muted);font-size:11px;margin-top:3px;}
+.kpi-t{font-size:11px;font-weight:600;margin-top:6px;}
+.kpi-t.up{color:var(--accent2)}.kpi-t.dn{color:var(--accent4)}.kpi-t.neu{color:var(--accent3)}
+.tbl{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+.tbl table{width:100%;border-collapse:collapse;}
+.tbl th{padding:10px 14px;text-align:left;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);background:var(--bg3);}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:13px;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--bg3);}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge.gr{background:#DCFCE7;color:#15803D}.badge.yl{background:#FEF3C7;color:#B45309}.badge.rd{background:#FEE2E2;color:#B91C1C}.badge.bl{background:#DBEAFE;color:#1D4ED8}.badge.pu{background:#EDE9FE;color:#6D28D9}
+.btn{padding:8px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .15s;}
+.btn-p{background:var(--accent);color:#fff;}.btn-p:hover{background:#1D4ED8;}
+.btn-g{background:var(--accent2);color:#fff;}
+.btn-o{background:var(--bg2);border:1px solid var(--border);color:var(--muted);}.btn-o:hover{border-color:var(--accent);color:var(--accent);}
+.btn-r{background:#FEE2E2;border:1px solid #FECACA;color:var(--accent4);}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.fbar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.fbtn{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;}
+.fbtn:hover,.fbtn.active{background:#EFF6FF;border-color:var(--accent);color:var(--accent);font-weight:600;}
+.srch{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:13px;outline:none;font-family:inherit;}
+.srch:focus{border-color:var(--accent);}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:16px;border:none;background:none;font-family:inherit;font-weight:500;}
+.back-btn:hover{color:var(--accent);}
+.editable{cursor:pointer;border-radius:4px;padding:1px 4px;transition:background .15s;}
+.editable:hover{background:#EFF6FF;outline:1px solid var(--accent);}
+.editable:focus{background:#EFF6FF;outline:2px solid var(--accent);}
+.secret{background:var(--bg3);border:1px solid var(--border);padding:3px 10px;border-radius:6px;cursor:pointer;font-family:monospace;font-size:12px;transition:all .15s;display:inline-block;}
+.secret:hover{border-color:var(--accent);color:var(--accent);}
+.alert-b{background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.alert-b.rd{background:#FEE2E2;border-color:#FECACA;}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+.cc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.cc:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow2);}
+.cc-top{height:4px;position:absolute;top:0;left:0;right:0;border-radius:12px 12px 0 0;}
+.cc-name{font-size:15px;font-weight:700;margin-top:8px;}
+.cc-stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0;}
+.cc-stat{background:var(--bg3);border-radius:8px;padding:7px 10px;}
+.cc-stat-v{font-weight:700;font-size:14px;}
+.cc-stat-l{font-size:10px;color:var(--muted);}
+.cc-info{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-bottom:3px;}
+.cc-info span:last-child{color:var(--text);font-weight:500;}
+.cc-btn{margin-top:10px;width:100%;padding:7px;background:#EFF6FF;border:1px solid #DBEAFE;border-radius:8px;color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.cc-btn:hover{background:#DBEAFE;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);}
+.fr:last-child{border-bottom:none;}
+.fk{color:var(--muted);font-size:13px;}
+.fv{font-size:13px;font-weight:600;}
+/* PLANNING */
+.plan-wrap{overflow-x:auto;background:var(--bg2);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);}
+.plan-table{width:100%;border-collapse:collapse;min-width:700px;}
+.plan-table th{padding:10px 8px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);border-bottom:2px solid var(--border);background:var(--bg3);}
+.plan-table th.today-h{color:var(--accent);background:#EFF6FF;}
+.plan-table td{padding:5px 7px;border-bottom:1px solid var(--border);vertical-align:top;}
+.plan-table td.centre-lbl{font-size:12px;font-weight:700;white-space:nowrap;background:var(--bg3);padding:8px 14px;border-right:2px solid var(--border);}
+.plan-table td.group-lbl{font-size:13px;font-weight:800;background:#EFF6FF;padding:8px 14px;border-bottom:2px solid var(--border);color:var(--accent);}
+.plan-table td.today-td{background:#F8FBFF;}
+.plan-slot{border-radius:6px;padding:4px 8px;margin-bottom:3px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;cursor:pointer;}
+.plan-slot.present{background:#DCFCE7;color:#15803D;}
+.plan-slot.absent{background:#FEE2E2;color:#B91C1C;}
+.plan-add{color:var(--light);font-size:16px;cursor:pointer;padding:2px 4px;border-radius:4px;display:inline-block;transition:all .15s;}
+.plan-add:hover{color:var(--accent);background:#EFF6FF;}
+/* CRA */
+.cra-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:700;transition:all .15s;margin:auto;}
+.cra-circle.present{background:#DCFCE7;border-color:#86EFAC;color:#15803D;}
+.cra-circle:hover{border-color:var(--accent);}
+.cra-total-g{background:#DCFCE7;color:#15803D;font-weight:700;border-radius:20px;padding:2px 10px;font-size:12px;display:inline-block;}
+.cra-total{background:var(--bg3);color:var(--muted);font-weight:700;border-radius:20px;padding:2px 10px;font-size:12px;display:inline-block;}
+/* RAPPORT */
+.rc{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.rc.g{background:#DCFCE7;color:#15803D}.rc.b{background:#DBEAFE;color:#1D4ED8}.rc.z{background:var(--bg3);color:var(--light)}
+/* CHARGES */
+.chr{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;box-shadow:var(--shadow);transition:all .15s;}
+.chr:hover{border-color:var(--accent);}
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-t{font-size:16px;font-weight:700;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;}
+.mc{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;}
+.field{margin-bottom:13px;}
+.field label{display:block;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;font-family:inherit;box-sizing:border-box;}
+.field input:focus,.field select:focus{border-color:var(--accent);background:#fff;}
+.field select option{background:#fff;}
+.mac{display:flex;gap:10px;margin-top:6px;}
+/* NOTIF */
+.np{position:absolute;top:52px;right:20px;width:290px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;z-index:200;overflow:hidden;box-shadow:var(--shadow2);}
+.ni{padding:10px 13px;border-bottom:1px solid var(--border);display:flex;gap:9px;align-items:flex-start;cursor:pointer;}
+.ni:hover{background:var(--bg3);}
+.ni:last-child{border-bottom:none;}
+.nd{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.nt{font-size:12px;}.ntm{font-size:10px;color:var(--muted);margin-top:1px;}
+/* DASH */
+.dash-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
+.dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 12px;cursor:pointer;transition:all .2s;text-align:center;box-shadow:var(--shadow);}
+.dash-card:hover{transform:translateY(-2px);box-shadow:var(--shadow2);border-color:var(--accent);}
+.dash-icon{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px;}
+.dash-name{font-weight:700;font-size:13px;}
+.dash-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+/* ASSURANCE */
+.ass-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:10px;display:flex;align-items:center;gap:14px;transition:all .15s;}
+.ass-card:hover{border-color:var(--accent);}
+.ass-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+/* PRESTA */
+.pt{display:grid;grid-template-columns:auto repeat(3,1fr);}
+.pc{padding:10px 13px;border:1px solid var(--border);font-size:13px;display:flex;align-items:center;justify-content:center;}
+.pc.hd{background:var(--bg3);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;}
+.pc.sz{background:var(--bg2);font-weight:600;justify-content:flex-start;gap:8px;}
+.pc.pr{background:var(--bg2);color:var(--accent2);font-weight:700;}
+.pc.pr-g{background:var(--bg2);color:var(--accent3);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">💧</div>
+    <div><div class="logo-text">Dreamwash</div><div class="logo-sub">Portail de gestion</div></div>
+  </div>
+  <div class="nav">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="nav-item" onclick="go('centres')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Centres <span class="nb g">9</span></div>
+    <div class="nav-item" onclick="go('techniciens')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Techniciens <span class="nb b" id="nb-techs">36</span></div>
+    <div class="nav-item" onclick="go('planning')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Planning</div>
+    <div class="nav-item" onclick="go('cra')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>CRA</div>
+    <div class="nav-item" onclick="go('rapport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Rapports</div>
+    <div class="nav-label">Gestion</div>
+    <div class="nav-item" onclick="go('stock')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Stock & Produits <span class="nb r">2</span></div>
+    <div class="nav-item" onclick="go('comptabilite')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Comptabilité</div>
+    <div class="nav-item" onclick="go('charges')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Charges fixes</div>
+    <div class="nav-item" onclick="go('assurances')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Assurances</div>
+    <div class="nav-item" onclick="go('prestations')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Prestations</div>
+    <div class="nav-item" onclick="go('documents')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Documents</div>
+    <div class="nav-item" onclick="go('telephone')" style="color:#EA580C;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.15 6.15l1.16-1.16a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Téléphone & Box</div>
+    <div class="nav-item" onclick="go('badgeuse-view')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Badgeuse</div>
+    <div class="nav-label">Outils</div>
+    <div class="nav-item" onclick="openUrl('https://dreamwash.simplybook.it/v2/')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Réservations <span class="nav-ext">↗</span></div>
+    <div class="nav-item" onclick="openUrl('https://facture.dreamwash.fr/login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Facturation <span class="nav-ext">↗</span></div>
+    <div class="nav-item" onclick="openUrl('https://cra.dreamwash.fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>CRA Badgeuse <span class="nav-ext">↗</span></div>
+    <div class="nav-item" onclick="openUrl('https://dashboard.dreamwash.fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Dashboard CA <span class="nav-ext">↗</span></div>
+    <div class="nav-item" onclick="openUrl('https://www.tiime.fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Tiime <span class="nav-ext">↗</span></div>
+    <div class="nav-item" onclick="openUrl('https://www.mysilae.fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Mysilae <span class="nav-ext">↗</span></div>
+  </div>
+  <div style="padding:10px 14px;border-top:1px solid var(--border);font-size:10px;color:var(--light);">Dreamwash © 2026 · v4.0</div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-right">
+      <div class="tdate">Mercredi 15 Avril 2026</div>
+      <div class="nb-btn" onclick="toggleNotif()" style="position:relative;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="nb-dot"></div>
+      </div>
+      <div class="avatar">DW</div>
+    </div>
+    <div class="np" id="np" style="display:none;">
+      <div style="padding:9px 13px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);">Alertes</div>
+      <div class="ni"><div class="nd" style="background:var(--accent4)"></div><div><div class="nt">⚠️ Spray plastiques épuisé — Cité des Sciences</div><div class="ntm">Il y a 2h</div></div></div>
+      <div class="ni"><div class="nd" style="background:var(--accent4)"></div><div><div class="nt">⚠️ Shampoing bas — Aeroville A (3 restants)</div><div class="ntm">Il y a 3h</div></div></div>
+      <div class="ni"><div class="nd" style="background:var(--accent3)"></div><div><div class="nt">📋 URSSAF à payer — Échéance 15/05</div><div class="ntm">Hier</div></div></div>
+      <div class="ni"><div class="nd" style="background:var(--accent3)"></div><div><div class="nt">🛡️ Assurance expire dans 30 jours</div><div class="ntm">Hier</div></div></div>
+      <div class="ni"><div class="nd" style="background:var(--accent2)"></div><div><div class="nt">✅ Abdeldjalil pointé — Lafayette Rouge</div><div class="ntm">Ce matin</div></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div style="margin-bottom:20px;">
+        <div style="font-size:22px;font-weight:800;">Dreamwash</div>
+        <div style="color:var(--muted);font-size:13px;">Mercredi 15 Avril 2026</div>
+      </div>
+      <div class="kpi-g">
+        <div class="kpi"><div class="kpi-i">👥</div><div class="kpi-v" style="color:var(--accent);" id="dash-presences">3</div><div class="kpi-l">Présences aujourd'hui</div><div class="kpi-t up">↑ actifs</div></div>
+        <div class="kpi"><div class="kpi-i">🔧</div><div class="kpi-v" style="color:var(--accent2);" id="dash-techs">36</div><div class="kpi-l">Techniciens</div><div class="kpi-t neu">Total équipe</div></div>
+        <div class="kpi"><div class="kpi-i">🏢</div><div class="kpi-v" style="color:var(--accent5);">9</div><div class="kpi-l">Centres actifs</div><div class="kpi-t up">= Tous ouverts</div></div>
+        <div class="kpi"><div class="kpi-i">📊</div><div class="kpi-v" style="color:var(--accent3);">98%</div><div class="kpi-l">Taux de présence</div><div class="kpi-t up">↑ excellent</div></div>
+      </div>
+      <div style="margin-bottom:14px;font-size:14px;font-weight:700;">Navigation</div>
+      <div class="dash-nav">
+        <div class="dash-card" onclick="go('cra')"><div class="dash-icon" style="background:#DCFCE7;">📋</div><div class="dash-name">CRA</div><div class="dash-sub">Compte rendu d'activité</div></div>
+        <div class="dash-card" onclick="go('planning')"><div class="dash-icon" style="background:#EDE9FE;">📅</div><div class="dash-name">Planning</div><div class="dash-sub">Planification hebdomadaire</div></div>
+        <div class="dash-card" onclick="go('techniciens')"><div class="dash-icon" style="background:#FED7AA;">👷</div><div class="dash-name">Techniciens</div><div class="dash-sub">Gestion des employés</div></div>
+        <div class="dash-card" onclick="go('centres')"><div class="dash-icon" style="background:#CFFAFE;">🏢</div><div class="dash-name">Centres</div><div class="dash-sub">Configuration</div></div>
+        <div class="dash-card" onclick="go('rapport')"><div class="dash-icon" style="background:#FEE2E2;">📈</div><div class="dash-name">Rapports</div><div class="dash-sub">Analyses & statistiques</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="card"><div class="card-t">📈 CA par centre — Aujourd'hui</div><div id="ca-bars"></div></div>
+        <div class="card"><div class="card-t">🔗 Outils connectés</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div onclick="openUrl('https://dreamwash.simplybook.it/v2/')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1px solid var(--border);transition:all .15s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'"><span style="font-size:16px;">📅</span><div style="flex:1;"><div style="font-size:12px;font-weight:600;">Réservations SimplyBook</div><div style="font-size:10px;color:var(--muted);">dreamwash.simplybook.it</div></div><span style="color:var(--accent);font-size:12px;">→</span></div>
+            <div onclick="openUrl('https://facture.dreamwash.fr/login')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1px solid var(--border);transition:all .15s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'"><span style="font-size:16px;">🧾</span><div style="flex:1;"><div style="font-size:12px;font-weight:600;">Facturation</div><div style="font-size:10px;color:var(--muted);">facture.dreamwash.fr</div></div><span style="color:var(--accent);font-size:12px;">→</span></div>
+            <div onclick="openUrl('https://cra.dreamwash.fr')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1px solid var(--border);transition:all .15s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'"><span style="font-size:16px;">⏱️</span><div style="flex:1;"><div style="font-size:12px;font-weight:600;">CRA & Badgeuse</div><div style="font-size:10px;color:var(--muted);">cra.dreamwash.fr</div></div><span style="color:var(--accent);font-size:12px;">→</span></div>
+            <div onclick="openUrl('https://dashboard.dreamwash.fr')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1px solid var(--border);transition:all .15s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'"><span style="font-size:16px;">📊</span><div style="flex:1;"><div style="font-size:12px;font-weight:600;">Dashboard CA</div><div style="font-size:10px;color:var(--muted);">dashboard.dreamwash.fr</div></div><span style="color:var(--accent);font-size:12px;">→</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTRES -->
+    <div class="page" id="page-centres">
+      <div class="rh"><div><div class="sec-title">Centres</div><div class="sec-sub">9 centres actifs</div></div><button class="btn btn-p" onclick="openModal('m-centre')">+ Ajouter</button></div>
+      <div class="cg" id="cg"></div>
+    </div>
+
+    <!-- FICHE CENTRE -->
+    <div class="page" id="page-fiche"><button class="back-btn" onclick="go('centres')">← Retour aux centres</button><div id="fiche-c"></div></div>
+
+    <!-- TECHNICIENS -->
+    <div class="page" id="page-techniciens">
+      <div class="rh"><div><div class="sec-title">Gestion des techniciens</div><div class="sec-sub" id="tech-sub">36 techniciens</div></div><button class="btn btn-p" onclick="openModal('m-tech')">+ Ajouter</button></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <input class="srch" id="tech-search" placeholder="🔍 Rechercher un technicien…" oninput="renderTechs()" style="flex:1;max-width:300px;">
+      </div>
+      <div class="fbar" id="tech-fbar">
+        <button class="fbtn active" onclick="setTF(this,'tous')">Tous</button>
+        <button class="fbtn" onclick="setTF(this,'Aeroville A')">Aeroville A</button>
+        <button class="fbtn" onclick="setTF(this,'Aeroville B')">Aeroville B</button>
+        <button class="fbtn" onclick="setTF(this,'Lafayette Rouge')">Lafayette Rouge</button>
+        <button class="fbtn" onclick="setTF(this,'Lafayette Vert')">Lafayette Vert</button>
+        <button class="fbtn" onclick="setTF(this,'Cité des Sciences')">Cité Sciences</button>
+        <button class="fbtn" onclick="setTF(this,'Le Parks')">Le Parks</button>
+        <button class="fbtn" onclick="setTF(this,'Parly2')">Parly2</button>
+        <button class="fbtn" onclick="setTF(this,'Belleville')">Belleville</button>
+        <button class="fbtn" onclick="setTF(this,'Suresnes')">Suresnes</button>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Technicien</th><th>Centre affecté</th><th>Contrat</th><th>Téléphone</th><th>Jours/mois</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="tech-tbody"></tbody></table></div>
+    </div>
+
+    <!-- FICHE TECH -->
+    <div class="page" id="page-fiche-tech"><button class="back-btn" onclick="go('techniciens')">← Retour</button><div id="fiche-t"></div></div>
+
+    <!-- PLANNING -->
+    <div class="page" id="page-planning">
+      <div class="rh"><div><div class="sec-title">Planning</div><div class="sec-sub">Semaine du 13 au 17 avril 2026</div></div><button class="btn btn-p" onclick="openModal('m-slot')">+ Ajouter créneau</button></div>
+      <div class="fbar" id="plan-fbar">
+        <button class="fbtn active" onclick="setPF(this,'tous')">Tous les centres</button>
+        <button class="fbtn" onclick="setPF(this,'Aeroville A')">Aeroville A</button>
+        <button class="fbtn" onclick="setPF(this,'Aeroville B')">Aeroville B</button>
+        <button class="fbtn" onclick="setPF(this,'Lafayette Rouge')">Lafayette Rouge</button>
+        <button class="fbtn" onclick="setPF(this,'Lafayette Vert')">Lafayette Vert</button>
+        <button class="fbtn" onclick="setPF(this,'Cité des Sciences')">Cité Sciences</button>
+        <button class="fbtn" onclick="setPF(this,'Le Parks')">Le Parks</button>
+        <button class="fbtn" onclick="setPF(this,'Parly2')">Parly2</button>
+        <button class="fbtn" onclick="setPF(this,'Belleville')">Belleville</button>
+        <button class="fbtn" onclick="setPF(this,'Suresnes')">Suresnes</button>
+      </div>
+      <div class="plan-wrap"><table class="plan-table" id="plan-table"><thead><tr><th style="text-align:left;min-width:130px;border-right:2px solid var(--border);">Centre</th><th>Lundi 13</th><th>Mardi 14</th><th class="today-h">Mercredi 15</th><th>Jeudi 16</th><th>Vendredi 17</th></tr></thead><tbody id="plan-tbody"></tbody></table></div>
+    </div>
+
+    <!-- CRA -->
+    <div class="page" id="page-cra">
+      <div class="rh">
+        <div>
+          <div class="sec-title">CRA</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+            <button class="btn btn-o btn-sm" onclick="craNav(-1)">←</button>
+            <span style="font-size:14px;font-weight:600;min-width:150px;text-align:center;" id="cra-date-lbl">Mercredi 15 Avr. 2026</span>
+            <button class="btn btn-o btn-sm" onclick="craNav(1)">→</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-o btn-sm" onclick="copyCRA()">📋 Copier</button>
+          <button class="btn btn-p btn-sm" onclick="exportCSV()">📤 Exporter CSV</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+        <input class="srch" id="cra-search" placeholder="🔍 Rechercher un technicien…" oninput="renderCRA()" style="max-width:240px;">
+        <select id="cra-centre-filter" onchange="renderCRA()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;">
+          <option value="tous">Tous les centres</option>
+          <option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option>
+        </select>
+        <select id="cra-statut-filter" onchange="renderCRA()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;">
+          <option value="tous">Tous les statuts</option>
+          <option value="present">Présents uniquement</option>
+          <option value="absent">Absents uniquement</option>
+        </select>
+        <span style="font-size:12px;color:var(--muted);">Affiché : <strong id="cra-count">36</strong> techniciens</span>
+      </div>
+      <div class="tbl" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:900px;"><thead><tr id="cra-thead"></tr></thead><tbody id="cra-tbody"></tbody></table></div>
+    </div>
+
+    <!-- RAPPORT -->
+    <div class="page" id="page-rapport">
+      <div class="rh">
+        <div>
+          <div class="sec-title">Rapport mensuel</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+            <button class="btn btn-o btn-sm" onclick="rapportNav(-1)">←</button>
+            <span style="font-size:14px;font-weight:600;min-width:100px;text-align:center;" id="rapport-mois">Avril 2026</span>
+            <button class="btn btn-o btn-sm" onclick="rapportNav(1)">→</button>
+          </div>
+        </div>
+        <button class="btn btn-o" onclick="exportCSV()">⬇️ Exporter CSV</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+        <input class="srch" id="rapp-search" placeholder="🔍 Rechercher un technicien…" oninput="renderRapport()" style="max-width:240px;">
+        <select id="rapp-centre" onchange="renderRapport()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;">
+          <option value="tous">Tous les centres</option>
+          <option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option>
+        </select>
+        <select id="rapp-presence" onchange="renderRapport()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;">
+          <option value="tous">Tous</option>
+          <option value="present">Avec jours travaillés</option>
+          <option value="absent">Sans jours travaillés</option>
+        </select>
+        <span style="font-size:12px;color:var(--muted);">Affiché : <strong id="rapp-count">36</strong> techniciens</span>
+      </div>
+      <div class="tbl" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:900px;"><thead><tr id="rapport-thead"></tr></thead><tbody id="rapport-tbody"></tbody></table></div>
+    </div>
+
+    <!-- STOCK -->
+    <div class="page" id="page-stock">
+      <div class="rh"><div><div class="sec-title">Stock & Produits</div><div class="sec-sub">Commandes par mois par centre</div></div><button class="btn btn-p" onclick="openModal('m-stock')">+ Nouvelle commande</button></div>
+      <div class="fbar" id="stock-fbar">
+        <button class="fbtn active" onclick="setStockFilter(this,'tous')">Tous</button>
+        <button class="fbtn" onclick="setStockFilter(this,'Aeroville A')">Aeroville A</button>
+        <button class="fbtn" onclick="setStockFilter(this,'Aeroville B')">Aeroville B</button>
+        <button class="fbtn" onclick="setStockFilter(this,'Lafayette Rouge')">Lafayette Rouge</button>
+        <button class="fbtn" onclick="setStockFilter(this,'Lafayette Vert')">Lafayette Vert</button>
+        <button class="fbtn" onclick="setStockFilter(this,'Cité des Sciences')">Cité des Sciences</button>
+        <button class="fbtn" onclick="setStockFilter(this,'Le Parks')">Le Parks</button>
+        <button class="fbtn" onclick="setStockFilter(this,'Parly2')">Parly2</button>
+        <button class="fbtn" onclick="setStockFilter(this,'Belleville')">Belleville</button>
+        <button class="fbtn" onclick="setStockFilter(this,'Suresnes')">Suresnes</button>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Date</th><th>Centre</th><th>Produit</th><th>Qté</th><th>Prix unit.</th><th>Total</th><th>Statut</th></tr></thead><tbody id="stock-tbody"></tbody></table></div>
+    </div>
+
+    <!-- COMPTABILITE -->
+    <div class="page" id="page-comptabilite">
+      <div class="sec-title">Comptabilité</div>
+      <div class="sec-sub">Avril 2026 · Banque BNP · Les totaux se calculent automatiquement</div>
+      <div class="kpi-g" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi"><div class="kpi-i">💰</div><div class="kpi-v" style="color:var(--accent2);" id="compta-ca">28 450 €</div><div class="kpi-l">CA mensuel total</div><div class="kpi-t up">+12% vs mars</div></div>
+        <div class="kpi"><div class="kpi-i">📤</div><div class="kpi-v" style="color:var(--accent4);" id="compta-charges">14 200 €</div><div class="kpi-l">Charges totales</div></div>
+        <div class="kpi"><div class="kpi-i">✅</div><div class="kpi-v" style="color:var(--accent);" id="compta-net">14 250 €</div><div class="kpi-l">Résultat net</div></div>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Centre</th><th>CA</th><th>Loyer</th><th>Salaires</th><th>Produits</th><th>Résultat</th><th>Évol.</th></tr></thead><tbody id="compta-tbody"></tbody></table></div>
+    </div>
+
+    <!-- CHARGES -->
+    <div class="page" id="page-charges">
+      <div class="rh"><div><div class="sec-title">Charges fixes</div><div class="sec-sub">Loyers · URSSAF · Assurances · Abonnements</div></div><button class="btn btn-p" onclick="openModal('m-charge')">+ Ajouter</button></div>
+      <div class="kpi-g" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+        <div class="kpi"><div class="kpi-i">📤</div><div class="kpi-v" style="color:var(--accent4);">20 310 €</div><div class="kpi-l">Total charges / mois</div></div>
+        <div class="kpi"><div class="kpi-i">✅</div><div class="kpi-v" style="color:var(--accent2);">18 560 €</div><div class="kpi-l">Payées — 91%</div></div>
+        <div class="kpi"><div class="kpi-i">⏳</div><div class="kpi-v" style="color:var(--accent3);">1 750 €</div><div class="kpi-l">Reste à payer</div></div>
+      </div>
+      <div id="charges-list"></div>
+    </div>
+
+    <!-- ASSURANCES -->
+    <div class="page" id="page-assurances">
+      <div class="rh"><div><div class="sec-title">Assurances</div><div class="sec-sub">Suivi des contrats et dates d'expiration</div></div><button class="btn btn-p" onclick="openModal('m-assurance')">+ Ajouter</button></div>
+      <div class="alert-b" style="margin-bottom:20px;"><span>⚠️</span><div style="flex:1;font-size:13px;"><strong style="color:var(--accent3);">1 assurance expire dans moins de 30 jours</strong> — Assurance véhicules utilitaires</div></div>
+      <div id="assurances-list"></div>
+    </div>
+
+    <!-- PRESTATIONS -->
+    <div class="page" id="page-prestations">
+      <div class="rh"><div><div class="sec-title">Prestations Dreamwash</div><div class="sec-sub">Lavage sans eau · Cliquez sur un tarif pour le modifier</div></div></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow);">
+        <div class="pt">
+          <div class="pc hd">Taille véhicule</div><div class="pc hd">🚿 Extérieur</div><div class="pc hd">🪑 Intérieur</div><div class="pc hd">✨ Complet</div>
+          <div class="pc sz"><span style="font-size:17px;">🚗</span> Small</div><div class="pc pr" contenteditable="true" class="editable">25 €</div><div class="pc pr" contenteditable="true" class="editable">30 €</div><div class="pc pr-g" contenteditable="true" class="editable">45 €</div>
+          <div class="pc sz"><span style="font-size:17px;">🚙</span> Medium</div><div class="pc pr" contenteditable="true" class="editable">30 €</div><div class="pc pr" contenteditable="true" class="editable">35 €</div><div class="pc pr-g" contenteditable="true" class="editable">55 €</div>
+          <div class="pc sz"><span style="font-size:17px;">🚐</span> Large</div><div class="pc pr" contenteditable="true" class="editable">40 €</div><div class="pc pr" contenteditable="true" class="editable">45 €</div><div class="pc pr-g" contenteditable="true" class="editable">70 €</div>
+          <div class="pc sz"><span style="font-size:17px;">🚌</span> Extra Large</div><div class="pc pr" contenteditable="true" class="editable">55 €</div><div class="pc pr" contenteditable="true" class="editable">60 €</div><div class="pc pr-g" contenteditable="true" class="editable">95 €</div>
+        </div>
+      </div>
+      <div class="card"><div class="card-t">📊 Répartition des ventes</div><div style="display:flex;flex-direction:column;gap:9px;" id="presta-stats"></div></div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="page" id="page-documents">
+      <div class="rh"><div><div class="sec-title">Documents Société</div><div class="sec-sub">Google Drive connecté · Cliquez pour ouvrir</div></div><button class="btn btn-p">+ Ajouter</button></div>
+      <div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:18px;">
+        <span style="font-size:18px;">☁️</span><div style="flex:1"><div style="font-size:13px;font-weight:600;">Google Drive connecté</div><div style="font-size:11px;color:var(--muted);">Synchronisation automatique</div></div>
+        <button class="btn btn-sm btn-o" onclick="openUrl('https://drive.google.com')">Ouvrir →</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;" id="docs-grid"></div>
+    </div>
+
+    <!-- TELEPHONE & BOX -->
+    <div class="page" id="page-telephone">
+      <div class="rh">
+        <div><div class="sec-title" style="color:#EA580C;">📱 Téléphone & Box Internet</div><div class="sec-sub">Livebox, WiFi, téléphones portables, abonnements</div></div>
+        <button class="btn btn-sm" style="background:#EA580C;color:#fff;border:none;" onclick="addTelRow()">+ Ajouter une ligne</button>
+      </div>
+
+      <!-- BOX INTERNET -->
+      <div class="card" style="margin-bottom:16px;border-left:4px solid #EA580C;">
+        <div class="card-t" style="color:#EA580C;">📶 Box Internet / Livebox par centre</div>
+        <div class="tbl" style="box-shadow:none;border:none;">
+          <table><thead><tr>
+            <th>Centre</th><th>Opérateur</th><th>N° ligne</th><th>Code WiFi</th><th>Renouvellement</th><th>Mensuel</th><th>Fichier</th>
+          </tr></thead><tbody id="box-tbody"></tbody></table>
+        </div>
+        <button class="btn btn-sm btn-o" style="margin-top:12px;" onclick="addBoxRow()">+ Ajouter une box</button>
+      </div>
+
+      <!-- TÉLÉPHONES -->
+      <div class="card" style="margin-bottom:16px;border-left:4px solid #EA580C;">
+        <div class="card-t" style="color:#EA580C;">📱 Téléphones portables</div>
+        <div class="tbl" style="box-shadow:none;border:none;">
+          <table><thead><tr>
+            <th>Nom / Centre</th><th>Numéro</th><th>Opérateur</th><th>Forfait</th><th>Renouvellement</th><th>Mensuel</th><th>Actions</th>
+          </tr></thead><tbody id="tel-tbody"></tbody></table>
+        </div>
+        <button class="btn btn-sm btn-o" style="margin-top:12px;" onclick="addTelRow()">+ Ajouter un téléphone</button>
+      </div>
+
+      <!-- INFOS LIBRES -->
+      <div class="card" style="border-left:4px solid #EA580C;">
+        <div class="card-t" style="color:#EA580C;">📋 Informations supplémentaires</div>
+        <div id="tel-extra-rows"></div>
+        <button class="btn btn-sm btn-o" style="margin-top:12px;" onclick="addExtraRow()">+ Ajouter une info</button>
+      </div>
+    </div>
+
+    <!-- BADGEUSE VIEW -->
+    <div class="page" id="page-badgeuse-view">
+      <div class="rh"><div><div class="sec-title">Badgeuse — Vue temps réel</div><div class="sec-sub">Présences enregistrées depuis les tablettes</div></div>
+        <button class="btn btn-p btn-sm" onclick="refreshBadgeuse()">🔄 Actualiser</button>
+      </div>
+      <div class="kpi-g" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+        <div class="kpi"><div class="kpi-i">✅</div><div class="kpi-v" style="color:var(--accent2);" id="bdg-presents">0</div><div class="kpi-l">Présents aujourd'hui</div></div>
+        <div class="kpi"><div class="kpi-i">📋</div><div class="kpi-v" style="color:var(--accent);" id="bdg-badges">0</div><div class="kpi-l">Badges total</div></div>
+        <div class="kpi"><div class="kpi-i">🏢</div><div class="kpi-v" style="color:var(--accent5);" id="bdg-centres">0</div><div class="kpi-l">Centres actifs</div></div>
+      </div>
+      <div class="tbl">
+        <table><thead><tr>
+          <th>Technicien</th><th>Centre badgé</th><th>Centre habituel</th><th>Heure</th><th>Date</th><th>Statut</th>
+        </tr></thead><tbody id="bdg-tbody"></tbody></table>
+      </div>
+      <div style="margin-top:16px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);">
+        💡 Les données sont synchronisées depuis les tablettes de badgeuse. Code admin badgeuse : <strong style="color:var(--text);">9999</strong>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-ov" id="m-tech" style="display:none;" onclick="if(event.target===this)closeModal('m-tech')">
+  <div class="modal">
+    <div class="modal-t">Nouveau technicien <button class="mc" onclick="closeModal('m-tech')">✕</button></div>
+    <div class="field"><label>Nom complet</label><input id="nt-nom" placeholder="Prénom Nom"></div>
+    <div class="field"><label>Centre affecté</label><select id="nt-centre"><option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option></select></div>
+    <div class="field"><label>Téléphone</label><input id="nt-tel" placeholder="06 00 00 00 00"></div>
+    <div class="field"><label>Email</label><input placeholder="prenom@dreamwash.fr"></div>
+    <div class="field"><label>Type contrat</label><select id="nt-contrat"><option>CDI</option><option>CDD</option><option>Intérim</option></select></div>
+    <div class="field"><label>Date début</label><input type="date"></div>
+    <div class="mac"><button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-tech')">Annuler</button><button class="btn btn-p" style="flex:1;justify-content:center;" onclick="addTech()">Enregistrer</button></div>
+  </div>
+</div>
+<div class="modal-ov" id="m-centre" style="display:none;" onclick="if(event.target===this)closeModal('m-centre')">
+  <div class="modal">
+    <div class="modal-t">Nouveau centre <button class="mc" onclick="closeModal('m-centre')">✕</button></div>
+    <div class="field"><label>Nom du centre</label><input placeholder="ex: Vélizy"></div>
+    <div class="field"><label>Téléphone</label><input placeholder="01 00 00 00 00"></div>
+    <div class="field"><label>Loyer mensuel</label><input placeholder="ex: 2 000 €"></div>
+    <div class="field"><label>🔑 Code boîte à clés 1</label><input placeholder="Code 1"></div>
+    <div class="field"><label>🔑 Code boîte à clés 2</label><input placeholder="Code 2"></div>
+    <div class="field"><label>🔑 Code boîte à clés 3</label><input placeholder="Code 3"></div>
+    <div class="field"><label>🔑 Code boîte à clés 4</label><input placeholder="Code 4"></div>
+    <div class="field"><label>Code WiFi</label><input placeholder="Mot de passe WiFi"></div>
+    <div class="mac"><button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-centre')">Annuler</button><button class="btn btn-p" style="flex:1;justify-content:center;">Créer</button></div>
+  </div>
+</div>
+<div class="modal-ov" id="m-slot" style="display:none;" onclick="if(event.target===this)closeModal('m-slot')">
+  <div class="modal">
+    <div class="modal-t">Ajouter un créneau <button class="mc" onclick="closeModal('m-slot')">✕</button></div>
+    <div class="field"><label>Centre</label><select id="sl-centre"><option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option></select></div>
+    <div class="field"><label>Technicien</label><select id="sl-tech"></select></div>
+    <div class="field"><label>Jour</label><select id="sl-jour"><option value="0">Lundi 13</option><option value="1">Mardi 14</option><option value="2">Mercredi 15</option><option value="3">Jeudi 16</option><option value="4">Vendredi 17</option></select></div>
+    <div class="field"><label>Statut</label><select id="sl-statut"><option value="present">Présent ✅</option><option value="absent">Absent ❌</option></select></div>
+    <div class="mac"><button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-slot')">Annuler</button><button class="btn btn-p" style="flex:1;justify-content:center;" onclick="addSlot()">Ajouter</button></div>
+  </div>
+</div>
+<div class="modal-ov" id="m-charge" style="display:none;" onclick="if(event.target===this)closeModal('m-charge')">
+  <div class="modal">
+    <div class="modal-t">Nouvelle charge <button class="mc" onclick="closeModal('m-charge')">✕</button></div>
+    <div class="field"><label>Nom</label><input id="nc-nom" placeholder="ex: Abonnement téléphone"></div>
+    <div class="field"><label>Montant (€)</label><input id="nc-montant" type="number" placeholder="0"></div>
+    <div class="field"><label>Catégorie</label><select id="nc-cat"><option>🏠 Loyer</option><option>👷 Salaires</option><option>🏛️ Social</option><option>🛡️ Assurance</option><option>📱 Télécoms</option><option>📶 Internet</option><option>🔧 Machines</option><option>👕 Tenues</option><option>🏦 Banque</option><option>☁️ Cloud</option></select></div>
+    <div class="field"><label>Échéance</label><input id="nc-ech" placeholder="JJ/MM/AAAA"></div>
+    <div class="mac"><button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-charge')">Annuler</button><button class="btn btn-p" style="flex:1;justify-content:center;" onclick="addCharge()">Ajouter</button></div>
+  </div>
+</div>
+<div class="modal-ov" id="m-assurance" style="display:none;" onclick="if(event.target===this)closeModal('m-assurance')">
+  <div class="modal">
+    <div class="modal-t">Nouvelle assurance <button class="mc" onclick="closeModal('m-assurance')">✕</button></div>
+    <div class="field"><label>Nom de l'assurance</label><input id="na-nom" placeholder="ex: Assurance multirisque"></div>
+    <div class="field"><label>Assureur</label><input id="na-assureur" placeholder="ex: AXA, Allianz…"></div>
+    <div class="field"><label>Montant annuel (€)</label><input id="na-montant" type="number" placeholder="0"></div>
+    <div class="field"><label>Date d'expiration</label><input id="na-exp" type="date"></div>
+    <div class="field"><label>Centres couverts</label><input id="na-centres" placeholder="ex: Tous, Aeroville A…"></div>
+    <div class="mac"><button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-assurance')">Annuler</button><button class="btn btn-p" style="flex:1;justify-content:center;" onclick="addAssurance()">Ajouter</button></div>
+  </div>
+</div>
+<div class="modal-ov" id="m-stock" style="display:none;" onclick="if(event.target===this)closeModal('m-stock')">
+  <div class="modal">
+    <div class="modal-t">Nouvelle commande <button class="mc" onclick="closeModal('m-stock')">✕</button></div>
+    <div class="field"><label>Date de commande</label><input id="ns-date" type="date"></div>
+    <div class="field"><label>Centre</label><select id="ns-centre"><option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option></select></div>
+    <div class="field"><label>Produit</label><input id="ns-produit" placeholder="ex: Shampoing carrosserie"></div>
+    <div class="field"><label>Quantité</label><input id="ns-qte" type="number" placeholder="0"></div>
+    <div class="field"><label>Prix unitaire (€)</label><input id="ns-pu" type="number" placeholder="0"></div>
+    <div class="mac"><button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-stock')">Annuler</button><button class="btn btn-p" style="flex:1;justify-content:center;" onclick="addStock()">Commander</button></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════════════════
+const CENTRES = [
+  {id:0,nom:"Aeroville A",tel:"01 23 45 67 89",wifi:"AeroA_DW",wifiPwd:"DreamA2024!",boites:["A1-4521","A1-7832","A1-3341","A1-9912"],loyer:1400,techs:["Sadoul","Khyal","Siraj"],ca:1100,lavages:18,color:"#2563EB"},
+  {id:1,nom:"Aeroville B",tel:"01 23 45 67 90",wifi:"AeroB_DW",wifiPwd:"DreamB2024!",boites:["A2-1234","A2-5678","A2-9012","A2-3456"],loyer:1400,techs:["Saiful Islam","Siraj"],ca:980,lavages:15,color:"#7C3AED"},
+  {id:2,nom:"Lafayette Rouge",tel:"01 34 56 78 90",wifi:"LafRouge_DW",wifiPwd:"Rouge2024#",boites:["LR-7832","LR-3341","LR-9912","LR-1234"],loyer:1600,techs:["Khalid","Mourad","Abdeldjalil"],ca:1250,lavages:21,color:"#DC2626"},
+  {id:3,nom:"Lafayette Vert",tel:"01 34 56 78 91",wifi:"LafVert_DW",wifiPwd:"Vert2024#",boites:["LV-5678","LV-9012","LV-3456","LV-7890"],loyer:1600,techs:["Ayoub J.","Ali"],ca:980,lavages:16,color:"#16A34A"},
+  {id:4,nom:"Cité des Sciences",tel:"01 45 67 89 01",wifi:"CDS_DW",wifiPwd:"CDS2024$",boites:["CS-1234","CS-5678","CS-9012","CS-3456"],loyer:1050,techs:["Ahmed","Abdesamad"],ca:750,lavages:12,color:"#0891B2"},
+  {id:5,nom:"Le Parks",tel:"01 56 78 90 12",wifi:"Parks_DW",wifiPwd:"Parks2024@",boites:["LP-7890","LP-1234","LP-5678","LP-9012"],loyer:700,techs:["Adrien"],ca:420,lavages:7,color:"#D97706"},
+  {id:6,nom:"Parly2",tel:"01 56 78 90 13",wifi:"Parly2_DW",wifiPwd:"Parly2024@",boites:["P2-3456","P2-7890","P2-1234","P2-5678"],loyer:1200,techs:["Amine_parly2","Abdesamad"],ca:820,lavages:14,color:"#9333EA"},
+  {id:7,nom:"Belleville",tel:"01 67 89 01 23",wifi:"Bell_DW",wifiPwd:"Bell2024!",boites:["BV-9012","BV-3456","BV-7890","BV-1234"],loyer:900,techs:["Nabil","Amine"],ca:680,lavages:11,color:"#EA580C"},
+  {id:8,nom:"Suresnes",tel:"01 78 90 12 34",wifi:"Sures_DW",wifiPwd:"SRS2024#",boites:["SR-5678","SR-9012","SR-3456","SR-7890"],loyer:800,techs:["Rachid"],ca:350,lavages:6,color:"#BE185D"},
+];
+
+let TECHS = [
+  {nom:"Abdelali",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 01",jours:0,color:"#2563EB"},
+  {nom:"Abdeldjalil",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 02",jours:11,color:"#7C3AED"},
+  {nom:"Abdesamad",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 03",jours:7,color:"#DC2626"},
+  {nom:"Adrien",centre:"Le Parks",contrat:"CDD",tel:"06 11 00 00 04",jours:0,color:"#16A34A"},
+  {nom:"Ahmadul Hassan",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 05",jours:0,color:"#0891B2"},
+  {nom:"Ahmed",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 06",jours:9,color:"#D97706"},
+  {nom:"Ali",centre:"Lafayette Vert",contrat:"CDI",tel:"06 11 00 00 07",jours:0,color:"#9333EA"},
+  {nom:"Amine",centre:"Belleville",contrat:"CDI",tel:"06 11 00 00 08",jours:0,color:"#EA580C"},
+  {nom:"Amine_parly2",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 09",jours:0,color:"#BE185D"},
+  {nom:"Ayoub J.",centre:"Lafayette Vert",contrat:"CDI",tel:"06 11 00 00 10",jours:0,color:"#2563EB"},
+  {nom:"Khalid",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 11",jours:6,color:"#7C3AED"},
+  {nom:"Khyal",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 12",jours:4,color:"#16A34A"},
+  {nom:"Mourad",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 13",jours:5,color:"#DC2626"},
+  {nom:"Nabil",centre:"Belleville",contrat:"CDI",tel:"06 11 00 00 14",jours:8,color:"#0891B2"},
+  {nom:"Rachid",centre:"Suresnes",contrat:"CDI",tel:"06 11 00 00 15",jours:6,color:"#D97706"},
+  {nom:"Sadoul",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 16",jours:12,color:"#9333EA"},
+  {nom:"Saiful Islam",centre:"Aeroville B",contrat:"CDI",tel:"06 11 00 00 17",jours:9,color:"#EA580C"},
+  {nom:"Siraj",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 18",jours:7,color:"#BE185D"},
+  {nom:"Bilal",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 19",jours:5,color:"#2563EB"},
+  {nom:"Karim",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 20",jours:3,color:"#0891B2"},
+  {nom:"Mehdi",centre:"Aeroville B",contrat:"CDD",tel:"06 11 00 00 21",jours:8,color:"#D97706"},
+  {nom:"Omar",centre:"Cité des Sciences",contrat:"CDI",tel:"06 11 00 00 22",jours:6,color:"#9333EA"},
+  {nom:"Youssef",centre:"Lafayette Vert",contrat:"CDI",tel:"06 11 00 00 23",jours:4,color:"#EA580C"},
+  {nom:"Soufiane",centre:"Belleville",contrat:"CDI",tel:"06 11 00 00 24",jours:7,color:"#2563EB"},
+  {nom:"Nasser",centre:"Le Parks",contrat:"CDI",tel:"06 11 00 00 25",jours:5,color:"#7C3AED"},
+  {nom:"Hamza",centre:"Suresnes",contrat:"CDD",tel:"06 11 00 00 26",jours:3,color:"#DC2626"},
+  {nom:"Tarik",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 27",jours:9,color:"#16A34A"},
+  {nom:"Sofiane",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 28",jours:11,color:"#0891B2"},
+  {nom:"Rayan",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 29",jours:7,color:"#D97706"},
+  {nom:"Ilyas",centre:"Aeroville B",contrat:"CDI",tel:"06 11 00 00 30",jours:6,color:"#9333EA"},
+  {nom:"Jawad",centre:"Cité des Sciences",contrat:"CDD",tel:"06 11 00 00 31",jours:4,color:"#EA580C"},
+  {nom:"Redouane",centre:"Belleville",contrat:"CDI",tel:"06 11 00 00 32",jours:8,color:"#2563EB"},
+  {nom:"Zakaria",centre:"Le Parks",contrat:"CDI",tel:"06 11 00 00 33",jours:6,color:"#7C3AED"},
+  {nom:"Marwan",centre:"Suresnes",contrat:"CDI",tel:"06 11 00 00 34",jours:5,color:"#DC2626"},
+  {nom:"Issam",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 35",jours:7,color:"#16A34A"},
+  {nom:"Nordine",centre:"Lafayette Vert",contrat:"CDI",tel:"06 11 00 00 36",jours:4,color:"#0891B2"},
+];
+
+let PLANNING = {
+  "Aeroville A":[[{nom:"Sadoul",statut:"absent"},{nom:"Khyal",statut:"present"}],[{nom:"Sadoul",statut:"absent"},{nom:"Siraj",statut:"absent"}],[{nom:"Sadoul",statut:"absent"}],[{nom:"Sadoul",statut:"absent"}],[{nom:"Khyal",statut:"present"},{nom:"Siraj",statut:"absent"}]],
+  "Aeroville B":[[{nom:"Saiful Islam",statut:"absent"},{nom:"Mehdi",statut:"absent"}],[{nom:"Ilyas",statut:"present"}],[{nom:"Saiful Islam",statut:"absent"},{nom:"Mehdi",statut:"absent"}],[{nom:"Saiful Islam",statut:"absent"}],[{nom:"Ilyas",statut:"present"}]],
+  "Lafayette Rouge":[[{nom:"Khalid",statut:"absent"},{nom:"Mourad",statut:"absent"}],[{nom:"Khalid",statut:"absent"},{nom:"Rayan",statut:"absent"}],[{nom:"Abdeldjalil",statut:"present"}],[{nom:"Abdeldjalil",statut:"present"},{nom:"Karim",statut:"present"}],[{nom:"Abdeldjalil",statut:"present"}]],
+  "Lafayette Vert":[[{nom:"Ayoub J.",statut:"absent"},{nom:"Youssef",statut:"present"}],[{nom:"Ali",statut:"absent"},{nom:"Nordine",statut:"present"}],[{nom:"Youssef",statut:"present"}],[{nom:"Ayoub J.",statut:"present"}],[{nom:"Nordine",statut:"present"}]],
+  "Cité des Sciences":[[{nom:"Ahmed",statut:"absent"},{nom:"Omar",statut:"absent"}],[{nom:"Ahmed",statut:"absent"}],[{nom:"Ahmed",statut:"present"},{nom:"Jawad",statut:"absent"}],[{nom:"Omar",statut:"absent"}],[{nom:"Ahmed",statut:"absent"}]],
+  "Le Parks":[[{nom:"Adrien",statut:"absent"},{nom:"Nasser",statut:"absent"}],[{nom:"Adrien",statut:"absent"}],[],[{nom:"Zakaria",statut:"absent"}],[{nom:"Adrien",statut:"absent"},{nom:"Nasser",statut:"present"}]],
+  "Parly2":[[{nom:"Abdesamad",statut:"absent"},{nom:"Bilal",statut:"absent"}],[{nom:"Amine_parly2",statut:"absent"}],[{nom:"Tarik",statut:"present"},{nom:"Issam",statut:"absent"}],[{nom:"Abdesamad",statut:"absent"}],[{nom:"Bilal",statut:"present"},{nom:"Tarik",statut:"absent"}]],
+  "Belleville":[[{nom:"Nabil",statut:"absent"},{nom:"Amine",statut:"absent"}],[{nom:"Nabil",statut:"present"},{nom:"Soufiane",statut:"absent"}],[{nom:"Redouane",statut:"absent"}],[{nom:"Nabil",statut:"present"},{nom:"Amine",statut:"absent"}],[{nom:"Soufiane",statut:"present"}]],
+  "Suresnes":[[{nom:"Rachid",statut:"absent"},{nom:"Hamza",statut:"absent"}],[{nom:"Marwan",statut:"absent"}],[{nom:"Rachid",statut:"present"}],[{nom:"Hamza",statut:"absent"}],[{nom:"Rachid",statut:"absent"},{nom:"Marwan",statut:"present"}]],
+};
+
+let CHARGES = [
+  {n:"Loyers centres (×9)",m:10650,e:"01/05/2026",s:"paid",c:"🏠"},
+  {n:"Salaires techniciens",m:8200,e:"28/04/2026",s:"paid",c:"👷"},
+  {n:"URSSAF",m:1200,e:"15/05/2026",s:"due",c:"🏛️"},
+  {n:"Assurance multirisque",m:890,e:"01/06/2026",s:"paid",c:"🛡️"},
+  {n:"Téléphones (×9)",m:420,e:"05/05/2026",s:"paid",c:"📱"},
+  {n:"Box Internet (×9)",m:350,e:"05/05/2026",s:"due",c:"📶"},
+  {n:"Maintenance Technovap",m:280,e:"20/05/2026",s:"paid",c:"🔧"},
+  {n:"Tenues techniciens",m:150,e:"—",s:"paid",c:"👕"},
+  {n:"Frais BNP",m:95,e:"01/05/2026",s:"paid",c:"🏦"},
+  {n:"Google Drive",m:25,e:"01/05/2026",s:"paid",c:"☁️"},
+];
+
+let ASSURANCES = [
+  {nom:"Assurance multirisque professionnelle",assureur:"AXA",montant:890,expiration:"01/06/2026",centres:"Tous les centres",jours:47,couleur:"#16A34A"},
+  {nom:"Assurance véhicules utilitaires",assureur:"Allianz",montant:1200,expiration:"14/05/2026",centres:"Tous les centres",jours:29,couleur:"#D97706"},
+  {nom:"Assurance responsabilité civile",assureur:"Groupama",montant:650,expiration:"01/09/2026",centres:"Tous les centres",jours:139,couleur:"#16A34A"},
+  {nom:"Assurance matériel Technovap",assureur:"Maif Pro",montant:480,expiration:"01/03/2027",centres:"9 centres",jours:320,couleur:"#16A34A"},
+];
+
+let STOCK = [
+  {date:"15/04/2026",centre:"Aeroville A",produit:"Shampoing carrosserie",qte:10,pu:8.50,statut:"livré"},
+  {date:"12/04/2026",centre:"Lafayette Rouge",produit:"Microfibre 40×40",qte:50,pu:2.20,statut:"livré"},
+  {date:"10/04/2026",centre:"Parly2",produit:"Produit vitres",qte:6,pu:12,statut:"livré"},
+  {date:"08/04/2026",centre:"Belleville",produit:"Spray plastiques",qte:8,pu:9,statut:"livré"},
+  {date:"05/04/2026",centre:"Aeroville B",produit:"Gants latex",qte:4,pu:15,statut:"livré"},
+  {date:"01/04/2026",centre:"Suresnes",produit:"Désodorisant",qte:12,pu:5,statut:"livré"},
+];
+
+const COMPTA = [
+  {centre:"Aeroville A",ca:5200,loyer:1400,salaires:800,produits:120,evol:"+15%",badge:"gr"},
+  {centre:"Aeroville B",ca:4800,loyer:1400,salaires:750,produits:110,evol:"+8%",badge:"gr"},
+  {centre:"Lafayette Rouge",ca:3900,loyer:1600,salaires:700,produits:90,evol:"stable",badge:"yl"},
+  {centre:"Lafayette Vert",ca:3600,loyer:1600,salaires:700,produits:85,evol:"+5%",badge:"gr"},
+  {centre:"Cité des Sciences",ca:3100,loyer:1050,salaires:600,produits:80,evol:"stable",badge:"yl"},
+  {centre:"Parly2",ca:2900,loyer:1200,salaires:700,produits:75,evol:"-3%",badge:"rd"},
+  {centre:"Belleville",ca:2750,loyer:900,salaires:550,produits:70,evol:"+10%",badge:"gr"},
+  {centre:"Le Parks",ca:1400,loyer:700,salaires:350,produits:40,evol:"stable",badge:"yl"},
+  {centre:"Suresnes",ca:1100,loyer:800,salaires:400,produits:50,evol:"-8%",badge:"rd"},
+];
+
+const DOCS = [
+  {n:"KBIS Dreamwash",i:"📋",d:"Mars 2026",s:"gr"},{n:"Contrats de bail",i:"🏠",d:"9 actifs",s:"gr"},
+  {n:"Assurance multirisque",i:"🛡️",d:"Expire 01/06/2026",s:"gr"},{n:"Statuts société",i:"⚖️",d:"Version 2024",s:"gr"},
+  {n:"Contrats Technovap",i:"🔧",d:"9 machines",s:"gr"},{n:"Convention collective",i:"📄",d:"En vigueur",s:"gr"},
+  {n:"Registre du personnel",i:"👥",d:"36 salariés",s:"gr"},{n:"Déclarations URSSAF",i:"🏛️",d:"T1 2026",s:"yl"},
+  {n:"Contrats téléphonie",i:"📱",d:"Expire 06/2026",s:"yl"},{n:"Relevés BNP",i:"🏦",d:"Mars 2026",s:"gr"},
+  {n:"Déclarations TVA",i:"💰",d:"T1 2026",s:"gr"},{n:"Plan de formation",i:"📚",d:"2026",s:"gr"},
+];
+
+let techFilter = 'tous';
+let planFilter = 'tous';
+const CRA_DATES = ['Lun 13 Avr.','Mar 14 Avr.','Mer 15 Avr.','Jeu 16 Avr.','Ven 17 Avr.'];
+const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+let craDay = 2;
+let rapportMois = 3; // index avril
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function renderDashboard() {
+  const cb = document.getElementById('ca-bars');
+  cb.innerHTML = '';
+  const maxCA = Math.max(...CENTRES.map(c=>c.ca));
+  CENTRES.forEach(c => {
+    const pct = Math.round(c.ca/maxCA*100);
+    cb.innerHTML += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span style="font-size:11px;color:var(--muted);min-width:120px;font-weight:500;">${c.nom}</span>
+      <div style="flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${c.color};border-radius:4px;"></div></div>
+      <span style="font-size:11px;font-weight:700;min-width:50px;text-align:right;color:var(--accent2);">${c.ca} €</span>
+    </div>`;
+  });
+  document.getElementById('dash-presences').textContent = TECHS.filter(t=>t.jours>0).length;
+  document.getElementById('dash-techs').textContent = TECHS.length;
+}
+
+function renderCentres() {
+  const g = document.getElementById('cg');
+  g.innerHTML = '';
+  CENTRES.forEach((c,i) => {
+    g.innerHTML += `<div class="cc" onclick="showFiche(${i})">
+      <div class="cc-top" style="background:${c.color};"></div>
+      <div class="cc-name">${c.nom}</div>
+      <div class="cc-stats">
+        <div class="cc-stat"><div class="cc-stat-v">${c.lavages}</div><div class="cc-stat-l">Lavages/jour</div></div>
+        <div class="cc-stat"><div class="cc-stat-v">${c.ca} €</div><div class="cc-stat-l">CA aujourd'hui</div></div>
+        <div class="cc-stat"><div class="cc-stat-v">${c.techs.length}</div><div class="cc-stat-l">Techniciens</div></div>
+        <div class="cc-stat"><div class="cc-stat-v">4</div><div class="cc-stat-l">Boîtes à clés</div></div>
+      </div>
+      <div class="cc-info">📞 <span contenteditable="true" class="editable" onclick="event.stopPropagation()">${c.tel}</span></div>
+      <div class="cc-info">👷 <span>${c.techs.join(', ')}</span></div>
+      <button class="cc-btn">Voir la fiche complète →</button>
+    </div>`;
+  });
+}
+
+function showFiche(i) {
+  const c = CENTRES[i];
+  document.getElementById('fiche-c').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="width:46px;height:46px;border-radius:12px;background:${c.color};display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;">💧</div>
+      <div>
+        <div style="font-size:20px;font-weight:800;" contenteditable="true" class="editable">${c.nom}</div>
+        <span class="badge gr">● Actif</span>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-o btn-sm" onclick="openUrl('https://cra.dreamwash.fr')">⏱️ CRA</button>
+        <button class="btn btn-o btn-sm" onclick="openUrl('https://facture.dreamwash.fr/login')">🧾 Factures</button>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="card">
+        <div class="card-t">📋 Informations</div>
+        <div class="fr"><span class="fk">Téléphone</span><span class="fv editable" contenteditable="true">${c.tel}</span></div>
+        <div class="fr"><span class="fk">Loyer mensuel</span><span class="fv editable" contenteditable="true" style="color:var(--accent4);">${c.loyer} €</span></div>
+        <div class="fr"><span class="fk">Techniciens affectés</span><span class="fv">${c.techs.join(', ')}</span></div>
+        <div class="fr"><span class="fk">CA aujourd'hui</span><span class="fv" style="color:var(--accent2);font-size:16px;font-weight:800;">${c.ca} €</span></div>
+        <div class="fr"><span class="fk">Lavages du jour</span><span class="fv">${c.lavages}</span></div>
+      </div>
+      <div class="card">
+        <div class="card-t">🔒 Codes d'accès <span style="font-weight:400;font-size:10px;">(cliquer pour révéler)</span></div>
+        <div class="fr"><span class="fk">Réseau WiFi</span><span class="fv editable" contenteditable="true">${c.wifi}</span></div>
+        <div class="fr"><span class="fk">Mot de passe WiFi</span><span class="secret" onclick="toggleSec(this)" data-v="${c.wifiPwd}">${'●'.repeat(c.wifiPwd.length)}</span></div>
+        <div class="fr"><span class="fk">🔑 Boîte à clés 1</span><span class="secret" onclick="toggleSec(this)" data-v="${c.boites[0]}">${'●'.repeat(c.boites[0].length)}</span></div>
+        <div class="fr"><span class="fk">🔑 Boîte à clés 2</span><span class="secret" onclick="toggleSec(this)" data-v="${c.boites[1]}">${'●'.repeat(c.boites[1].length)}</span></div>
+        <div class="fr"><span class="fk">🔑 Boîte à clés 3</span><span class="secret" onclick="toggleSec(this)" data-v="${c.boites[2]}">${'●'.repeat(c.boites[2].length)}</span></div>
+        <div class="fr"><span class="fk">🔑 Boîte à clés 4</span><span class="secret" onclick="toggleSec(this)" data-v="${c.boites[3]}">${'●'.repeat(c.boites[3].length)}</span></div>
+      </div>
+    </div>`;
+  go('fiche');
+}
+
+function renderTechs() {
+  const tb = document.getElementById('tech-tbody');
+  tb.innerHTML = '';
+  const search = (document.getElementById('tech-search')?.value||'').toLowerCase();
+  const filtered = TECHS.filter(t =>
+    (techFilter === 'tous' || t.centre === techFilter) &&
+    t.nom.toLowerCase().includes(search)
+  );
+  document.getElementById('tech-sub').textContent = `${TECHS.length} techniciens · ${filtered.length} affichés`;
+  document.getElementById('nb-techs').textContent = TECHS.length;
+  filtered.forEach(t => {
+    const idx = TECHS.indexOf(t);
+    tb.innerHTML += `<tr>
+      <td><div style="display:flex;align-items:center;gap:9px;">
+        <div style="width:30px;height:30px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">${t.nom.charAt(0)}</div>
+        <span style="font-weight:600;cursor:pointer;color:var(--accent);text-decoration:underline;" onclick="showFicheTech(${idx})">${t.nom}</span>
+      </div></td>
+      <td><select onchange="TECHS[${idx}].centre=this.value;renderTechs();" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;cursor:pointer;">
+        ${CENTRES.map(c=>`<option value="${c.nom}" ${c.nom===t.centre?'selected':''}>${c.nom}</option>`).join('')}
+      </select></td>
+      <td><span class="badge ${t.contrat==='CDI'?'bl':'yl'}">${t.contrat}</span></td>
+      <td style="color:var(--muted);font-size:12px;" contenteditable="true" class="editable">${t.tel}</td>
+      <td style="text-align:center;"><span class="${t.jours>0?'cra-total-g':'cra-total'}">${t.jours}j</span></td>
+      <td><span class="badge gr">● Actif</span></td>
+      <td><div style="display:flex;gap:5px;">
+        <button class="btn btn-o btn-sm" onclick="showFicheTech(${idx})">✏️ Fiche</button>
+        <button class="btn btn-sm btn-r" onclick="if(confirm('Supprimer ?')){TECHS.splice(${idx},1);renderTechs();}">🗑️</button>
+      </div></td>
+    </tr>`;
+  });
+}
+
+function showFicheTech(i) {
+  const t = TECHS[i];
+  const totH = t.jours;
+  document.getElementById('fiche-t').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;">${t.nom.charAt(0)}</div>
+      <div>
+        <div style="font-size:20px;font-weight:800;" contenteditable="true" class="editable">${t.nom}</div>
+        <div style="color:var(--muted);font-size:12px;">📍 ${t.centre} · ${t.contrat}</div>
+      </div>
+      <span class="badge gr" style="margin-left:auto;">● Actif</span>
+    </div>
+    <div class="fg">
+      <div class="card">
+        <div class="card-t">👤 Informations personnelles</div>
+        <div class="fr"><span class="fk">Téléphone</span><span class="fv editable" contenteditable="true">${t.tel||'—'}</span></div>
+        <div class="fr"><span class="fk">Email</span><span class="fv editable" contenteditable="true">${t.nom.toLowerCase().replace(/\s/g,'.')}@dreamwash.fr</span></div>
+        <div class="fr"><span class="fk">Adresse</span><span class="fv editable" contenteditable="true">À compléter</span></div>
+        <div class="fr"><span class="fk">Centre affecté</span>
+          <select onchange="TECHS[${i}].centre=this.value;renderCentres();" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
+            ${CENTRES.map(c=>`<option value="${c.nom}" ${c.nom===t.centre?'selected':''}>${c.nom}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fr"><span class="fk">Type contrat</span><span class="fv editable" contenteditable="true">${t.contrat}</span></div>
+        <div class="fr"><span class="fk">Date début</span><span class="fv editable" contenteditable="true">À compléter</span></div>
+      </div>
+      <div class="card">
+        <div class="card-t">🪪 Pièces d'identité</div>
+        <div class="fr"><span class="fk">Type</span><span class="fv editable" contenteditable="true">CNI</span></div>
+        <div class="fr"><span class="fk">Numéro</span><span class="fv editable" contenteditable="true">À compléter</span></div>
+        <div class="fr"><span class="fk">Date expiration</span><span class="fv editable" contenteditable="true">À compléter</span></div>
+        <div class="fr"><span class="fk">Nationalité</span><span class="fv editable" contenteditable="true">À compléter</span></div>
+        <div class="fr"><span class="fk">🔐 Code badgeuse</span><span class="fv" style="background:#EFF6FF;border:1px solid #DBEAFE;padding:3px 12px;border-radius:20px;font-family:monospace;font-size:15px;font-weight:800;color:var(--accent);letter-spacing:.1em;">${String(1000 + i + 1).padStart(4,'0')}</span></div>
+        <div style="margin-top:10px;"><button class="btn btn-o btn-sm" onclick="openUrl('https://drive.google.com')">📎 Ajouter document</button></div>
+      </div>
+      <div class="card" style="grid-column:1/-1;">
+        <div class="card-t">📋 CRA détaillé — Avril 2026</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+          ${[1,2,3,4].map(s => {
+            const days = ['Lun','Mar','Mer','Jeu','Ven'];
+            return `<div style="background:var(--bg3);border-radius:8px;padding:12px;">
+              <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;">Semaine ${s}</div>
+              <div style="display:flex;gap:4px;justify-content:center;">
+                ${days.map(d=>`<div style="text-align:center;">
+                  <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">${d}</div>
+                  <div class="cra-circle ${Math.random()>0.4?'present':''}" style="margin:0 auto;" onclick="this.classList.toggle('present');this.textContent=this.classList.contains('present')?'✓':'';"></div>
+                </div>`).join('')}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="fr" style="border-top:2px solid var(--border);margin-top:12px;"><span class="fk" style="font-weight:700;">Total mois</span><span class="fv" style="color:var(--accent2);font-size:16px;font-weight:800;">${totH} jours</span></div>
+      </div>
+      <div class="card" style="grid-column:1/-1;">
+        <div class="card-t">📄 Documents RH</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;">
+          ${['Contrat de travail','Fiche paie mars','Fiche paie avr.','Mutuelle','URSSAF','Attestation employeur','Certificat médical'].map(d=>`
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;transition:all .15s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+              <div style="font-size:18px;margin-bottom:5px;">📄</div>
+              <div style="font-size:11px;font-weight:600;">${d}</div>
+            </div>`).join('')}
+          <div style="background:#EFF6FF;border:1px dashed #93C5FD;border-radius:8px;padding:10px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;" onclick="openUrl('https://drive.google.com')">
+            <div style="font-size:18px;">☁️</div>
+            <div style="font-size:11px;color:var(--accent);margin-top:4px;">Google Drive</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  go('fiche-tech');
+}
+
+function setTF(btn, f) {
+  document.querySelectorAll('#tech-fbar .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  techFilter = f;
+  renderTechs();
+}
+
+function renderPlanning() {
+  const tb = document.getElementById('plan-tbody');
+  tb.innerHTML = '';
+  const centres = planFilter === 'tous' ? Object.keys(PLANNING) : Object.keys(PLANNING).filter(c=>c.toLowerCase().includes(planFilter.toLowerCase())||c===planFilter);
+  centres.forEach(centre => {
+    const jours = PLANNING[centre];
+    let row = `<tr><td class="centre-lbl">${centre}</td>`;
+    jours.forEach((slots,di) => {
+      const isToday = di===2;
+      row += `<td class="${isToday?'today-td':''}" style="vertical-align:top;padding:5px 7px;">`;
+      slots.forEach(s => {
+        const col = TECHS.find(t=>t.nom===s.nom)?.color||'#64748B';
+        row += `<div class="plan-slot ${s.statut}" onclick="toggleSlot(this)" style="border-left:3px solid ${col};">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${s.nom}
+        </div>`;
+      });
+      row += `<span class="plan-add" title="Ajouter" onclick="openModal('m-slot')">+</span></td>`;
+    });
+    row += '</tr>';
+    tb.innerHTML += row;
+  });
+}
+
+function toggleSlot(el) {
+  if (el.classList.contains('present')) { el.classList.remove('present'); el.classList.add('absent'); }
+  else { el.classList.remove('absent'); el.classList.add('present'); }
+}
+
+function setPF(btn, f) {
+  document.querySelectorAll('#plan-fbar .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  planFilter = f;
+  renderPlanning();
+}
+
+function addSlot() {
+  const centre = document.getElementById('sl-centre').value;
+  const tech = document.getElementById('sl-tech').value;
+  const jour = parseInt(document.getElementById('sl-jour').value);
+  const statut = document.getElementById('sl-statut').value;
+  if (!tech) return;
+  if (!PLANNING[centre]) PLANNING[centre] = [[],[],[],[],[]];
+  PLANNING[centre][jour].push({nom:tech,statut});
+  renderPlanning();
+  closeModal('m-slot');
+}
+
+function renderCRA() {
+  const thead = document.getElementById('cra-thead');
+  const tbody = document.getElementById('cra-tbody');
+  thead.innerHTML = ''; tbody.innerHTML = '';
+  const search = (document.getElementById('cra-search')?.value||'').toLowerCase();
+  const centreF = document.getElementById('cra-centre-filter')?.value||'tous';
+  const statutF = document.getElementById('cra-statut-filter')?.value||'tous';
+  const filtered = TECHS.filter(t => {
+    if (search && !t.nom.toLowerCase().includes(search)) return false;
+    if (centreF !== 'tous' && t.centre !== centreF) return false;
+    if (statutF === 'present' && t.jours === 0) return false;
+    if (statutF === 'absent' && t.jours > 0) return false;
+    return true;
+  });
+  const countEl = document.getElementById('cra-count');
+  if (countEl) countEl.textContent = filtered.length;
+  const visibleCentres = centreF === 'tous' ? CENTRES.map(c=>c.nom) : [centreF];
+  thead.innerHTML = `<th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);min-width:150px;">Employé</th>` +
+    visibleCentres.map(n=>`<th style="padding:8px 6px;background:var(--bg3);font-size:10px;font-weight:600;color:var(--muted);text-align:center;">${n}<br><small style="font-weight:400;color:var(--light);">(${TECHS.filter(t=>t.centre===n&&t.jours>0).length})</small></th>`).join('') +
+    `<th style="padding:8px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Total</th>`;
+  filtered.forEach(t => {
+    let row = `<tr><td style="text-align:left;font-weight:600;padding:8px 14px;font-size:13px;">${t.nom}<br><small style="color:var(--muted);font-weight:400;font-size:10px;">${t.centre}</small></td>`;
+    visibleCentres.forEach(cn => {
+      const present = t.centre===cn && t.jours>0;
+      row += `<td style="text-align:center;padding:6px;"><div class="cra-circle ${present?'present':''}" onclick="this.classList.toggle('present');this.textContent=this.classList.contains('present')?'✓':'';">${present?'✓':''}</div></td>`;
+    });
+    row += `<td style="text-align:center;padding:6px;"><span class="${t.jours>0?'cra-total-g':'cra-total'}">${t.jours}</span></td></tr>`;
+    tbody.innerHTML += row;
+  });
+}
+
+let rapportMoisIdx = 3;
+const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+function renderRapport() {
+  document.getElementById('rapport-mois').textContent = `${MOIS_NOMS[rapportMoisIdx]} 2026`;
+  const thead = document.getElementById('rapport-thead');
+  const tbody = document.getElementById('rapport-tbody');
+  thead.innerHTML = ''; tbody.innerHTML = '';
+  const search = (document.getElementById('rapp-search')?.value||'').toLowerCase();
+  const centreF = document.getElementById('rapp-centre')?.value||'tous';
+  const presF = document.getElementById('rapp-presence')?.value||'tous';
+  const filtered = TECHS.filter(t => {
+    if (search && !t.nom.toLowerCase().includes(search)) return false;
+    if (centreF !== 'tous' && t.centre !== centreF) return false;
+    if (presF === 'present' && t.jours === 0) return false;
+    if (presF === 'absent' && t.jours > 0) return false;
+    return true;
+  });
+  const countEl = document.getElementById('rapp-count');
+  if (countEl) countEl.textContent = filtered.length;
+  const visibleCentres = centreF === 'tous' ? CENTRES.map(c=>c.nom) : [centreF];
+  thead.innerHTML = `<th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:150px;">TECHNICIEN</th>
+    <th style="padding:10px 12px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">JOURS PRÉSENT</th>` +
+    visibleCentres.map(n=>`<th style="padding:10px 8px;background:var(--bg3);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">${n}</th>`).join('');
+  filtered.forEach(t => {
+    let row = `<tr>
+      <td style="padding:9px 14px;font-weight:600;border-bottom:1px solid var(--border);">${t.nom}<br><small style="color:var(--muted);font-weight:400;font-size:10px;">${t.centre}</small></td>
+      <td style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);"><span class="rc ${t.jours>0?'g':'z'}">${t.jours}</span></td>`;
+    visibleCentres.forEach(cn => {
+      const val = t.centre===cn ? t.jours : 0;
+      row += `<td style="padding:9px 8px;text-align:center;border-bottom:1px solid var(--border);"><span class="rc ${val>0?'b':'z'}">${val}</span></td>`;
+    });
+    row += '</tr>';
+    tbody.innerHTML += row;
+  });
+}
+
+function rapportNav(d) {
+  rapportMoisIdx = Math.max(0,Math.min(11,rapportMoisIdx+d));
+  renderRapport();
+}
+
+function renderCompta() {
+  const tb = document.getElementById('compta-tbody');
+  tb.innerHTML = '';
+  let totalCA=0,totalCh=0;
+  COMPTA.forEach(r => {
+    const result = r.ca-r.loyer-r.salaires-r.produits;
+    totalCA+=r.ca; totalCh+=(r.loyer+r.salaires+r.produits);
+    tb.innerHTML += `<tr>
+      <td style="font-weight:700;">${r.centre}</td>
+      <td style="color:var(--accent2);font-weight:700;" contenteditable="true" class="editable" oninput="recalcCompta()">${r.ca} €</td>
+      <td style="color:var(--muted);" contenteditable="true" class="editable">${r.loyer} €</td>
+      <td style="color:var(--muted);" contenteditable="true" class="editable">${r.salaires} €</td>
+      <td style="color:var(--muted);" contenteditable="true" class="editable">${r.produits} €</td>
+      <td style="font-weight:700;color:${result>0?'var(--accent2)':'var(--accent4)'};">${result} €</td>
+      <td><span class="badge ${r.badge}">${r.evol}</span></td>
+    </tr>`;
+  });
+  document.getElementById('compta-ca').textContent = totalCA.toLocaleString()+' €';
+  document.getElementById('compta-charges').textContent = totalCh.toLocaleString()+' €';
+  document.getElementById('compta-net').textContent = (totalCA-totalCh).toLocaleString()+' €';
+}
+
+function recalcCompta() {
+  const rows = document.querySelectorAll('#compta-tbody tr');
+  let totalCA=0,totalCh=0;
+  rows.forEach(r => {
+    const cells = r.querySelectorAll('td');
+    const ca=parseFloat(cells[1].textContent)||0;
+    const ch=(parseFloat(cells[2].textContent)||0)+(parseFloat(cells[3].textContent)||0)+(parseFloat(cells[4].textContent)||0);
+    totalCA+=ca; totalCh+=ch;
+    const res=ca-ch;
+    cells[5].textContent=res+' €';
+    cells[5].style.color=res>0?'var(--accent2)':'var(--accent4)';
+  });
+  document.getElementById('compta-ca').textContent=totalCA.toLocaleString()+' €';
+  document.getElementById('compta-charges').textContent=totalCh.toLocaleString()+' €';
+  document.getElementById('compta-net').textContent=(totalCA-totalCh).toLocaleString()+' €';
+}
+
+function renderCharges() {
+  const list = document.getElementById('charges-list');
+  list.innerHTML = '';
+  CHARGES.forEach((c,i) => {
+    list.innerHTML += `<div class="chr">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:18px;">${c.c}</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;" contenteditable="true" class="editable">${c.n}</div>
+          <div style="font-size:11px;color:var(--muted);">Échéance : <span contenteditable="true" class="editable">${c.e}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="text-align:right;">
+          <div style="font-size:14px;font-weight:700;color:${c.s==='paid'?'var(--accent2)':'var(--accent3)'};" contenteditable="true" class="editable">${c.m.toLocaleString()} €</div>
+          <span class="badge ${c.s==='paid'?'gr':'yl'}">${c.s==='paid'?'✓ Payé':'⏳ À payer'}</span>
+        </div>
+        <button class="btn btn-sm ${c.s==='paid'?'btn-o':'btn-g'}" onclick="toggleCharge(${i},this)">${c.s==='paid'?'Marqué payé':'Encaisser'}</button>
+      </div>
+    </div>`;
+  });
+}
+
+function toggleCharge(i,btn) {
+  CHARGES[i].s = CHARGES[i].s==='paid'?'due':'paid';
+  renderCharges();
+}
+
+function addCharge() {
+  const nom=document.getElementById('nc-nom').value;
+  const montant=parseFloat(document.getElementById('nc-montant').value)||0;
+  const cat=document.getElementById('nc-cat').value;
+  const ech=document.getElementById('nc-ech').value;
+  if(!nom) return;
+  CHARGES.push({n:nom,m:montant,e:ech||'—',s:'due',c:cat.split(' ')[0]});
+  renderCharges();
+  closeModal('m-charge');
+}
+
+function renderAssurances() {
+  const list = document.getElementById('assurances-list');
+  list.innerHTML = '';
+  ASSURANCES.forEach((a,i) => {
+    const urgent = a.jours<30;
+    list.innerHTML += `<div class="ass-card">
+      <div class="ass-icon" style="background:${urgent?'#FEF3C7':'#DCFCE7'};">🛡️</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:700;" contenteditable="true" class="editable">${a.nom}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">Assureur : <span contenteditable="true" class="editable">${a.assureur}</span> · Centres : ${a.centres}</div>
+      </div>
+      <div style="text-align:center;min-width:100px;">
+        <div style="font-size:16px;font-weight:800;color:${urgent?'var(--accent3)':'var(--accent2)'};">${a.jours}j</div>
+        <div style="font-size:10px;color:var(--muted);">avant expiration</div>
+        <span class="badge ${urgent?'yl':'gr'}" style="margin-top:4px;display:inline-block;">${a.expiration}</span>
+      </div>
+      <div style="text-align:right;min-width:80px;">
+        <div style="font-size:14px;font-weight:700;" contenteditable="true" class="editable">${a.montant} €</div>
+        <div style="font-size:10px;color:var(--muted);">/an</div>
+        <button class="btn btn-sm btn-r" style="margin-top:6px;" onclick="ASSURANCES.splice(${i},1);renderAssurances();">🗑️</button>
+      </div>
+    </div>`;
+  });
+}
+
+function addAssurance() {
+  const nom=document.getElementById('na-nom').value;
+  const assureur=document.getElementById('na-assureur').value;
+  const montant=parseFloat(document.getElementById('na-montant').value)||0;
+  const exp=document.getElementById('na-exp').value;
+  const centres=document.getElementById('na-centres').value;
+  if(!nom) return;
+  const today=new Date();
+  const expDate=new Date(exp);
+  const jours=Math.max(0,Math.round((expDate-today)/(1000*60*60*24)));
+  ASSURANCES.push({nom,assureur,montant,expiration:exp,centres:centres||'Tous',jours,couleur:jours<30?'#D97706':'#16A34A'});
+  renderAssurances();
+  closeModal('m-assurance');
+}
+
+function renderStock() {
+  const tb = document.getElementById('stock-tbody');
+  tb.innerHTML = '';
+  const filtered = stockFilter === 'tous' ? STOCK : STOCK.filter(s => s.centre === stockFilter);
+  let grandTotal = 0;
+  let totalQte = 0;
+  filtered.forEach(s => {
+    const total = s.qte * s.pu;
+    grandTotal += total;
+    totalQte += s.qte;
+    tb.innerHTML += `<tr>
+      <td style="color:var(--muted);font-size:12px;" contenteditable="true" class="editable">${s.date}</td>
+      <td style="font-weight:600;" contenteditable="true" class="editable">${s.centre}</td>
+      <td contenteditable="true" class="editable">${s.produit}</td>
+      <td style="text-align:center;" contenteditable="true" class="editable">${s.qte}</td>
+      <td contenteditable="true" class="editable">${s.pu} €</td>
+      <td style="font-weight:700;color:var(--accent2);">${total.toFixed(2)} €</td>
+      <td><span class="badge gr">✓ ${s.statut}</span></td>
+    </tr>`;
+  });
+  const label = stockFilter === 'tous' ? 'TOTAL — Tous centres' : 'TOTAL — ' + stockFilter;
+  tb.innerHTML += '<tr style="background:var(--bg3);border-top:2px solid var(--border);">'
+    + '<td colspan="2" style="padding:12px 14px;font-weight:800;font-size:13px;color:var(--text);">' + label + '</td>'
+    + '<td style="padding:12px 14px;color:var(--muted);font-size:12px;">' + filtered.length + ' commande' + (filtered.length>1?'s':'') + '</td>'
+    + '<td style="padding:12px 14px;text-align:center;font-weight:700;">' + totalQte + '</td>'
+    + '<td style="padding:12px 14px;color:var(--muted);">—</td>'
+    + '<td style="padding:12px 14px;font-weight:800;font-size:15px;color:var(--accent2);">' + grandTotal.toFixed(2) + ' €</td>'
+    + '<td style="padding:12px 14px;"><span class="badge bl">Total</span></td>'
+    + '</tr>';
+}
+
+function addStock() {
+  const dateVal = document.getElementById('ns-date').value;
+  const centre = document.getElementById('ns-centre').value;
+  const produit = document.getElementById('ns-produit').value;
+  const qte = parseInt(document.getElementById('ns-qte').value)||0;
+  const pu = parseFloat(document.getElementById('ns-pu').value)||0;
+  if (!produit) return;
+  let date = '—';
+  if (dateVal) {
+    const d = new Date(dateVal);
+    date = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  }
+  STOCK.unshift({date,centre,produit,qte,pu,statut:'en cours'});
+  renderStock();
+  closeModal('m-stock');
+}
+
+let stockFilter = 'tous';
+function setStockFilter(btn, f) {
+  document.querySelectorAll('#stock-fbar .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  stockFilter = f;
+  renderStock();
+}
+
+function renderDocs() {
+  const g=document.getElementById('docs-grid');
+  g.innerHTML='';
+  DOCS.forEach(d=>{
+    g.innerHTML+=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;text-align:center;box-shadow:var(--shadow);" onclick="openUrl('https://drive.google.com')" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+      <div style="font-size:26px;margin-bottom:8px;">${d.i}</div>
+      <div style="font-size:12px;font-weight:700;">${d.n}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px;">${d.d}</div>
+      <div style="margin-top:7px;"><span class="badge ${d.s}">${d.s==='gr'?'✓ À jour':'⚠️ À renouveler'}</span></div>
+    </div>`;
+  });
+}
+
+function renderPresta() {
+  const ps=document.getElementById('presta-stats');
+  if(!ps) return;
+  ps.innerHTML='';
+  [{l:"Small Extérieur",p:22,c:"#2563EB"},{l:"Medium Complet",p:18,c:"#16A34A"},{l:"Medium Extérieur",p:16,c:"#2563EB"},{l:"Large Complet",p:14,c:"#D97706"},{l:"Small Complet",p:12,c:"#16A34A"},{l:"Extra Large Complet",p:10,c:"#DC2626"},{l:"Autres",p:8,c:"#7C3AED"}].forEach(d=>{
+    ps.innerHTML+=`<div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:12px;color:var(--muted);min-width:160px;">${d.l}</span>
+      <div style="flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;"><div style="width:${d.p}%;height:100%;background:${d.c};border-radius:4px;"></div></div>
+      <span style="font-size:11px;font-weight:700;color:${d.c};min-width:32px;text-align:right;">${d.p}%</span>
+    </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NAV & UTILS
+// ═══════════════════════════════════════════════════════════════════════════════
+const TITLES={dashboard:"Dashboard",centres:"Centres",fiche:"Fiche Centre",techniciens:"Gestion des techniciens","fiche-tech":"Fiche Technicien",planning:"Planning",cra:"CRA",rapport:"Rapport mensuel",stock:"Stock & Produits",comptabilite:"Comptabilité",charges:"Charges fixes",assurances:"Assurances",prestations:"Prestations",documents:"Documents",telephone:"📱 Téléphone & Box Internet","badgeuse-view":"Badgeuse — Temps réel"};
+
+// ── TELEPHONE DATA ─────────────────────────────────────────────────────────
+let BOX_DATA = [
+  {centre:"Aeroville A", operateur:"Orange", ligne:"01 23 45 67 89", wifi:"DreamA2024!", renouvellement:"06/2025", mensuel:"39 €"},
+  {centre:"Aeroville B", operateur:"Orange", ligne:"01 23 45 67 90", wifi:"DreamB2024!", renouvellement:"06/2025", mensuel:"39 €"},
+  {centre:"Lafayette Rouge", operateur:"SFR", ligne:"01 34 56 78 90", wifi:"Rouge2024#", renouvellement:"09/2025", mensuel:"35 €"},
+  {centre:"Lafayette Vert", operateur:"SFR", ligne:"01 34 56 78 91", wifi:"Vert2024#", renouvellement:"09/2025", mensuel:"35 €"},
+  {centre:"Cité des Sciences", operateur:"Bouygues", ligne:"01 45 67 89 01", wifi:"CDS2024$", renouvellement:"03/2026", mensuel:"32 €"},
+  {centre:"Le Parks", operateur:"Free", ligne:"01 56 78 90 12", wifi:"Parks2024@", renouvellement:"12/2025", mensuel:"30 €"},
+  {centre:"Parly2", operateur:"Orange", ligne:"01 56 78 90 13", wifi:"Parly2024@", renouvellement:"06/2026", mensuel:"39 €"},
+  {centre:"Belleville", operateur:"Bouygues", ligne:"01 67 89 01 23", wifi:"Bell2024!", renouvellement:"01/2026", mensuel:"32 €"},
+  {centre:"Suresnes", operateur:"Free", ligne:"01 78 90 12 34", wifi:"SRS2024#", renouvellement:"04/2026", mensuel:"30 €"},
+];
+
+let TEL_DATA = [
+  {nom:"Manager Aeroville", numero:"06 10 00 00 01", operateur:"Orange", forfait:"20Go", renouvellement:"12/2025", mensuel:"25 €"},
+  {nom:"Manager Haussmann", numero:"06 10 00 00 02", operateur:"SFR", forfait:"50Go", renouvellement:"06/2026", mensuel:"30 €"},
+  {nom:"Manager Général", numero:"06 10 00 00 03", operateur:"Bouygues", forfait:"Illimité", renouvellement:"09/2026", mensuel:"45 €"},
+];
+
+let EXTRA_ROWS = [];
+
+function renderTelephone() {
+  // BOX
+  const bt = document.getElementById('box-tbody');
+  bt.innerHTML = '';
+  BOX_DATA.forEach((b,i) => {
+    bt.innerHTML += `<tr>
+      <td style="font-weight:700;">${b.centre}</td>
+      <td contenteditable="true" class="editable">${b.operateur}</td>
+      <td contenteditable="true" class="editable" style="font-family:monospace;">${b.ligne}</td>
+      <td><span class="secret" onclick="toggleSec(this)" data-v="${b.wifi}">${'●'.repeat(b.wifi.length)}</span></td>
+      <td contenteditable="true" class="editable" style="color:var(--accent3);">${b.renouvellement}</td>
+      <td contenteditable="true" class="editable" style="color:var(--accent2);font-weight:700;">${b.mensuel}</td>
+      <td><button class="btn btn-sm btn-o">📎</button></td>
+    </tr>`;
+  });
+
+  // TEL
+  const tt = document.getElementById('tel-tbody');
+  tt.innerHTML = '';
+  TEL_DATA.forEach((t,i) => {
+    tt.innerHTML += `<tr>
+      <td contenteditable="true" class="editable" style="font-weight:700;">${t.nom}</td>
+      <td contenteditable="true" class="editable" style="font-family:monospace;">${t.numero}</td>
+      <td contenteditable="true" class="editable">${t.operateur}</td>
+      <td contenteditable="true" class="editable">${t.forfait}</td>
+      <td contenteditable="true" class="editable" style="color:var(--accent3);">${t.renouvellement}</td>
+      <td contenteditable="true" class="editable" style="color:var(--accent2);font-weight:700;">${t.mensuel}</td>
+      <td><button class="btn btn-sm btn-r" onclick="TEL_DATA.splice(${i},1);renderTelephone();">🗑️</button></td>
+    </tr>`;
+  });
+
+  // EXTRA
+  const er = document.getElementById('tel-extra-rows');
+  er.innerHTML = '';
+  EXTRA_ROWS.forEach((r,i) => {
+    er.innerHTML += `<div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+      <input value="${r.label}" placeholder="Libellé" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--text);font-family:inherit;outline:none;" oninput="EXTRA_ROWS[${i}].label=this.value">
+      <input value="${r.valeur}" placeholder="Valeur" style="flex:2;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--text);font-family:inherit;outline:none;" oninput="EXTRA_ROWS[${i}].valeur=this.value">
+      <button class="btn btn-sm btn-r" onclick="EXTRA_ROWS.splice(${i},1);renderTelephone();">🗑️</button>
+    </div>`;
+  });
+}
+
+function addBoxRow() {
+  BOX_DATA.push({centre:"Nouveau centre", operateur:"", ligne:"", wifi:"", renouvellement:"", mensuel:"0 €"});
+  renderTelephone();
+}
+
+function addTelRow() {
+  TEL_DATA.push({nom:"Nouveau", numero:"", operateur:"", forfait:"", renouvellement:"", mensuel:"0 €"});
+  renderTelephone();
+}
+
+function addExtraRow() {
+  EXTRA_ROWS.push({label:"", valeur:""});
+  renderTelephone();
+}
+
+// ── BADGEUSE VIEW ──────────────────────────────────────────────────────────
+function refreshBadgeuse() {
+  const log = JSON.parse(localStorage.getItem('dw_log') || '[]');
+  const today = new Date();
+  const dateStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
+  const todayLog = log.filter(l => l.date === dateStr);
+  const uniq = [...new Set(todayLog.map(l=>l.nom))];
+  const centres = [...new Set(todayLog.map(l=>l.centreBadge))];
+
+  document.getElementById('bdg-presents').textContent = uniq.length;
+  document.getElementById('bdg-badges').textContent = todayLog.length;
+  document.getElementById('bdg-centres').textContent = centres.length;
+
+  const tb = document.getElementById('bdg-tbody');
+  if (todayLog.length === 0) {
+    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">Aucun badgeage aujourd\'hui — les données apparaissent depuis les tablettes</td></tr>';
+    return;
+  }
+  tb.innerHTML = '';
+  todayLog.forEach(l => {
+    const isMobile = l.centreBadge !== l.centreHabituel;
+    tb.innerHTML += `<tr>
+      <td style="font-weight:700;">${l.nom}</td>
+      <td style="font-weight:600;color:var(--accent);">${l.centreBadge}</td>
+      <td style="color:var(--muted);">${l.centreHabituel}</td>
+      <td style="font-weight:700;color:var(--accent2);">${l.time}</td>
+      <td style="color:var(--muted);font-size:12px;">${l.date}</td>
+      <td>${isMobile ? '<span class="badge yl">⚡ Mobile</span>' : '<span class="badge gr">✓ Centre habituel</span>'}</td>
+    </tr>`;
+  });
+}
+
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const a=document.querySelector(`.nav-item[onclick="go('${id}')"]`);
+  if(a)a.classList.add('active');
+  document.getElementById('page-title').textContent=TITLES[id]||id;
+  document.getElementById('np').style.display='none';
+  notifOpen=false;
+  if(id==='telephone') renderTelephone();
+  if(id==='badgeuse-view') refreshBadgeuse();
+}
+function toggleSec(el){const v=el.dataset.v;el.textContent=el.textContent.includes('●')?v:'●'.repeat(v.length);el.style.color=el.textContent.includes('●')?'':'var(--accent)';}
+function setFbtn(b){document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}
+function openUrl(u){window.open(u,'_blank');}
+function openModal(id){
+  document.getElementById(id).style.display='flex';
+  if(id==='m-slot'){const sel=document.getElementById('sl-tech');sel.innerHTML=TECHS.map(t=>`<option>${t.nom}</option>`).join('');}
+}
+function closeModal(id){document.getElementById(id).style.display='none';}
+function addTech(){const nom=document.getElementById('nt-nom').value,centre=document.getElementById('nt-centre').value,tel=document.getElementById('nt-tel').value,contrat=document.getElementById('nt-contrat').value;if(!nom)return;TECHS.push({nom,centre,contrat,tel,jours:0,color:'#2563EB'});renderTechs();renderDashboard();closeModal('m-tech');}
+let notifOpen=false;
+function toggleNotif(){notifOpen=!notifOpen;document.getElementById('np').style.display=notifOpen?'block':'none';}
+document.addEventListener('click',e=>{if(!e.target.closest('.nb-btn')&&!e.target.closest('.np')){document.getElementById('np').style.display='none';notifOpen=false;}});
+function craNav(d){craDay=Math.max(0,Math.min(4,craDay+d));document.getElementById('cra-date-lbl').textContent=CRA_DATES[craDay];}
+function copyCRA(){alert('Planning copié ! Vous pouvez le coller dans la semaine suivante.');}
+function exportCSV(){
+  const cnames=CENTRES.map(c=>c.nom);
+  let csv='Technicien,Jours Présent,'+cnames.join(',')+'\n';
+  TECHS.forEach(t=>{csv+=`${t.nom},${t.jours},${cnames.map(cn=>t.centre===cn?t.jours:0).join(',')}\n`;});
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`dreamwash-rapport-${MOIS_NOMS[rapportMoisIdx].toLowerCase()}-2026.csv`;
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+function init(){
+  renderDashboard();
+  renderCentres();
+  renderTechs();
+  renderPlanning();
+  renderCRA();
+  renderRapport();
+  renderCompta();
+  renderCharges();
+  renderAssurances();
+  renderStock();
+  renderDocs();
+  renderPresta();
+}
+init();
+</script>
+</body>
+</html>
