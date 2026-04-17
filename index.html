@@ -1441,11 +1441,30 @@ function addExtraRow() {
 }
 
 // ── BADGEUSE VIEW ──────────────────────────────────────────────────────────
-function refreshBadgeuse() {
-  const log = JSON.parse(localStorage.getItem('dw_log') || '[]');
+async function refreshBadgeuse() {
+  const tb = document.getElementById('bdg-tbody');
+  tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">⏳ Chargement depuis Firebase...</td></tr>';
+
   const today = new Date();
   const dateStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
-  const todayLog = log.filter(l => l.date === dateStr);
+
+  let todayLog = [];
+
+  // Charger depuis Firebase
+  if (window.loadBadgeages) {
+    try {
+      todayLog = await window.loadBadgeages();
+    } catch(e) {
+      console.log('Erreur chargement badgeages:', e);
+    }
+  }
+
+  // Si Firebase vide, essayer localStorage de la badgeuse
+  if (todayLog.length === 0) {
+    const log = JSON.parse(localStorage.getItem('dw_log') || '[]');
+    todayLog = log.filter(l => l.date === dateStr);
+  }
+
   const uniq = [...new Set(todayLog.map(l=>l.nom))];
   const centres = [...new Set(todayLog.map(l=>l.centreBadge))];
 
@@ -1453,9 +1472,8 @@ function refreshBadgeuse() {
   document.getElementById('bdg-badges').textContent = todayLog.length;
   document.getElementById('bdg-centres').textContent = centres.length;
 
-  const tb = document.getElementById('bdg-tbody');
   if (todayLog.length === 0) {
-    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">Aucun badgeage aujourd\'hui — les données apparaissent depuis les tablettes</td></tr>';
+    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">Aucun badgeage aujourd\'hui</td></tr>';
     return;
   }
   tb.innerHTML = '';
@@ -1464,7 +1482,7 @@ function refreshBadgeuse() {
     tb.innerHTML += `<tr>
       <td style="font-weight:700;">${l.nom}</td>
       <td style="font-weight:600;color:var(--accent);">${l.centreBadge}</td>
-      <td style="color:var(--muted);">${l.centreHabituel}</td>
+      <td style="color:var(--muted);">${l.centreHabituel||l.centreBadge}</td>
       <td style="font-weight:700;color:var(--accent2);">${l.time}</td>
       <td style="color:var(--muted);font-size:12px;">${l.date}</td>
       <td>${isMobile ? '<span class="badge yl">⚡ Mobile</span>' : '<span class="badge gr">✓ Centre habituel</span>'}</td>
