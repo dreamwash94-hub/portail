@@ -53,18 +53,59 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-height:100vh;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ═══ MODE TABLETTE ═══════════════════════════════════════════ */
 .app{display:flex;min-height:100vh;}
-.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;box-shadow:var(--shadow);}
+
+/* Sidebar desktop */
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;box-shadow:var(--shadow);transition:transform .25s ease;}
+
+/* Bottom nav tablette */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:200;padding:6px 0;box-shadow:0 -2px 12px rgba(0,0,0,0.08);}
+.bottom-nav-items{display:flex;justify-content:space-around;align-items:center;}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 12px;border-radius:10px;cursor:pointer;color:var(--muted);font-size:10px;font-weight:600;transition:all .15s;min-width:56px;}
+.bn-item:hover,.bn-item.active{color:var(--accent);background:#EFF6FF;}
+.bn-item svg{width:22px;height:22px;}
+.bn-more{position:relative;}
+
+/* Menu latéral tablette (drawer) */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:150;}
+.drawer-overlay.open{display:block;}
+
+/* Détection tablette */
+@media (max-width: 1024px) {
+  .sidebar{transform:translateX(-100%);width:280px;z-index:200;}
+  .sidebar.drawer-open{transform:translateX(0);}
+  .main{margin-left:0 !important;}
+  .bottom-nav{display:block;}
+  .content{padding:16px;padding-bottom:80px;}
+  .topbar{padding:10px 16px;}
+  .topbar-title{font-size:15px;}
+  .kpi-g{grid-template-columns:repeat(2,1fr);}
+  .fg{grid-template-columns:1fr;}
+  .tbl{overflow-x:auto;}
+  .tbl table{min-width:600px;}
+  .btn{padding:8px 14px;font-size:13px;}
+  .btn-sm{padding:7px 12px;font-size:12px;}
+  .key{aspect-ratio:1.3;}
+  input,select,textarea{font-size:16px !important;} /* évite zoom iOS/Android */
+}
+
+/* Bouton hamburger tablette */
+.hamburger{display:none;width:38px;height:38px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.hamburger svg{width:20px;height:20px;color:var(--text);}
+@media (max-width:1024px){.hamburger{display:flex;}}
+
 .logo{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
 .logo-icon{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .logo-text{font-size:16px;font-weight:800;color:var(--text);}
 .logo-sub{font-size:10px;color:var(--muted);margin-top:1px;}
 .nav{flex:1;padding:10px 8px;overflow-y:auto;}
 .nav-label{font-size:10px;color:var(--light);font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 10px 4px;}
-.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;transition:all .15s;margin-bottom:1px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:10px;cursor:pointer;color:var(--muted);font-size:14px;font-weight:500;transition:all .15s;margin-bottom:2px;}
 .nav-item:hover{background:var(--bg3);color:var(--text);}
 .nav-item.active{background:#EFF6FF;color:var(--accent);font-weight:600;}
-.nav-item svg{width:16px;height:16px;flex-shrink:0;}
+.nav-item svg{width:18px;height:18px;flex-shrink:0;}
 .nb{margin-left:auto;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;}
 .nb.g{background:var(--accent2)}.nb.r{background:var(--accent4)}.nb.b{background:var(--accent)}
 .nav-ext{margin-left:auto;font-size:11px;color:var(--light);}
@@ -73,16 +114,16 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
 .topbar-title{font-size:17px;font-weight:700;}
 .topbar-right{display:flex;align-items:center;gap:10px;}
 .tdate{color:var(--muted);font-size:12px;}
-.nb-btn{width:32px;height:32px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+.nb-btn{width:36px;height:36px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
 .nb-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--accent4);border-radius:50%;border:2px solid var(--bg2);}
-.avatar{width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;}
+.avatar{width:36px;height:36px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
 .content{padding:24px;}
 .page{display:none;animation:fi .2s ease;}
 .page.active{display:block;}
 @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .sec-title{font-size:20px;font-weight:700;margin-bottom:4px;}
 .sec-sub{color:var(--muted);font-size:13px;margin-bottom:20px;}
-.rh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.rh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);}
 .card-t{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
 .kpi-g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
@@ -213,7 +254,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="nav-label">Principal</div>
     <div class="nav-item active" onclick="go('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
     <div class="nav-item" onclick="go('centres')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Centres <span class="nb g">9</span></div>
-    <div class="nav-item" onclick="go('techniciens')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Techniciens <span class="nb b" id="nb-techs">36</span></div>
+    <div class="nav-item" onclick="go('techniciens')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Techniciens <span class="nb b" id="nb-techs">22</span></div>
     <div class="nav-item" onclick="go('planning')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Planning</div>
     <div class="nav-item" onclick="go('cra')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>CRA</div>
     <div class="nav-item" onclick="go('rapport')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Rapports</div>
@@ -225,21 +266,29 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="nav-item" onclick="go('prestations')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Prestations</div>
     <div class="nav-item" onclick="go('documents')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Documents</div>
     <div class="nav-item" onclick="go('telephone')" style="color:#EA580C;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.15 6.15l1.16-1.16a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Téléphone & Box</div>
+    <div class="nav-item" onclick="go('technovap')" style="color:#0891B2;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Technovap</div>
+    <div class="nav-item" onclick="go('westfield')" style="color:#7C3AED;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Westfield / Indigo</div>
     <div class="nav-item" onclick="go('badgeuse-view')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Badgeuse</div>
     <div class="nav-label">Outils</div>
     <div class="nav-item" onclick="openUrl('https://dreamwash.simplybook.it/v2/')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Réservations <span class="nav-ext">↗</span></div>
+    <div class="nav-item" onclick="openUrl('https://dreamwash.simplybook.it/v2/')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Réservations <span class="nav-ext">↗</span></div>
     <div class="nav-item" onclick="openUrl('https://facture.dreamwash.fr/login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Facturation <span class="nav-ext">↗</span></div>
-    <div class="nav-item" onclick="openUrl('https://cra.dreamwash.fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>CRA Badgeuse <span class="nav-ext">↗</span></div>
     <div class="nav-item" onclick="openUrl('https://dashboard.dreamwash.fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Dashboard CA <span class="nav-ext">↗</span></div>
-    <div class="nav-item" onclick="openUrl('https://www.tiime.fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Tiime <span class="nav-ext">↗</span></div>
-    <div class="nav-item" onclick="openUrl('https://www.mysilae.fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Mysilae <span class="nav-ext">↗</span></div>
+    <div class="nav-item" onclick="openUrl('https://www.tiime.fr/app')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Tiime <span class="nav-ext">↗</span></div>
+    <div class="nav-item" onclick="openUrl('https://my.silae.fr/sign-in#')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Mysilae <span class="nav-ext">↗</span></div>
+    <div class="nav-item" onclick="openUrl('https://app.bankin.com')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bankin <span class="nav-ext">↗</span></div>
   </div>
   <div style="padding:10px 14px;border-top:1px solid var(--border);font-size:10px;color:var(--light);">Dreamwash © 2026 · v4.0</div>
 </nav>
 
 <div class="main">
   <div class="topbar">
-    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="hamburger" onclick="toggleDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </div>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+    </div>
     <div class="topbar-right">
       <div class="tdate">Mercredi 15 Avril 2026</div>
       <button onclick="saveAll()" style="background:#16A34A;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">💾 Sauvegarder</button>
@@ -552,6 +601,46 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
   </div>
 </div>
 
+    <!-- TECHNOVAP -->
+    <div class="page" id="page-technovap">
+      <div class="rh">
+        <div><div class="sec-title" style="color:#0891B2;">♨️ Technovap — Machines à vapeur</div><div class="sec-sub">Suivi maintenance et état des machines par centre</div></div>
+        <button class="btn btn-sm" style="background:#0891B2;color:#fff;border:none;" onclick="addMachine()">+ Ajouter une machine</button>
+      </div>
+      <div id="technovap-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;"></div>
+    </div>
+
+    <!-- WESTFIELD / INDIGO -->
+    <div class="page" id="page-westfield">
+      <div class="rh">
+        <div><div class="sec-title" style="color:#7C3AED;">🏬 Westfield / Indigo</div><div class="sec-sub">Contrats, contacts et loyers des centres commerciaux</div></div>
+        <button class="btn btn-sm" style="background:#7C3AED;color:#fff;border:none;" onclick="addWestfieldContact()">+ Ajouter un contact</button>
+      </div>
+
+      <!-- CONTACTS -->
+      <div class="card" style="margin-bottom:16px;border-left:4px solid #7C3AED;">
+        <div class="card-t" style="color:#7C3AED;">👤 Contacts Westfield / Indigo</div>
+        <div id="westfield-contacts"></div>
+        <button class="btn btn-sm btn-o" style="margin-top:12px;" onclick="addWestfieldContact()">+ Ajouter un contact</button>
+      </div>
+
+      <!-- CONTRATS -->
+      <div class="card" style="margin-bottom:16px;border-left:4px solid #7C3AED;">
+        <div class="card-t" style="color:#7C3AED;">📄 Contrats & Loyers</div>
+        <div id="westfield-contrats"></div>
+        <button class="btn btn-sm btn-o" style="margin-top:12px;" onclick="addWestfieldContrat()">+ Ajouter un contrat</button>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div class="card" style="border-left:4px solid #7C3AED;">
+        <div class="card-t" style="color:#7C3AED;">📎 Documents & Pièces jointes</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Contrats signés, avenants, états des lieux…</div>
+        <div id="westfield-docs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px;"></div>
+        <button class="btn btn-sm btn-o" onclick="document.getElementById('westfield-upload').click()">📎 Ajouter un document</button>
+        <input type="file" id="westfield-upload" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleWestfieldUpload(this)">
+      </div>
+    </div>
+
 <!-- MODALS -->
 <div class="modal-ov" id="m-tech" style="display:none;" onclick="if(event.target===this)closeModal('m-tech')">
   <div class="modal">
@@ -615,9 +704,31 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="modal-t">Nouvelle commande <button class="mc" onclick="closeModal('m-stock')">✕</button></div>
     <div class="field"><label>Date de commande</label><input id="ns-date" type="date"></div>
     <div class="field"><label>Centre</label><select id="ns-centre"><option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option></select></div>
-    <div class="field"><label>Produit</label><input id="ns-produit" placeholder="ex: Shampoing carrosserie"></div>
+    <div class="field"><label>Produit Carpolish</label>
+      <select id="ns-catalogue" onchange="selectCarpolish(this.value)" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;margin-bottom:6px;">
+        <option value="">— Choisir dans le catalogue —</option>
+        <optgroup label="🧴 Produits">
+          ${CARPOLISH_PRODUITS.filter(p=>p.cat==='Produit').map(p=>`<option value="${p.code}">[${p.code}] ${p.nom} — ${p.prix}€</option>`).join('')}
+        </optgroup>
+        <optgroup label="🔧 Matériel">
+          ${CARPOLISH_PRODUITS.filter(p=>p.cat==='Matériel').map(p=>`<option value="${p.code}">[${p.code}] ${p.nom} — ${p.prix}€</option>`).join('')}
+        </optgroup>
+        <optgroup label="🧹 Accessoires">
+          ${CARPOLISH_PRODUITS.filter(p=>p.cat==='Accessoire').map(p=>`<option value="${p.code}">[${p.code}] ${p.nom} — ${p.prix}€</option>`).join('')}
+        </optgroup>
+        <option value="autre">✏️ Autre produit...</option>
+      </select>
+    </div>
+    <div class="field"><label>Produit (nom)</label><input id="ns-produit" placeholder="Sélectionnez dans le catalogue ou saisissez"></div>
     <div class="field"><label>Quantité</label><input id="ns-qte" type="number" placeholder="0"></div>
     <div class="field"><label>Prix unitaire (€)</label><input id="ns-pu" type="number" placeholder="0"></div>
+    <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:10px 12px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:#15803D;margin-bottom:6px;">📞 Contacter Carpolish</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm" style="background:#25D366;color:#fff;border:none;flex:1;" onclick="openUrl('https://wa.me/'+CARPOLISH_CONTACT.whatsapp.replace(/\\D/g,''))">💬 WhatsApp</button>
+        <button class="btn btn-sm" style="background:var(--accent);color:#fff;border:none;flex:1;" onclick="openUrl('mailto:'+CARPOLISH_CONTACT.email+'?subject=Commande Dreamwash&body='+encodeURIComponent(buildOrderEmail()))">📧 Email</button>
+      </div>
+    </div>
     <div class="mac"><button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-stock')">Annuler</button><button class="btn btn-p" style="flex:1;justify-content:center;" onclick="addStock()">Commander</button></div>
   </div>
 </div>
@@ -640,42 +751,28 @@ const CENTRES = [
 ];
 
 let TECHS = [
-  {nom:"Abdelali",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 01",jours:0,color:"#2563EB"},
-  {nom:"Abdeldjalil",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 02",jours:11,color:"#7C3AED"},
-  {nom:"Abdesamad",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 03",jours:7,color:"#DC2626"},
-  {nom:"Adrien",centre:"Le Parks",contrat:"CDD",tel:"06 11 00 00 04",jours:0,color:"#16A34A"},
-  {nom:"Ahmadul Hassan",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 05",jours:0,color:"#0891B2"},
-  {nom:"Ahmed",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 06",jours:9,color:"#D97706"},
-  {nom:"Ali",centre:"Lafayette Vert",contrat:"CDI",tel:"06 11 00 00 07",jours:0,color:"#9333EA"},
-  {nom:"Amine",centre:"Belleville",contrat:"CDI",tel:"06 11 00 00 08",jours:0,color:"#EA580C"},
-  {nom:"Amine_parly2",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 09",jours:0,color:"#BE185D"},
-  {nom:"Ayoub J.",centre:"Lafayette Vert",contrat:"CDI",tel:"06 11 00 00 10",jours:0,color:"#2563EB"},
-  {nom:"Khalid",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 11",jours:6,color:"#7C3AED"},
-  {nom:"Khyal",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 12",jours:4,color:"#16A34A"},
-  {nom:"Mourad",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 13",jours:5,color:"#DC2626"},
-  {nom:"Nabil",centre:"Belleville",contrat:"CDI",tel:"06 11 00 00 14",jours:8,color:"#0891B2"},
-  {nom:"Rachid",centre:"Suresnes",contrat:"CDI",tel:"06 11 00 00 15",jours:6,color:"#D97706"},
-  {nom:"Sadoul",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 16",jours:12,color:"#9333EA"},
-  {nom:"Saiful Islam",centre:"Aeroville B",contrat:"CDI",tel:"06 11 00 00 17",jours:9,color:"#EA580C"},
-  {nom:"Siraj",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 18",jours:7,color:"#BE185D"},
-  {nom:"Bilal",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 19",jours:5,color:"#2563EB"},
-  {nom:"Karim",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 20",jours:3,color:"#0891B2"},
-  {nom:"Mehdi",centre:"Aeroville B",contrat:"CDD",tel:"06 11 00 00 21",jours:8,color:"#D97706"},
-  {nom:"Omar",centre:"Cité des Sciences",contrat:"CDI",tel:"06 11 00 00 22",jours:6,color:"#9333EA"},
-  {nom:"Youssef",centre:"Lafayette Vert",contrat:"CDI",tel:"06 11 00 00 23",jours:4,color:"#EA580C"},
-  {nom:"Soufiane",centre:"Belleville",contrat:"CDI",tel:"06 11 00 00 24",jours:7,color:"#2563EB"},
-  {nom:"Nasser",centre:"Le Parks",contrat:"CDI",tel:"06 11 00 00 25",jours:5,color:"#7C3AED"},
-  {nom:"Hamza",centre:"Suresnes",contrat:"CDD",tel:"06 11 00 00 26",jours:3,color:"#DC2626"},
-  {nom:"Tarik",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 27",jours:9,color:"#16A34A"},
-  {nom:"Sofiane",centre:"Aeroville A",contrat:"CDI",tel:"06 11 00 00 28",jours:11,color:"#0891B2"},
-  {nom:"Rayan",centre:"Lafayette Rouge",contrat:"CDI",tel:"06 11 00 00 29",jours:7,color:"#D97706"},
-  {nom:"Ilyas",centre:"Aeroville B",contrat:"CDI",tel:"06 11 00 00 30",jours:6,color:"#9333EA"},
-  {nom:"Jawad",centre:"Cité des Sciences",contrat:"CDD",tel:"06 11 00 00 31",jours:4,color:"#EA580C"},
-  {nom:"Redouane",centre:"Belleville",contrat:"CDI",tel:"06 11 00 00 32",jours:8,color:"#2563EB"},
-  {nom:"Zakaria",centre:"Le Parks",contrat:"CDI",tel:"06 11 00 00 33",jours:6,color:"#7C3AED"},
-  {nom:"Marwan",centre:"Suresnes",contrat:"CDI",tel:"06 11 00 00 34",jours:5,color:"#DC2626"},
-  {nom:"Issam",centre:"Parly2",contrat:"CDI",tel:"06 11 00 00 35",jours:7,color:"#16A34A"},
-  {nom:"Nordine",centre:"Lafayette Vert",contrat:"CDI",tel:"06 11 00 00 36",jours:4,color:"#0891B2"},
+  {nom:"Sunam Uddin", prenom:"Sunam", nom_famille:"Uddin", numero:"00002", poste:"Carrossier Automobile Laveur", email:"mdsunammdsunam12@gmail.com", code:"1001", centre:"Aeroville A", contrat:"CDI", debut:"01/01/2026", fin:"", tel:"", jours:0, adresse:"À compléter", color:"#2563EB"},
+  {nom:"Abdeldjalil Boucedra", prenom:"Abdeldjalil", nom_famille:"Boucedra", numero:"00003", poste:"Responsable logistique", email:"boucedra.abdeldjalil2023@gmail.com", code:"1002", centre:"Aeroville A", contrat:"CDI", debut:"23/07/2024", fin:"", tel:"", jours:0, color:"#7C3AED"},
+  {nom:"Mohammed El Amin Kechiouch", prenom:"Mohammed El Amin", nom_famille:"Kechiouch", numero:"00005", poste:"Laveur Automobile", email:"Kechiouchmohammedelamine@gmail.com", code:"1003", centre:"Aeroville A", contrat:"CDD", debut:"14/01/2025", fin:"14/07/2026", tel:"", jours:0, color:"#DC2626"},
+  {nom:"Khalid Faris", prenom:"Khalid", nom_famille:"Faris", numero:"00008", poste:"Laveur Automobile", email:"fareskhaled319@gmail.com", code:"1004", centre:"Aeroville A", contrat:"CDI", debut:"09/02/2025", fin:"", tel:"", jours:0, color:"#16A34A"},
+  {nom:"Ayoub Belaissaoui", prenom:"Ayoub", nom_famille:"Belaissaoui", numero:"00010", poste:"Laveur Automobile", email:"ayoubbalaissaoui154@gmail.com", code:"1005", centre:"Aeroville A", contrat:"CDI", debut:"01/03/2025", fin:"", tel:"", jours:0, color:"#0891B2"},
+  {nom:"Siraj Uddin", prenom:"Siraj", nom_famille:"Uddin", numero:"00011", poste:"Laveur Automobile", email:"sirajuddin99235@gmail.com", code:"1006", centre:"Aeroville A", contrat:"CDI", debut:"01/03/2025", fin:"", tel:"", jours:0, color:"#D97706"},
+  {nom:"Chabane Messaoudene", prenom:"Chabane", nom_famille:"Messaoudene", numero:"00017", poste:"Laveur Automobile", email:"messaoudenenafaa0@gmail.com", code:"1007", centre:"Aeroville A", contrat:"CDD", debut:"26/05/2025", fin:"26/06/2026", tel:"", jours:0, color:"#9333EA"},
+  {nom:"Sodrul Islam Sepul", prenom:"Sodrul Islam", nom_famille:"Sepul", numero:"00021", poste:"Laveur Automobile", email:"sepulahmed1989@gmail.com", code:"1008", centre:"Aeroville A", contrat:"CDI", debut:"01/06/2025", fin:"", tel:"", jours:0, color:"#EA580C"},
+  {nom:"Khyal Baz Ahmadzai", prenom:"Khyal Baz", nom_famille:"Ahmadzai", numero:"00022", poste:"Laveur Automobile", email:"khyalbaz5658@gmail.com", code:"1009", centre:"Aeroville A", contrat:"CDI", debut:"01/08/2025", fin:"", tel:"", jours:0, color:"#BE185D"},
+  {nom:"Redwane Leulmi", prenom:"Redwane", nom_famille:"Leulmi", numero:"00023", poste:"Laveur Automobile", email:"Mouradleulmi6@gmail.com", code:"1010", centre:"Aeroville A", contrat:"CDI", debut:"01/08/2025", fin:"", tel:"", jours:0, color:"#2563EB"},
+  {nom:"Mourad Bendjeddou", prenom:"Mourad", nom_famille:"Bendjeddou", numero:"00024", poste:"Laveur Automobile", email:"mourad.bendjeddou81@gmail.com", code:"1011", centre:"Aeroville A", contrat:"CDI", debut:"01/12/2025", fin:"", tel:"", jours:0, color:"#7C3AED"},
+  {nom:"Nahidul Islam Shakil", prenom:"Nahidul Islam", nom_famille:"Shakil", numero:"00027", poste:"Laveur Automobile", email:"shakiluddin943@gmail.com", code:"1012", centre:"Aeroville A", contrat:"CDI", debut:"01/12/2025", fin:"", tel:"", jours:0, color:"#DC2626"},
+  {nom:"Iqbal Hussain", prenom:"Iqbal", nom_famille:"Hussain", numero:"00028", poste:"Laveur Automobile", email:"Forhad75511@gmail.com", code:"1013", centre:"Aeroville A", contrat:"CDI", debut:"02/01/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#16A34A"},
+  {nom:"Hakima Faris", prenom:"Hakima", nom_famille:"Faris", numero:"00029", poste:"Assistante Administrative", email:"emf767028@gmail.com", code:"1014", centre:"Aeroville A", contrat:"CDI", debut:"20/12/2025", fin:"", tel:"", jours:0, color:"#0891B2"},
+  {nom:"Hanif Kotoal", prenom:"Hanif", nom_famille:"Kotoal", numero:"00030", poste:"Laveur Automobile", email:"", code:"1015", centre:"Aeroville A", contrat:"CDI", debut:"20/03/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#D97706"},
+  {nom:"Sujon Miah", prenom:"Sujon", nom_famille:"Miah", numero:"00031", poste:"Laveur Automobile", email:"", code:"1016", centre:"Aeroville A", contrat:"CDI", debut:"20/03/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#9333EA"},
+  {nom:"Shahriar Islam Shawon", prenom:"Shahriar Islam", nom_famille:"Shawon", numero:"00032", poste:"Laveur Automobile", email:"", code:"1017", centre:"Aeroville A", contrat:"CDI", debut:"20/03/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#EA580C"},
+  {nom:"Tarik Yousfi", prenom:"Tarik", nom_famille:"Yousfi", numero:"00033", poste:"Responsable de Projet", email:"", code:"1018", centre:"Aeroville A", contrat:"CDI", debut:"02/03/2026", fin:"", tel:"", jours:0, color:"#BE185D"},
+  {nom:"Mackan Camara", prenom:"Mackan", nom_famille:"Camara", numero:"00034", poste:"Laveur Automobile", email:"camaramackan2@gmail.com", code:"1019", centre:"Aeroville A", contrat:"CDI", debut:"12/02/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#2563EB"},
+  {nom:"Faris Meziane Mohamed", prenom:"Mohamed", nom_famille:"Faris Meziane", numero:"", poste:"Laveur Automobile", email:"emf767028@gmail.com", code:"1020", centre:"Aeroville A", contrat:"CDI", debut:"", fin:"", tel:"", jours:0, color:"#7C3AED"},
+  {nom:"Iqbal Naqash", prenom:"Iqbal", nom_famille:"Naqash", numero:"", poste:"Laveur Automobile", email:"naqashiqbal311@gmail.com", code:"1021", centre:"Aeroville A", contrat:"CDI", debut:"", fin:"", tel:"", jours:0, color:"#DC2626"},
+  {nom:"Ahmadul Hassan", prenom:"Ahmadul", nom_famille:"Hassan", numero:"", poste:"Laveur Automobile", email:"", code:"1022", centre:"Aeroville A", contrat:"CDI", debut:"", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#16A34A"},
 ];
 
 let PLANNING = {
@@ -801,8 +898,6 @@ function showFiche(i) {
       </div>
       <div style="margin-left:auto;display:flex;gap:8px;">
         <button class="btn btn-p btn-sm" onclick="saveCentre(${i})">💾 Sauvegarder</button>
-        <button class="btn btn-o btn-sm" onclick="openUrl('https://cra.dreamwash.fr')">⏱️ CRA</button>
-        <button class="btn btn-o btn-sm" onclick="openUrl('https://facture.dreamwash.fr/login')">🧾 Factures</button>
       </div>
     </div>
     <div class="fg">
@@ -891,15 +986,28 @@ function showFicheTech(i) {
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
       <div style="width:52px;height:52px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;">${t.nom.charAt(0)}</div>
       <div>
-        <input id="ftnom-${i}" value="${t.nom}" style="font-size:20px;font-weight:800;border:1px solid var(--border);background:var(--bg3);border-radius:7px;padding:4px 10px;font-family:inherit;width:200px;" onchange="TECHS[${i}].nom=this.value;">
-        <div style="color:var(--muted);font-size:12px;">📍 ${t.centre} · ${t.contrat}</div>
+        <div style="font-size:20px;font-weight:800;" id="ft-nom-${i}">${t.nom}</div>
+        <input id="ftnom-${i}" value="${t.nom}" style="font-size:20px;font-weight:800;border:1px solid var(--border);background:var(--bg3);border-radius:7px;padding:4px 10px;font-family:inherit;width:250px;" onchange="TECHS[${i}].nom=this.value;">
+        <div style="color:var(--muted);font-size:12px;">📍 ${t.centre} · ${t.poste||t.contrat} · Dossier n°${t.numero||'—'}</div>
       </div>
       <span class="badge gr" style="margin-left:auto;">● Actif</span>
       <button class="btn btn-p btn-sm" onclick="saveFicheTech(${i})">💾 Sauvegarder</button>
     </div>
     <div class="fg">
       <div class="card">
-        <div class="card-t">👤 Informations personnelles</div>
+        <div class="card-t">💼 Contrat de travail</div>
+        <div class="fr"><span class="fk">N° Dossier</span><span class="fv" style="font-family:monospace;font-weight:700;">${t.numero||'—'}</span></div>
+        <div class="fr"><span class="fk">Poste</span><input id="ftposte-${i}" value="${t.poste||''}" placeholder="Poste..." style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:200px;" onchange="TECHS[${i}].poste=this.value;"></div>
+        <div class="fr"><span class="fk">Type contrat</span>
+          <select id="ftcontrat-${i}" onchange="TECHS[${i}].contrat=this.value;" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
+            <option ${t.contrat==='CDI'?'selected':''}>CDI</option>
+            <option ${t.contrat==='CDD'?'selected':''}>CDD</option>
+            <option ${t.contrat==='Intérim'?'selected':''}>Intérim</option>
+          </select>
+        </div>
+        <div class="fr"><span class="fk">Date début</span><input id="ftdebut-${i}" value="${t.debut||''}" placeholder="JJ/MM/AAAA" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:130px;" onchange="TECHS[${i}].debut=this.value;"></div>
+        <div class="fr"><span class="fk">Date fin</span><input id="ftfin-${i}" value="${t.fin||''}" placeholder="JJ/MM/AAAA (CDD)" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;color:${t.fin?'var(--accent4)':'var(--muted)'};" onchange="TECHS[${i}].fin=this.value;"></div>
+        <div class="fr"><span class="fk">Heures/semaine</span><span class="fv">35h</span></div>
         <div class="fr"><span class="fk">Téléphone</span><input id="fttel-${i}" value="${t.tel||''}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="TECHS[${i}].tel=this.value;"></div>
         <div class="fr"><span class="fk">Email</span><input id="ftemail-${i}" value="${t.email}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:200px;" onchange="TECHS[${i}].email=this.value;"></div>
         <div class="fr"><span class="fk">Adresse</span><input id="ftadr-${i}" value="${t.adresse}" placeholder="À compléter" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:200px;" onchange="TECHS[${i}].adresse=this.value;"></div>
@@ -1403,7 +1511,7 @@ function renderPresta() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // NAV & UTILS
 // ═══════════════════════════════════════════════════════════════════════════════
-const TITLES={dashboard:"Dashboard",centres:"Centres",fiche:"Fiche Centre",techniciens:"Gestion des techniciens","fiche-tech":"Fiche Technicien",planning:"Planning",cra:"CRA",rapport:"Rapport mensuel",stock:"Stock & Produits",comptabilite:"Comptabilité",charges:"Charges fixes",assurances:"Assurances",prestations:"Prestations",documents:"Documents",telephone:"📱 Téléphone & Box Internet","badgeuse-view":"Badgeuse — Temps réel"};
+const TITLES={dashboard:"Dashboard",centres:"Centres",fiche:"Fiche Centre",techniciens:"Gestion des techniciens","fiche-tech":"Fiche Technicien",planning:"Planning",cra:"CRA",rapport:"Rapport mensuel",stock:"Stock & Produits",comptabilite:"Comptabilité",charges:"Charges fixes",assurances:"Assurances",prestations:"Prestations",documents:"Documents",telephone:"📱 Téléphone & Box Internet","badgeuse-view":"Badgeuse — Temps réel",technovap:"♨️ Technovap — Machines à vapeur",westfield:"🏬 Westfield / Indigo"};
 
 // ── TELEPHONE DATA ─────────────────────────────────────────────────────────
 let BOX_DATA = [
@@ -1425,6 +1533,89 @@ let TEL_DATA = [
 ];
 
 let EXTRA_ROWS = [];
+
+// ═══ CATALOGUE CARPOLISH ═══════════════════════════════════════
+const CARPOLISH_PRODUITS = [
+  {code:"SPE25S", nom:"Speed Polish Evolution Nettoyant sans eau 25L", prix:96.75, cat:"Produit"},
+  {code:"BLUE5", nom:"Blue Cleaner Dégraissant puissant 5L", prix:31.13, cat:"Produit"},
+  {code:"NT25", nom:"Nettoyant Universel Parfumé 25L", prix:97.43, cat:"Produit"},
+  {code:"NVD25", nom:"Nettoyant Vitre et Miroiterie 25L", prix:70.93, cat:"Produit"},
+  {code:"JASA25", nom:"Nettoyant Jante Sans Acide 25L", prix:93.00, cat:"Produit"},
+  {code:"IZR5", nom:"Décontaminant Ferreux 5L", prix:50.25, cat:"Produit"},
+  {code:"BPM25", nom:"Brillant Pneu Base Aqueuse 25L", prix:108.95, cat:"Produit"},
+  {code:"CF5", nom:"Cokpit Fresh Nettoyant Rénovateur Habitacle 5L", prix:54.68, cat:"Produit"},
+  {code:"BPD5", nom:"Blue Polar Destructeur Odeur 5L", prix:59.18, cat:"Produit"},
+  {code:"PARFUMAN5", nom:"Parfum de Luxe pour Habitacle 5L", prix:55.43, cat:"Produit"},
+  {code:"DP5", nom:"Dégoudronnant Puissant 5L", prix:40.43, cat:"Produit"},
+  {code:"CREM1", nom:"Crème Nettoyante Nourrissante Tous Coloris 1L", prix:19.52, cat:"Produit"},
+  {code:"CUIRRECO-N-05", nom:"Crème Nettoyante Nourrissante Cuir Noir 500ml", prix:22.43, cat:"Produit"},
+  {code:"RF901", nom:"Refinish 9000 Pâte One Step Abrasivité Moyenne 1L", prix:45.58, cat:"Produit"},
+  {code:"CP025", nom:"Chrome Polish Pâte à Polir Chrome 250gr", prix:8.24, cat:"Produit"},
+  {code:"NTS5", nom:"Nettoyant Spécial ACFPB Sous Air Comprimé 5L", prix:48.67, cat:"Produit"},
+  {code:"TT1N", nom:"Top Tincture Régénérateur Plastique Extérieur 1L", prix:18.42, cat:"Produit"},
+  {code:"ASPI2E", nom:"Aspirateur Eau et Poussière 2 Moteurs Flexible 4m", prix:374.93, cat:"Matériel"},
+  {code:"ACFPB", nom:"Air Cleaning Foam Pistol Black", prix:96.75, cat:"Matériel"},
+  {code:"SAGP", nom:"Soufflette Préparation Gros Débit", prix:36.76, cat:"Matériel"},
+  {code:"MPA", nom:"Marche Pied Aluminium", prix:100.69, cat:"Matériel"},
+  {code:"LBR1L", nom:"Rampe d'Éclairage", prix:152.84, cat:"Matériel"},
+  {code:"LTL", nom:"Lampe de Travail à Main", prix:46.95, cat:"Matériel"},
+  {code:"ABMSSC", nom:"Air Brush Brosseuse Mécanique", prix:225.00, cat:"Matériel"},
+  {code:"COMPR", nom:"Compresseur Mono 90L Silencieux", prix:420.00, cat:"Matériel"},
+  {code:"SCENROU0812IS", nom:"Enrouleur pour Air Comprimé", prix:225.62, cat:"Matériel"},
+  {code:"SCMDPRACK25", nom:"Meuble Débiteur 25L", prix:325.00, cat:"Matériel"},
+  {code:"SCMDRACK5", nom:"Meuble Débiteur 5L", prix:325.00, cat:"Matériel"},
+  {code:"BRRS", nom:"Mobil Rack Seul", prix:434.80, cat:"Matériel"},
+  {code:"MWFUSH-BLE/300", nom:"Tissus Microfibre Bleu Lot de 300", prix:299.25, cat:"Accessoire"},
+  {code:"MWFUSH-JAU/300", nom:"Tissus Microfibre Jaune Lot de 300", prix:299.25, cat:"Accessoire"},
+  {code:"MWTS/12", nom:"Tissus Microfibre Vitre et Laque Lot de 12", prix:39.12, cat:"Accessoire"},
+  {code:"EPV10", nom:"Éponge Vinyl Lot de 10", prix:5.45, cat:"Accessoire"},
+  {code:"MD", nom:"Mousse Décapante Lot de 12", prix:10.13, cat:"Accessoire"},
+  {code:"PUBU/10", nom:"Pulvérisateur Burette 500ml Lot de 10", prix:23.13, cat:"Accessoire"},
+  {code:"FLAC/10", nom:"Corps de Pulvérisateur 500ml", prix:13.60, cat:"Accessoire"},
+  {code:"PU6", nom:"Pulvérisateur Pression pour Jante", prix:25.01, cat:"Accessoire"},
+  {code:"BROSNYL", nom:"Brosse Nylon", prix:5.66, cat:"Accessoire"},
+  {code:"EAPP/1", nom:"Éponge Application Brillant Pneu", prix:1.96, cat:"Accessoire"},
+  {code:"GANY2", nom:"Gant Nitrile Boîte de 100", prix:8.92, cat:"Accessoire"},
+  {code:"GANPRO", nom:"Gant de Protection Produit Agressif", prix:7.67, cat:"Accessoire"},
+];
+
+// ═══ FOURNISSEUR CARPOLISH ═════════════════════════════════════
+let CARPOLISH_CONTACT = {
+  nom: "Carpolish",
+  tel: "0650539591",
+  email: "lavageauto_benso@yahoo.fr",
+  whatsapp: "0650539591",
+  commercial: "À compléter",
+  site: "https://www.carpolish.fr"
+};
+
+// ═══ TECHNOVAP DATA ════════════════════════════════════════════
+let TECHNOVAP_MACHINES = [
+  {id:"TV-001", centre:"Aeroville A", modele:"Technovap Pro", serie:"TV2023-001", achat:"01/2023", dernierEntretien:"15/03/2026", prochainEntretien:"15/09/2026", statut:"ok", notes:""},
+  {id:"TV-002", centre:"Aeroville B", modele:"Technovap Pro", serie:"TV2023-002", achat:"01/2023", dernierEntretien:"10/03/2026", prochainEntretien:"10/09/2026", statut:"ok", notes:""},
+  {id:"TV-003", centre:"Lafayette Rouge", modele:"Technovap Pro", serie:"TV2023-003", achat:"03/2023", dernierEntretien:"20/02/2026", prochainEntretien:"20/08/2026", statut:"attention", notes:"Détartrage requis"},
+  {id:"TV-004", centre:"Lafayette Vert", modele:"Technovap Pro", serie:"TV2023-004", achat:"03/2023", dernierEntretien:"05/03/2026", prochainEntretien:"05/09/2026", statut:"ok", notes:""},
+  {id:"TV-005", centre:"Cité des Sciences", modele:"Technovap Elite", serie:"TVO2024-001", achat:"06/2024", dernierEntretien:"01/04/2026", prochainEntretien:"01/10/2026", statut:"ok", notes:""},
+  {id:"TV-006", centre:"Le Parks", modele:"Technovap Pro", serie:"TVO2023-005", achat:"03/2023", dernierEntretien:"12/01/2026", prochainEntretien:"12/07/2026", statut:"urgent", notes:"Panne résistance — À réparer"},
+  {id:"TV-007", centre:"Parly2", modele:"Technovap Elite", serie:"TVO2024-002", achat:"06/2024", dernierEntretien:"18/03/2026", prochainEntretien:"18/09/2026", statut:"ok", notes:""},
+  {id:"TV-008", centre:"Belleville", modele:"Technovap Pro", serie:"TVO2023-006", achat:"03/2023", dernierEntretien:"22/02/2026", prochainEntretien:"22/08/2026", statut:"ok", notes:""},
+  {id:"TV-009", centre:"Suresnes", modele:"Technovap Pro", serie:"TVO2023-007", achat:"03/2023", dernierEntretien:"08/03/2026", prochainEntretien:"08/09/2026", statut:"ok", notes:""},
+];
+
+// ═══ WESTFIELD / INDIGO DATA ═══════════════════════════════════
+let WESTFIELD_CONTACTS = [
+  {nom:"Responsable Aeroville", poste:"Directeur centre", tel:"À compléter", email:"À compléter", centre:"Aeroville A / B"},
+  {nom:"Responsable Lafayette", poste:"Directeur centre", tel:"À compléter", email:"À compléter", centre:"Lafayette Rouge / Vert"},
+];
+
+let WESTFIELD_CONTRATS = [
+  {centre:"Aeroville A", bailleur:"Westfield", loyer:1200, debut:"01/01/2023", fin:"31/12/2025", renouvellement:"En cours", notes:""},
+  {centre:"Aeroville B", bailleur:"Westfield", loyer:1100, debut:"01/01/2023", fin:"31/12/2025", renouvellement:"En cours", notes:""},
+  {centre:"Lafayette Rouge", bailleur:"Indigo", loyer:950, debut:"01/03/2023", fin:"28/02/2026", renouvellement:"À renouveler", notes:""},
+  {centre:"Lafayette Vert", bailleur:"Indigo", loyer:900, debut:"01/03/2023", fin:"28/02/2026", renouvellement:"À renouveler", notes:""},
+];
+
+let WESTFIELD_DOCS = [];
 
 function renderTelephone() {
   // BOX
@@ -1602,6 +1793,8 @@ function go(id){
   notifOpen=false;
   if(id==='telephone') renderTelephone();
   if(id==='badgeuse-view') refreshBadgeuse();
+  if(id==='technovap') renderTechnovap();
+  if(id==='westfield') renderWestfield();
 }
 function toggleSec(el){const v=el.dataset.v;el.textContent=el.textContent.includes('●')?v:'●'.repeat(v.length);el.style.color=el.textContent.includes('●')?'':'var(--accent)';}
 function setFbtn(b){document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}
@@ -1640,6 +1833,8 @@ function saveLocal() {
   const data = {
     TECHS, CENTRES, CHARGES, ASSURANCES, STOCK,
     BOX_DATA, TEL_DATA, EXTRA_ROWS, COMPTA, PLANNING, CRA_DATA,
+    TECHNOVAP_MACHINES, WESTFIELD_CONTACTS, WESTFIELD_CONTRATS,
+    CARPOLISH_CONTACT,
     prestations: capturePresta()
   };
   try {
@@ -1793,6 +1988,10 @@ async function saveAll() {
         window.saveToFirebase('prestations', prestaData),
         window.saveToFirebase('planning', PLANNING),
         window.saveToFirebase('cra_data', CRA_DATA),
+        window.saveToFirebase('technovap', TECHNOVAP_MACHINES),
+        window.saveToFirebase('westfield_contacts', WESTFIELD_CONTACTS),
+        window.saveToFirebase('westfield_contrats', WESTFIELD_CONTRATS),
+        window.saveToFirebase('carpolish_contact', CARPOLISH_CONTACT),
       ]);
       firebaseOk = true;
     } catch(e) {
@@ -1840,6 +2039,10 @@ async function init() {
     if (local.COMPTA?.length) local.COMPTA.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); });
     if (local.PLANNING) Object.assign(PLANNING, local.PLANNING);
     if (local.CRA_DATA) Object.assign(CRA_DATA, local.CRA_DATA);
+    if (local.TECHNOVAP_MACHINES?.length) TECHNOVAP_MACHINES.splice(0, TECHNOVAP_MACHINES.length, ...local.TECHNOVAP_MACHINES);
+    if (local.WESTFIELD_CONTACTS?.length) WESTFIELD_CONTACTS.splice(0, WESTFIELD_CONTACTS.length, ...local.WESTFIELD_CONTACTS);
+    if (local.WESTFIELD_CONTRATS?.length) WESTFIELD_CONTRATS.splice(0, WESTFIELD_CONTRATS.length, ...local.WESTFIELD_CONTRATS);
+    if (local.CARPOLISH_CONTACT) Object.assign(CARPOLISH_CONTACT, local.CARPOLISH_CONTACT);
     console.log('✅ Données locales chargées');
   }
 
@@ -1915,7 +2118,215 @@ async function init() {
 
 init();
 
+// ═══ TECHNOVAP ════════════════════════════════════════════════
+function renderTechnovap() {
+  const list = document.getElementById('technovap-list');
+  if (!list) return;
+  list.innerHTML = '';
+  TECHNOVAP_MACHINES.forEach((m, i) => {
+    const statutColor = m.statut==='ok' ? '#16A34A' : m.statut==='attention' ? '#D97706' : '#DC2626';
+    const statutLabel = m.statut==='ok' ? '✅ Opérationnel' : m.statut==='attention' ? '⚠️ Attention' : '🔴 Urgent';
+    list.innerHTML += `<div class="card" style="border-left:4px solid ${statutColor};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div>
+          <div style="font-size:15px;font-weight:800;">${m.centre}</div>
+          <div style="font-size:12px;color:var(--muted);">${m.modele} · ${m.id}</div>
+        </div>
+        <span class="badge" style="background:${statutColor}22;color:${statutColor};border:1px solid ${statutColor}44;">${statutLabel}</span>
+      </div>
+      <div class="fr"><span class="fk">N° Série</span><input value="${m.serie}" style="font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-family:inherit;width:150px;" onchange="TECHNOVAP_MACHINES[${i}].serie=this.value;"></div>
+      <div class="fr"><span class="fk">Date achat</span><input value="${m.achat}" style="font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-family:inherit;width:100px;" onchange="TECHNOVAP_MACHINES[${i}].achat=this.value;"></div>
+      <div class="fr"><span class="fk">Dernier entretien</span><input value="${m.dernierEntretien}" style="font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-family:inherit;width:100px;" onchange="TECHNOVAP_MACHINES[${i}].dernierEntretien=this.value;"></div>
+      <div class="fr"><span class="fk">Prochain entretien</span><input value="${m.prochainEntretien}" style="font-size:12px;font-weight:700;color:${statutColor};border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-family:inherit;width:100px;" onchange="TECHNOVAP_MACHINES[${i}].prochainEntretien=this.value;"></div>
+      <div class="fr"><span class="fk">Statut</span>
+        <select onchange="TECHNOVAP_MACHINES[${i}].statut=this.value;renderTechnovap();saveAll();" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
+          <option value="ok" ${m.statut==='ok'?'selected':''}>✅ Opérationnel</option>
+          <option value="attention" ${m.statut==='attention'?'selected':''}>⚠️ Attention</option>
+          <option value="urgent" ${m.statut==='urgent'?'selected':''}>🔴 Urgent</option>
+        </select>
+      </div>
+      <div style="margin-top:8px;"><textarea placeholder="Notes..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px;font-size:12px;font-family:inherit;resize:vertical;min-height:50px;" onchange="TECHNOVAP_MACHINES[${i}].notes=this.value;">${m.notes}</textarea></div>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <button class="btn btn-sm btn-p" onclick="saveTechnovapRow(${i})">💾 Sauvegarder</button>
+        <button class="btn btn-sm btn-r" onclick="if(confirm('Supprimer ?')){TECHNOVAP_MACHINES.splice(${i},1);renderTechnovap();saveAll();}">🗑️</button>
+      </div>
+    </div>`;
+  });
+}
+
+function saveTechnovapRow(i) {
+  saveAll();
+  showNotif('✅ Machine sauvegardée !');
+}
+
+function addMachine() {
+  TECHNOVAP_MACHINES.push({id:'TV-00'+(TECHNOVAP_MACHINES.length+1), centre:'À définir', modele:'Technovap Pro', serie:'', achat:'', dernierEntretien:'', prochainEntretien:'', statut:'ok', notes:''});
+  renderTechnovap();
+}
+
+// ═══ WESTFIELD ════════════════════════════════════════════════
+function renderWestfield() {
+  // Contacts
+  const contacts = document.getElementById('westfield-contacts');
+  if (contacts) {
+    contacts.innerHTML = '';
+    WESTFIELD_CONTACTS.forEach((c, i) => {
+      contacts.innerHTML += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Nom</div><input value="${c.nom}" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;" onchange="WESTFIELD_CONTACTS[${i}].nom=this.value;"></div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Poste</div><input value="${c.poste}" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;" onchange="WESTFIELD_CONTACTS[${i}].poste=this.value;"></div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Centre</div><input value="${c.centre}" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;" onchange="WESTFIELD_CONTACTS[${i}].centre=this.value;"></div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Téléphone</div><input value="${c.tel}" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;" onchange="WESTFIELD_CONTACTS[${i}].tel=this.value;"></div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Email</div><input value="${c.email}" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;" onchange="WESTFIELD_CONTACTS[${i}].email=this.value;"></div>
+        <div style="display:flex;align-items:flex-end;gap:6px;">
+          <button class="btn btn-sm btn-p" onclick="saveAll()">💾</button>
+          <button class="btn btn-sm" style="background:#25D366;color:#fff;border:none;" onclick="openUrl('https://wa.me/'+WESTFIELD_CONTACTS[${i}].tel.replace(/\\D/g,''))">💬 WhatsApp</button>
+          <button class="btn btn-sm btn-r" onclick="WESTFIELD_CONTACTS.splice(${i},1);renderWestfield();saveAll();">🗑️</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Contrats
+  const contrats = document.getElementById('westfield-contrats');
+  if (contrats) {
+    contrats.innerHTML = '';
+    WESTFIELD_CONTRATS.forEach((c, i) => {
+      const isUrgent = c.renouvellement === 'À renouveler';
+      contrats.innerHTML += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px 0;border-bottom:1px solid var(--border);">
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Centre</div><input value="${c.centre}" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-weight:700;font-family:inherit;" onchange="WESTFIELD_CONTRATS[${i}].centre=this.value;"></div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Bailleur</div><input value="${c.bailleur}" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;" onchange="WESTFIELD_CONTRATS[${i}].bailleur=this.value;"></div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Loyer mensuel</div><input value="${c.loyer}" type="number" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-weight:700;color:var(--accent4);font-family:inherit;" onchange="WESTFIELD_CONTRATS[${i}].loyer=parseFloat(this.value)||0;"> €</div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Statut</div>
+          <select onchange="WESTFIELD_CONTRATS[${i}].renouvellement=this.value;renderWestfield();" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
+            <option ${c.renouvellement==='En cours'?'selected':''}>En cours</option>
+            <option ${c.renouvellement==='À renouveler'?'selected':''}>À renouveler</option>
+            <option ${c.renouvellement==='Renouvelé'?'selected':''}>Renouvelé</option>
+            <option ${c.renouvellement==='Résilié'?'selected':''}>Résilié</option>
+          </select>
+        </div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Début</div><input value="${c.debut}" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;" onchange="WESTFIELD_CONTRATS[${i}].debut=this.value;"></div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Fin</div><input value="${c.fin}" style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;" onchange="WESTFIELD_CONTRATS[${i}].fin=this.value;"></div>
+        <div style="grid-column:3/5;"><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;">Notes</div><input value="${c.notes}" placeholder="Remarques..." style="width:100%;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;" onchange="WESTFIELD_CONTRATS[${i}].notes=this.value;"></div>
+        <div style="display:flex;align-items:flex-end;gap:6px;">
+          <button class="btn btn-sm btn-p" onclick="saveAll()">💾</button>
+          <button class="btn btn-sm btn-r" onclick="WESTFIELD_CONTRATS.splice(${i},1);renderWestfield();saveAll();">🗑️</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Docs
+  const docsEl = document.getElementById('westfield-docs');
+  if (docsEl) {
+    docsEl.innerHTML = WESTFIELD_DOCS.map((d,i) => `
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;" onclick="openUrl(WESTFIELD_DOCS[${i}].url)">
+        <div style="font-size:20px;margin-bottom:4px;">📄</div>
+        <div style="font-size:11px;font-weight:600;">${d.nom}</div>
+        <button class="btn btn-sm btn-r" style="margin-top:6px;" onclick="event.stopPropagation();WESTFIELD_DOCS.splice(${i},1);renderWestfield();">🗑️</button>
+      </div>`).join('') +
+      `<div style="background:#EFF6FF;border:1px dashed #93C5FD;border-radius:8px;padding:10px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;" onclick="document.getElementById('westfield-upload').click()">
+        <div style="font-size:20px;">☁️</div>
+        <div style="font-size:11px;color:var(--accent);margin-top:4px;">Ajouter</div>
+      </div>`;
+  }
+}
+
+function addWestfieldContact() {
+  WESTFIELD_CONTACTS.push({nom:'Nouveau contact', poste:'', tel:'', email:'', centre:''});
+  renderWestfield();
+}
+
+function addWestfieldContrat() {
+  WESTFIELD_CONTRATS.push({centre:'', bailleur:'Westfield', loyer:0, debut:'', fin:'', renouvellement:'En cours', notes:''});
+  renderWestfield();
+}
+
+function handleWestfieldUpload(input) {
+  if (!input.files[0]) return;
+  const f = input.files[0];
+  const url = URL.createObjectURL(f);
+  WESTFIELD_DOCS.push({nom: f.name, url});
+  renderWestfield();
+}
+
+function selectCarpolish(code) {
+  if (!code || code === 'autre') return;
+  const prod = CARPOLISH_PRODUITS.find(p => p.code === code);
+  if (prod) {
+    document.getElementById('ns-produit').value = `[${prod.code}] ${prod.nom}`;
+    document.getElementById('ns-pu').value = prod.prix;
+  }
+}
+
+function buildOrderEmail() {
+  const centre = document.getElementById('ns-centre')?.value || '';
+  const produit = document.getElementById('ns-produit')?.value || '';
+  const qte = document.getElementById('ns-qte')?.value || '';
+  const pu = document.getElementById('ns-pu')?.value || '';
+  return `Bonjour,\n\nNous souhaitons passer la commande suivante :\n\nCentre : ${centre}\nProduit : ${produit}\nQuantité : ${qte}\nPrix unitaire : ${pu} €\n\nCordialement,\nDreamwash`;
+}
+
+// ═══ MODE TABLETTE ════════════════════════════════════════════
+function toggleDrawer() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('drawer-overlay');
+  sidebar.classList.toggle('drawer-open');
+  overlay.classList.toggle('open');
+}
+
+function closeDrawer() {
+  document.querySelector('.sidebar').classList.remove('drawer-open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+// Fermer drawer quand on clique sur un nav item sur tablette
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    if (window.innerWidth <= 1024) closeDrawer();
+  });
+});
+
+// Bottom nav go
+function bnGo(id) {
+  go(id);
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.bn-item[data-page="${id}"]`)?.classList.add('active');
+}
+
 // FIN
 </script>
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- BOTTOM NAV TABLETTE -->
+<div class="bottom-nav">
+  <div class="bottom-nav-items">
+    <div class="bn-item active" data-page="dashboard" onclick="bnGo('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="bn-item" data-page="techniciens" onclick="bnGo('techniciens')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Équipe
+    </div>
+    <div class="bn-item" data-page="planning" onclick="bnGo('planning')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Planning
+    </div>
+    <div class="bn-item" data-page="cra" onclick="bnGo('cra')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      CRA
+    </div>
+    <div class="bn-item" data-page="badgeuse-view" onclick="bnGo('badgeuse-view')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Badgeuse
+    </div>
+    <div class="bn-item bn-more" onclick="toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+      Plus
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
