@@ -349,17 +349,18 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="page" id="page-cra">
       <div class="rh">
         <div>
-          <div class="sec-title">CRA</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
-            <button class="btn btn-o btn-sm" onclick="craNav(-1)">←</button>
-            <span style="font-size:14px;font-weight:600;min-width:150px;text-align:center;" id="cra-date-lbl">Mercredi 15 Avr. 2026</span>
-            <button class="btn btn-o btn-sm" onclick="craNav(1)">→</button>
-          </div>
+          <div class="sec-title">CRA — Compte Rendu d'Activité</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">Alimenté automatiquement par la badgeuse</div>
         </div>
         <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" style="background:#7C3AED;color:#fff;border:none;" onclick="syncAllBadgeages()">🔄 Sync Badgeuse → CRA</button>
           <button class="btn btn-o btn-sm" onclick="copyCRA()">📋 Copier</button>
           <button class="btn btn-p btn-sm" onclick="exportCSV()">📤 Exporter CSV</button>
         </div>
+      </div>
+      <div style="background:#EFF6FF;border:1px solid #DBEAFE;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:18px;">💡</span>
+        <div style="font-size:13px;color:#1D4ED8;">Cliquez <strong>"Sync Badgeuse → CRA"</strong> pour importer automatiquement toutes les présences depuis la badgeuse. Le nombre de jours travaillés et les centres sont mis à jour automatiquement.</div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
         <input class="srch" id="cra-search" placeholder="🔍 Rechercher un technicien…" oninput="renderCRA()" style="max-width:240px;">
@@ -688,6 +689,9 @@ let PLANNING = {
   "Belleville":[[{nom:"Nabil",statut:"absent"},{nom:"Amine",statut:"absent"}],[{nom:"Nabil",statut:"present"},{nom:"Soufiane",statut:"absent"}],[{nom:"Redouane",statut:"absent"}],[{nom:"Nabil",statut:"present"},{nom:"Amine",statut:"absent"}],[{nom:"Soufiane",statut:"present"}]],
   "Suresnes":[[{nom:"Rachid",statut:"absent"},{nom:"Hamza",statut:"absent"}],[{nom:"Marwan",statut:"absent"}],[{nom:"Rachid",statut:"present"}],[{nom:"Hamza",statut:"absent"}],[{nom:"Rachid",statut:"absent"},{nom:"Marwan",statut:"present"}]],
 };
+
+// CRA_DATA : { "Sadoul": { "17/04/2026": "Aeroville A", "16/04/2026": "Aeroville A" }, ... }
+let CRA_DATA = {};
 
 let CHARGES = [
   {n:"Loyers centres (×9)",m:10650,e:"01/05/2026",s:"paid",c:"🏠"},
@@ -1043,26 +1047,66 @@ function renderCRA() {
   const search = (document.getElementById('cra-search')?.value||'').toLowerCase();
   const centreF = document.getElementById('cra-centre-filter')?.value||'tous';
   const statutF = document.getElementById('cra-statut-filter')?.value||'tous';
+
+  // Calculer jours depuis CRA_DATA
+  const now = new Date();
+  const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+
   const filtered = TECHS.filter(t => {
+    const joursReel = CRA_DATA[t.nom] ? Object.keys(CRA_DATA[t.nom]).filter(d => d.endsWith(moisCourant)).length : t.jours;
     if (search && !t.nom.toLowerCase().includes(search)) return false;
     if (centreF !== 'tous' && t.centre !== centreF) return false;
-    if (statutF === 'present' && t.jours === 0) return false;
-    if (statutF === 'absent' && t.jours > 0) return false;
+    if (statutF === 'present' && joursReel === 0) return false;
+    if (statutF === 'absent' && joursReel > 0) return false;
     return true;
   });
+
   const countEl = document.getElementById('cra-count');
   if (countEl) countEl.textContent = filtered.length;
   const visibleCentres = centreF === 'tous' ? CENTRES.map(c=>c.nom) : [centreF];
-  thead.innerHTML = `<th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);min-width:150px;">Employé</th>` +
-    visibleCentres.map(n=>`<th style="padding:8px 6px;background:var(--bg3);font-size:10px;font-weight:600;color:var(--muted);text-align:center;">${n}<br><small style="font-weight:400;color:var(--light);">(${TECHS.filter(t=>t.centre===n&&t.jours>0).length})</small></th>`).join('') +
-    `<th style="padding:8px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Total</th>`;
+
+  thead.innerHTML = `<th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);min-width:180px;">Employé</th>` +
+    visibleCentres.map(n=>`<th style="padding:8px 6px;background:var(--bg3);font-size:10px;font-weight:600;color:var(--muted);text-align:center;">${n}<br><small style="font-weight:400;color:var(--light);">(${filtered.filter(t=>{
+      return CRA_DATA[t.nom] && Object.values(CRA_DATA[t.nom]).some(c=>c===n);
+    }).length})</small></th>`).join('') +
+    `<th style="padding:8px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Total jours</th>
+    <th style="padding:8px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Dernière présence</th>`;
+
   filtered.forEach(t => {
-    let row = `<tr><td style="text-align:left;font-weight:600;padding:8px 14px;font-size:13px;">${t.nom}<br><small style="color:var(--muted);font-weight:400;font-size:10px;">${t.centre}</small></td>`;
-    visibleCentres.forEach(cn => {
-      const present = t.centre===cn && t.jours>0;
-      row += `<td style="text-align:center;padding:6px;"><div class="cra-circle ${present?'present':''}" onclick="this.classList.toggle('present');this.textContent=this.classList.contains('present')?'✓':'';">${present?'✓':''}</div></td>`;
+    const techCRA = CRA_DATA[t.nom] || {};
+    const joursMois = Object.keys(techCRA).filter(d => d.endsWith(moisCourant));
+    const totalJours = joursMois.length || t.jours;
+
+    // Trouver le centre le plus fréquent ce mois
+    const centreCount = {};
+    joursMois.forEach(d => {
+      const c = techCRA[d];
+      centreCount[c] = (centreCount[c]||0) + 1;
     });
-    row += `<td style="text-align:center;padding:6px;"><span class="${t.jours>0?'cra-total-g':'cra-total'}">${t.jours}</span></td></tr>`;
+
+    // Dernière présence
+    const dernier = joursMois.sort().reverse()[0] || '—';
+    const dernierCentre = dernier !== '—' ? techCRA[dernier] : t.centre;
+
+    let row = `<tr>
+      <td style="text-align:left;font-weight:600;padding:8px 14px;font-size:13px;">${t.nom}
+        <br><small style="color:var(--muted);font-weight:400;font-size:10px;">📍 ${t.centre} · ${t.contrat}</small>
+      </td>`;
+
+    visibleCentres.forEach(cn => {
+      const joursIci = Object.keys(techCRA).filter(d => d.endsWith(moisCourant) && techCRA[d] === cn).length;
+      const present = joursIci > 0 || (joursMois.length === 0 && t.centre === cn && t.jours > 0);
+      row += `<td style="text-align:center;padding:6px;">
+        ${joursIci > 0 ?
+          `<span style="background:#DCFCE7;color:#15803D;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;">✓ ${joursIci}j</span>` :
+          `<div class="cra-circle" onclick="this.classList.toggle('present');this.textContent=this.classList.contains('present')?'✓':'';"></div>`
+        }
+      </td>`;
+    });
+
+    row += `<td style="text-align:center;padding:6px;"><span class="${totalJours>0?'cra-total-g':'cra-total'}">${totalJours}</span></td>
+      <td style="text-align:center;padding:6px;font-size:11px;color:var(--muted);">${dernier}</td>
+    </tr>`;
     tbody.innerHTML += row;
   });
 }
@@ -1450,20 +1494,16 @@ async function refreshBadgeuse() {
 
   let todayLog = [];
 
-  // Charger depuis Firebase
   if (window.loadBadgeages) {
-    try {
-      todayLog = await window.loadBadgeages();
-    } catch(e) {
-      console.log('Erreur chargement badgeages:', e);
-    }
+    try { todayLog = await window.loadBadgeages(); } catch(e) {}
   }
-
-  // Si Firebase vide, essayer localStorage de la badgeuse
   if (todayLog.length === 0) {
     const log = JSON.parse(localStorage.getItem('dw_log') || '[]');
     todayLog = log.filter(l => l.date === dateStr);
   }
+
+  // Synchroniser avec le CRA
+  syncBadgeagesToCRA(todayLog);
 
   const uniq = [...new Set(todayLog.map(l=>l.nom))];
   const centres = [...new Set(todayLog.map(l=>l.centreBadge))];
@@ -1488,6 +1528,67 @@ async function refreshBadgeuse() {
       <td>${isMobile ? '<span class="badge yl">⚡ Mobile</span>' : '<span class="badge gr">✓ Centre habituel</span>'}</td>
     </tr>`;
   });
+}
+
+// ═══ SYNCHRONISATION BADGEUSE → CRA ═══════════════════════════
+async function syncAllBadgeages() {
+  if (!window._db || !window._firebase) return;
+  try {
+    const { collection, getDocs } = window._firebase || {};
+    if (!getDocs) return;
+    const snap = await getDocs(collection(window._db, 'badgeages'));
+    const allBadges = [];
+    snap.forEach(d => allBadges.push(d.data()));
+
+    // Construire CRA_DATA depuis tous les badges
+    CRA_DATA = {};
+    allBadges.forEach(b => {
+      if (!b.nom || !b.date) return;
+      if (!CRA_DATA[b.nom]) CRA_DATA[b.nom] = {};
+      CRA_DATA[b.nom][b.date] = b.centreBadge || b.centreHabituel;
+    });
+
+    // Mettre à jour jours dans TECHS (mois en cours)
+    const now = new Date();
+    const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+    TECHS.forEach((t, i) => {
+      if (CRA_DATA[t.nom]) {
+        const joursMois = Object.keys(CRA_DATA[t.nom]).filter(d => d.endsWith(moisCourant)).length;
+        TECHS[i].jours = joursMois;
+      }
+    });
+
+    // Sauvegarder CRA_DATA
+    await window.saveToFirebase('cra_data', CRA_DATA);
+    saveLocal();
+    renderCRA();
+    renderRapport();
+    renderTechs();
+    renderDashboard();
+    console.log('✅ CRA synchronisé depuis badgeuse', Object.keys(CRA_DATA).length, 'techniciens');
+  } catch(e) {
+    console.log('Erreur sync CRA:', e.message);
+  }
+}
+
+function syncBadgeagesToCRA(badges) {
+  if (!badges?.length) return;
+  badges.forEach(b => {
+    if (!b.nom || !b.date) return;
+    if (!CRA_DATA[b.nom]) CRA_DATA[b.nom] = {};
+    CRA_DATA[b.nom][b.date] = b.centreBadge || b.centreHabituel;
+  });
+  // Mettre à jour jours du mois courant
+  const now = new Date();
+  const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+  TECHS.forEach((t, i) => {
+    if (CRA_DATA[t.nom]) {
+      const joursMois = Object.keys(CRA_DATA[t.nom]).filter(d => d.endsWith(moisCourant)).length;
+      if (joursMois > 0) TECHS[i].jours = joursMois;
+    }
+  });
+  renderCRA();
+  renderRapport();
 }
 
 function go(id){
@@ -1538,7 +1639,7 @@ function exportCSV(){
 function saveLocal() {
   const data = {
     TECHS, CENTRES, CHARGES, ASSURANCES, STOCK,
-    BOX_DATA, TEL_DATA, EXTRA_ROWS, COMPTA, PLANNING,
+    BOX_DATA, TEL_DATA, EXTRA_ROWS, COMPTA, PLANNING, CRA_DATA,
     prestations: capturePresta()
   };
   try {
@@ -1691,6 +1792,7 @@ async function saveAll() {
         window.saveToFirebase('compta', COMPTA),
         window.saveToFirebase('prestations', prestaData),
         window.saveToFirebase('planning', PLANNING),
+        window.saveToFirebase('cra_data', CRA_DATA),
       ]);
       firebaseOk = true;
     } catch(e) {
@@ -1737,6 +1839,7 @@ async function init() {
     if (local.EXTRA_ROWS?.length) EXTRA_ROWS.splice(0, EXTRA_ROWS.length, ...local.EXTRA_ROWS);
     if (local.COMPTA?.length) local.COMPTA.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); });
     if (local.PLANNING) Object.assign(PLANNING, local.PLANNING);
+    if (local.CRA_DATA) Object.assign(CRA_DATA, local.CRA_DATA);
     console.log('✅ Données locales chargées');
   }
 
@@ -1760,7 +1863,7 @@ async function init() {
   // 3. Essayer Firebase en arrière-plan
   if (window.loadFromFirebase) {
     try {
-      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning] = await Promise.all([
+      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning, fbCraData] = await Promise.all([
         window.loadFromFirebase('techs'),
         window.loadFromFirebase('centres'),
         window.loadFromFirebase('charges'),
@@ -1772,6 +1875,7 @@ async function init() {
         window.loadFromFirebase('compta'),
         window.loadFromFirebase('prestations'),
         window.loadFromFirebase('planning'),
+        window.loadFromFirebase('cra_data'),
       ]);
       let updated = false;
       if (fbTechs?.length) { TECHS.splice(0, TECHS.length, ...fbTechs); updated = true; }
@@ -1784,10 +1888,12 @@ async function init() {
       if (fbExtra?.length) { EXTRA_ROWS.splice(0, EXTRA_ROWS.length, ...fbExtra); updated = true; }
       if (fbCompta?.length) { fbCompta.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); }); updated = true; }
       if (fbPlanning) { Object.assign(PLANNING, fbPlanning); updated = true; }
+      if (fbCraData) { Object.assign(CRA_DATA, fbCraData); updated = true; }
       if (updated) {
         renderDashboard(); renderCentres(); renderTechs(); renderCompta();
         renderCharges(); renderAssurances(); renderStock(); renderPlanning();
-        saveLocal(); // Mettre à jour le local avec les données Firebase
+        renderCRA(); renderRapport();
+        saveLocal();
         console.log('🔥 Données Firebase chargées ✅');
       }
       if (fbPresta) {
@@ -1796,6 +1902,8 @@ async function init() {
           if (el) el.value = fbPresta[id];
         });
       }
+      // Sync automatique badgeuse → CRA au chargement
+      setTimeout(() => syncAllBadgeages(), 2000);
     } catch(e) {
       console.log('Firebase load error:', e.message);
     }
