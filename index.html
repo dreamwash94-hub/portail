@@ -784,10 +784,11 @@ function showFiche(i) {
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
       <div style="width:46px;height:46px;border-radius:12px;background:${c.color};display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;">💧</div>
       <div>
-        <div style="font-size:20px;font-weight:800;" contenteditable="true" class="editable">${c.nom}</div>
+        <input id="cnom-${i}" value="${c.nom}" style="font-size:20px;font-weight:800;border:1px solid var(--border);background:var(--bg3);border-radius:7px;padding:4px 10px;font-family:inherit;width:200px;" onchange="CENTRES[${i}].nom=this.value;">
         <span class="badge gr">● Actif</span>
       </div>
       <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-p btn-sm" onclick="saveCentre(${i})">💾 Sauvegarder</button>
         <button class="btn btn-o btn-sm" onclick="openUrl('https://cra.dreamwash.fr')">⏱️ CRA</button>
         <button class="btn btn-o btn-sm" onclick="openUrl('https://facture.dreamwash.fr/login')">🧾 Factures</button>
       </div>
@@ -795,23 +796,35 @@ function showFiche(i) {
     <div class="fg">
       <div class="card">
         <div class="card-t">📋 Informations</div>
-        <div class="fr"><span class="fk">Téléphone</span><span class="fv editable" contenteditable="true">${c.tel}</span></div>
-        <div class="fr"><span class="fk">Loyer mensuel</span><span class="fv editable" contenteditable="true" style="color:var(--accent4);">${c.loyer} €</span></div>
+        <div class="fr"><span class="fk">Téléphone</span><input id="ctel-${i}" value="${c.tel}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="CENTRES[${i}].tel=this.value;"></div>
+        <div class="fr"><span class="fk">Loyer mensuel</span><input id="cloyer-${i}" value="${c.loyer}" type="number" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:100px;color:var(--accent4);" onchange="CENTRES[${i}].loyer=parseFloat(this.value)||0;"> €</div>
         <div class="fr"><span class="fk">Techniciens affectés</span><span class="fv">${c.techs.join(', ')}</span></div>
         <div class="fr"><span class="fk">CA aujourd'hui</span><span class="fv" style="color:var(--accent2);font-size:16px;font-weight:800;">${c.ca} €</span></div>
         <div class="fr"><span class="fk">Lavages du jour</span><span class="fv">${c.lavages}</span></div>
       </div>
       <div class="card">
         <div class="card-t">🔒 Codes d'accès <span style="font-weight:400;font-size:10px;">(cliquer pour révéler)</span></div>
-        <div class="fr"><span class="fk">Réseau WiFi</span><span class="fv editable" contenteditable="true">${c.wifi}</span></div>
+        <div class="fr"><span class="fk">Réseau WiFi</span><input id="cwifi-${i}" value="${c.wifi}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="CENTRES[${i}].wifi=this.value;"></div>
         <div class="fr"><span class="fk">Mot de passe WiFi</span><span class="secret" onclick="toggleSec(this)" data-v="${c.wifiPwd}">${'●'.repeat(c.wifiPwd.length)}</span></div>
-        <div class="fr"><span class="fk">🔑 Boîte à clés 1</span><span class="secret" onclick="toggleSec(this)" data-v="${c.boites[0]}">${'●'.repeat(c.boites[0].length)}</span></div>
-        <div class="fr"><span class="fk">🔑 Boîte à clés 2</span><span class="secret" onclick="toggleSec(this)" data-v="${c.boites[1]}">${'●'.repeat(c.boites[1].length)}</span></div>
-        <div class="fr"><span class="fk">🔑 Boîte à clés 3</span><span class="secret" onclick="toggleSec(this)" data-v="${c.boites[2]}">${'●'.repeat(c.boites[2].length)}</span></div>
-        <div class="fr"><span class="fk">🔑 Boîte à clés 4</span><span class="secret" onclick="toggleSec(this)" data-v="${c.boites[3]}">${'●'.repeat(c.boites[3].length)}</span></div>
+        <div class="fr"><span class="fk">🔑 Boîte à clés 1</span><input id="cb1-${i}" value="${c.boites[0]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[0]=this.value;"></div>
+        <div class="fr"><span class="fk">🔑 Boîte à clés 2</span><input id="cb2-${i}" value="${c.boites[1]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[1]=this.value;"></div>
+        <div class="fr"><span class="fk">🔑 Boîte à clés 3</span><input id="cb3-${i}" value="${c.boites[2]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[2]=this.value;"></div>
+        <div class="fr"><span class="fk">🔑 Boîte à clés 4</span><input id="cb4-${i}" value="${c.boites[3]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[3]=this.value;"></div>
       </div>
     </div>`;
   go('fiche');
+}
+
+function saveCentre(i) {
+  CENTRES[i].nom = document.getElementById('cnom-'+i)?.value || CENTRES[i].nom;
+  CENTRES[i].tel = document.getElementById('ctel-'+i)?.value || CENTRES[i].tel;
+  CENTRES[i].loyer = parseFloat(document.getElementById('cloyer-'+i)?.value)||CENTRES[i].loyer;
+  CENTRES[i].wifi = document.getElementById('cwifi-'+i)?.value || CENTRES[i].wifi;
+  if(document.getElementById('cb1-'+i)) CENTRES[i].boites[0] = document.getElementById('cb1-'+i).value;
+  if(document.getElementById('cb2-'+i)) CENTRES[i].boites[1] = document.getElementById('cb2-'+i).value;
+  if(document.getElementById('cb3-'+i)) CENTRES[i].boites[2] = document.getElementById('cb3-'+i).value;
+  if(document.getElementById('cb4-'+i)) CENTRES[i].boites[3] = document.getElementById('cb4-'+i).value;
+  saveAll();
 }
 
 function renderTechs() {
@@ -853,35 +866,57 @@ function renderTechs() {
 function showFicheTech(i) {
   const t = TECHS[i];
   const totH = t.jours;
+  // Init extra tech data if not exists
+  if (!t.email) t.email = t.nom.toLowerCase().replace(/\s/g,'.')+'@dreamwash.fr';
+  if (!t.adresse) t.adresse = '';
+  if (!t.dateDebut) t.dateDebut = '';
+  if (!t.cni_type) t.cni_type = 'CNI';
+  if (!t.cni_num) t.cni_num = '';
+  if (!t.cni_exp) t.cni_exp = '';
+  if (!t.nationalite) t.nationalite = '';
+
   document.getElementById('fiche-t').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
       <div style="width:52px;height:52px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;">${t.nom.charAt(0)}</div>
       <div>
-        <div style="font-size:20px;font-weight:800;" contenteditable="true" class="editable">${t.nom}</div>
+        <input id="ftnom-${i}" value="${t.nom}" style="font-size:20px;font-weight:800;border:1px solid var(--border);background:var(--bg3);border-radius:7px;padding:4px 10px;font-family:inherit;width:200px;" onchange="TECHS[${i}].nom=this.value;">
         <div style="color:var(--muted);font-size:12px;">📍 ${t.centre} · ${t.contrat}</div>
       </div>
       <span class="badge gr" style="margin-left:auto;">● Actif</span>
+      <button class="btn btn-p btn-sm" onclick="saveFicheTech(${i})">💾 Sauvegarder</button>
     </div>
     <div class="fg">
       <div class="card">
         <div class="card-t">👤 Informations personnelles</div>
-        <div class="fr"><span class="fk">Téléphone</span><span class="fv editable" contenteditable="true">${t.tel||'—'}</span></div>
-        <div class="fr"><span class="fk">Email</span><span class="fv editable" contenteditable="true">${t.nom.toLowerCase().replace(/\s/g,'.')}@dreamwash.fr</span></div>
-        <div class="fr"><span class="fk">Adresse</span><span class="fv editable" contenteditable="true">À compléter</span></div>
+        <div class="fr"><span class="fk">Téléphone</span><input id="fttel-${i}" value="${t.tel||''}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="TECHS[${i}].tel=this.value;"></div>
+        <div class="fr"><span class="fk">Email</span><input id="ftemail-${i}" value="${t.email}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:200px;" onchange="TECHS[${i}].email=this.value;"></div>
+        <div class="fr"><span class="fk">Adresse</span><input id="ftadr-${i}" value="${t.adresse}" placeholder="À compléter" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:200px;" onchange="TECHS[${i}].adresse=this.value;"></div>
         <div class="fr"><span class="fk">Centre affecté</span>
-          <select onchange="TECHS[${i}].centre=this.value;renderCentres();" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
+          <select id="ftcentre-${i}" onchange="TECHS[${i}].centre=this.value;" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
             ${CENTRES.map(c=>`<option value="${c.nom}" ${c.nom===t.centre?'selected':''}>${c.nom}</option>`).join('')}
           </select>
         </div>
-        <div class="fr"><span class="fk">Type contrat</span><span class="fv editable" contenteditable="true">${t.contrat}</span></div>
-        <div class="fr"><span class="fk">Date début</span><span class="fv editable" contenteditable="true">À compléter</span></div>
+        <div class="fr"><span class="fk">Type contrat</span>
+          <select id="ftcontrat-${i}" onchange="TECHS[${i}].contrat=this.value;" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
+            <option ${t.contrat==='CDI'?'selected':''}>CDI</option>
+            <option ${t.contrat==='CDD'?'selected':''}>CDD</option>
+            <option ${t.contrat==='Intérim'?'selected':''}>Intérim</option>
+          </select>
+        </div>
+        <div class="fr"><span class="fk">Date début</span><input id="ftdebut-${i}" value="${t.dateDebut}" type="date" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;" onchange="TECHS[${i}].dateDebut=this.value;"></div>
       </div>
       <div class="card">
         <div class="card-t">🪪 Pièces d'identité</div>
-        <div class="fr"><span class="fk">Type</span><span class="fv editable" contenteditable="true">CNI</span></div>
-        <div class="fr"><span class="fk">Numéro</span><span class="fv editable" contenteditable="true">À compléter</span></div>
-        <div class="fr"><span class="fk">Date expiration</span><span class="fv editable" contenteditable="true">À compléter</span></div>
-        <div class="fr"><span class="fk">Nationalité</span><span class="fv editable" contenteditable="true">À compléter</span></div>
+        <div class="fr"><span class="fk">Type</span>
+          <select id="ftcni-${i}" onchange="TECHS[${i}].cni_type=this.value;" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
+            <option ${t.cni_type==='CNI'?'selected':''}>CNI</option>
+            <option ${t.cni_type==='Passeport'?'selected':''}>Passeport</option>
+            <option ${t.cni_type==='Titre de séjour'?'selected':''}>Titre de séjour</option>
+          </select>
+        </div>
+        <div class="fr"><span class="fk">Numéro</span><input id="ftcninum-${i}" value="${t.cni_num}" placeholder="À compléter" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="TECHS[${i}].cni_num=this.value;"></div>
+        <div class="fr"><span class="fk">Date expiration</span><input id="ftcniexp-${i}" value="${t.cni_exp}" type="date" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;" onchange="TECHS[${i}].cni_exp=this.value;"></div>
+        <div class="fr"><span class="fk">Nationalité</span><input id="ftnatio-${i}" value="${t.nationalite}" placeholder="À compléter" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="TECHS[${i}].nationalite=this.value;"></div>
         <div class="fr"><span class="fk">🔐 Code badgeuse</span><span class="fv" style="background:#EFF6FF;border:1px solid #DBEAFE;padding:3px 12px;border-radius:20px;font-family:monospace;font-size:15px;font-weight:800;color:var(--accent);letter-spacing:.1em;">${String(1000 + i + 1).padStart(4,'0')}</span></div>
         <div style="margin-top:10px;"><button class="btn btn-o btn-sm" onclick="openUrl('https://drive.google.com')">📎 Ajouter document</button></div>
       </div>
@@ -895,7 +930,7 @@ function showFicheTech(i) {
               <div style="display:flex;gap:4px;justify-content:center;">
                 ${days.map(d=>`<div style="text-align:center;">
                   <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">${d}</div>
-                  <div class="cra-circle ${Math.random()>0.4?'present':''}" style="margin:0 auto;" onclick="this.classList.toggle('present');this.textContent=this.classList.contains('present')?'✓':'';"></div>
+                  <div class="cra-circle" style="margin:0 auto;" onclick="this.classList.toggle('present');this.textContent=this.classList.contains('present')?'✓':'';"></div>
                 </div>`).join('')}
               </div>
             </div>`;
@@ -919,6 +954,21 @@ function showFicheTech(i) {
       </div>
     </div>`;
   go('fiche-tech');
+}
+
+function saveFicheTech(i) {
+  TECHS[i].nom = document.getElementById('ftnom-'+i)?.value || TECHS[i].nom;
+  TECHS[i].tel = document.getElementById('fttel-'+i)?.value || TECHS[i].tel;
+  TECHS[i].email = document.getElementById('ftemail-'+i)?.value || TECHS[i].email;
+  TECHS[i].adresse = document.getElementById('ftadr-'+i)?.value || '';
+  TECHS[i].centre = document.getElementById('ftcentre-'+i)?.value || TECHS[i].centre;
+  TECHS[i].contrat = document.getElementById('ftcontrat-'+i)?.value || TECHS[i].contrat;
+  TECHS[i].dateDebut = document.getElementById('ftdebut-'+i)?.value || '';
+  TECHS[i].cni_type = document.getElementById('ftcni-'+i)?.value || 'CNI';
+  TECHS[i].cni_num = document.getElementById('ftcninum-'+i)?.value || '';
+  TECHS[i].cni_exp = document.getElementById('ftcniexp-'+i)?.value || '';
+  TECHS[i].nationalite = document.getElementById('ftnatio-'+i)?.value || '';
+  saveAll();
 }
 
 function setTF(btn, f) {
@@ -1328,13 +1378,13 @@ function renderTelephone() {
   bt.innerHTML = '';
   BOX_DATA.forEach((b,i) => {
     bt.innerHTML += `<tr>
-      <td style="font-weight:700;">${b.centre}</td>
-      <td contenteditable="true" class="editable">${b.operateur}</td>
-      <td contenteditable="true" class="editable" style="font-family:monospace;">${b.ligne}</td>
+      <td><input id="bc-${i}" value="${b.centre}" style="font-weight:700;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:120px;" onchange="BOX_DATA[${i}].centre=this.value;"></td>
+      <td><input id="bo-${i}" value="${b.operateur}" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:100px;" onchange="BOX_DATA[${i}].operateur=this.value;"></td>
+      <td><input id="bl-${i}" value="${b.ligne}" style="font-family:monospace;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;width:120px;" onchange="BOX_DATA[${i}].ligne=this.value;"></td>
       <td><span class="secret" onclick="toggleSec(this)" data-v="${b.wifi}">${'●'.repeat(b.wifi.length)}</span></td>
-      <td contenteditable="true" class="editable" style="color:var(--accent3);">${b.renouvellement}</td>
-      <td contenteditable="true" class="editable" style="color:var(--accent2);font-weight:700;">${b.mensuel}</td>
-      <td><button class="btn btn-sm btn-o">📎</button></td>
+      <td><input id="br-${i}" value="${b.renouvellement}" style="color:var(--accent3);border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:80px;" onchange="BOX_DATA[${i}].renouvellement=this.value;"></td>
+      <td><input id="bm-${i}" value="${b.mensuel}" style="color:var(--accent2);font-weight:700;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:70px;" onchange="BOX_DATA[${i}].mensuel=this.value;"></td>
+      <td><button class="btn btn-sm btn-r" onclick="BOX_DATA.splice(${i},1);renderTelephone();saveAll();">🗑️</button></td>
     </tr>`;
   });
 
@@ -1343,13 +1393,13 @@ function renderTelephone() {
   tt.innerHTML = '';
   TEL_DATA.forEach((t,i) => {
     tt.innerHTML += `<tr>
-      <td contenteditable="true" class="editable" style="font-weight:700;">${t.nom}</td>
-      <td contenteditable="true" class="editable" style="font-family:monospace;">${t.numero}</td>
-      <td contenteditable="true" class="editable">${t.operateur}</td>
-      <td contenteditable="true" class="editable">${t.forfait}</td>
-      <td contenteditable="true" class="editable" style="color:var(--accent3);">${t.renouvellement}</td>
-      <td contenteditable="true" class="editable" style="color:var(--accent2);font-weight:700;">${t.mensuel}</td>
-      <td><button class="btn btn-sm btn-r" onclick="TEL_DATA.splice(${i},1);renderTelephone();">🗑️</button></td>
+      <td><input id="tn-${i}" value="${t.nom}" style="font-weight:700;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:130px;" onchange="TEL_DATA[${i}].nom=this.value;"></td>
+      <td><input id="tnu-${i}" value="${t.numero}" style="font-family:monospace;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;width:130px;" onchange="TEL_DATA[${i}].numero=this.value;"></td>
+      <td><input id="top-${i}" value="${t.operateur}" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:80px;" onchange="TEL_DATA[${i}].operateur=this.value;"></td>
+      <td><input id="tf-${i}" value="${t.forfait}" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:80px;" onchange="TEL_DATA[${i}].forfait=this.value;"></td>
+      <td><input id="tr-${i}" value="${t.renouvellement}" style="color:var(--accent3);border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:80px;" onchange="TEL_DATA[${i}].renouvellement=this.value;"></td>
+      <td><input id="tm-${i}" value="${t.mensuel}" style="color:var(--accent2);font-weight:700;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:70px;" onchange="TEL_DATA[${i}].mensuel=this.value;"></td>
+      <td><button class="btn btn-sm btn-r" onclick="TEL_DATA.splice(${i},1);renderTelephone();saveAll();">🗑️</button></td>
     </tr>`;
   });
 
@@ -1360,7 +1410,7 @@ function renderTelephone() {
     er.innerHTML += `<div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
       <input value="${r.label}" placeholder="Libellé" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--text);font-family:inherit;outline:none;" oninput="EXTRA_ROWS[${i}].label=this.value">
       <input value="${r.valeur}" placeholder="Valeur" style="flex:2;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--text);font-family:inherit;outline:none;" oninput="EXTRA_ROWS[${i}].valeur=this.value">
-      <button class="btn btn-sm btn-r" onclick="EXTRA_ROWS.splice(${i},1);renderTelephone();">🗑️</button>
+      <button class="btn btn-sm btn-r" onclick="EXTRA_ROWS.splice(${i},1);renderTelephone();saveAll();">🗑️</button>
     </div>`;
   });
 }
@@ -1462,6 +1512,9 @@ async function init(){
       const savedTechs = await window.loadFromFirebase('techs', null);
       if (savedTechs) TECHS = savedTechs;
 
+      const savedCentres = await window.loadFromFirebase('centres', null);
+      if (savedCentres) CENTRES = savedCentres;
+
       const savedCharges = await window.loadFromFirebase('charges', null);
       if (savedCharges) CHARGES = savedCharges;
 
@@ -1476,6 +1529,9 @@ async function init(){
 
       const savedTel = await window.loadFromFirebase('tel', null);
       if (savedTel) TEL_DATA = savedTel;
+
+      const savedExtra = await window.loadFromFirebase('extra', null);
+      if (savedExtra) EXTRA_ROWS = savedExtra;
 
       console.log('Données chargées depuis Firebase ✅');
     } catch(e) {
@@ -1543,6 +1599,18 @@ async function saveAll() {
     if (telEl) TECHS[idx].tel = telEl.value;
   });
 
+  // Capturer les centres si fiche ouverte
+  CENTRES.forEach((c, i) => {
+    const nom = document.getElementById('cnom-'+i);
+    const tel = document.getElementById('ctel-'+i);
+    const loyer = document.getElementById('cloyer-'+i);
+    const wifi = document.getElementById('cwifi-'+i);
+    if (nom) CENTRES[i].nom = nom.value;
+    if (tel) CENTRES[i].tel = tel.value;
+    if (loyer) CENTRES[i].loyer = parseFloat(loyer.value)||CENTRES[i].loyer;
+    if (wifi) CENTRES[i].wifi = wifi.value;
+  });
+
   // Capturer les charges
   CHARGES.forEach((c, i) => {
     const n = document.getElementById('cn-'+i);
@@ -1577,14 +1645,46 @@ async function saveAll() {
     if (pu) STOCK[idx].pu = parseFloat(pu.value)||0;
   });
 
+  // Capturer Box Internet
+  BOX_DATA.forEach((b, i) => {
+    const c = document.getElementById('bc-'+i);
+    const o = document.getElementById('bo-'+i);
+    const l = document.getElementById('bl-'+i);
+    const r = document.getElementById('br-'+i);
+    const m = document.getElementById('bm-'+i);
+    if (c) BOX_DATA[i].centre = c.value;
+    if (o) BOX_DATA[i].operateur = o.value;
+    if (l) BOX_DATA[i].ligne = l.value;
+    if (r) BOX_DATA[i].renouvellement = r.value;
+    if (m) BOX_DATA[i].mensuel = m.value;
+  });
+
+  // Capturer Téléphones
+  TEL_DATA.forEach((t, i) => {
+    const n = document.getElementById('tn-'+i);
+    const nu = document.getElementById('tnu-'+i);
+    const o = document.getElementById('top-'+i);
+    const f = document.getElementById('tf-'+i);
+    const r = document.getElementById('tr-'+i);
+    const m = document.getElementById('tm-'+i);
+    if (n) TEL_DATA[i].nom = n.value;
+    if (nu) TEL_DATA[i].numero = nu.value;
+    if (o) TEL_DATA[i].operateur = o.value;
+    if (f) TEL_DATA[i].forfait = f.value;
+    if (r) TEL_DATA[i].renouvellement = r.value;
+    if (m) TEL_DATA[i].mensuel = m.value;
+  });
+
   // Sauvegarder tout sur Firebase
   try {
     await window.saveToFirebase('techs', TECHS);
+    await window.saveToFirebase('centres', CENTRES);
     await window.saveToFirebase('charges', CHARGES);
     await window.saveToFirebase('assurances', ASSURANCES);
     await window.saveToFirebase('stock', STOCK);
     await window.saveToFirebase('box', BOX_DATA);
     await window.saveToFirebase('tel', TEL_DATA);
+    await window.saveToFirebase('extra', EXTRA_ROWS);
     showNotif('✅ Tout sauvegardé !');
   } catch(e) {
     showNotif('❌ Erreur sauvegarde');
