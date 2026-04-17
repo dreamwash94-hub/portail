@@ -460,14 +460,26 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
 
     <!-- PRESTATIONS -->
     <div class="page" id="page-prestations">
-      <div class="rh"><div><div class="sec-title">Prestations Dreamwash</div><div class="sec-sub">Lavage sans eau · Cliquez sur un tarif pour le modifier</div></div></div>
+      <div class="rh"><div><div class="sec-title">Prestations Dreamwash</div><div class="sec-sub">Lavage sans eau · Modifiez les tarifs puis cliquez 💾 Sauvegarder</div></div></div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow);">
         <div class="pt">
           <div class="pc hd">Taille véhicule</div><div class="pc hd">🚿 Extérieur</div><div class="pc hd">🪑 Intérieur</div><div class="pc hd">✨ Complet</div>
-          <div class="pc sz"><span style="font-size:17px;">🚗</span> Small</div><div class="pc pr" contenteditable="true" class="editable">25 €</div><div class="pc pr" contenteditable="true" class="editable">30 €</div><div class="pc pr-g" contenteditable="true" class="editable">45 €</div>
-          <div class="pc sz"><span style="font-size:17px;">🚙</span> Medium</div><div class="pc pr" contenteditable="true" class="editable">30 €</div><div class="pc pr" contenteditable="true" class="editable">35 €</div><div class="pc pr-g" contenteditable="true" class="editable">55 €</div>
-          <div class="pc sz"><span style="font-size:17px;">🚐</span> Large</div><div class="pc pr" contenteditable="true" class="editable">40 €</div><div class="pc pr" contenteditable="true" class="editable">45 €</div><div class="pc pr-g" contenteditable="true" class="editable">70 €</div>
-          <div class="pc sz"><span style="font-size:17px;">🚌</span> Extra Large</div><div class="pc pr" contenteditable="true" class="editable">55 €</div><div class="pc pr" contenteditable="true" class="editable">60 €</div><div class="pc pr-g" contenteditable="true" class="editable">95 €</div>
+          <div class="pc sz"><span style="font-size:17px;">🚗</span> Small</div>
+          <div class="pc pr"><input id="p-s-ext" value="25" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent2);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc pr"><input id="p-s-int" value="30" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent2);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc pr-g"><input id="p-s-comp" value="45" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent3);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc sz"><span style="font-size:17px;">🚙</span> Medium</div>
+          <div class="pc pr"><input id="p-m-ext" value="30" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent2);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc pr"><input id="p-m-int" value="35" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent2);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc pr-g"><input id="p-m-comp" value="55" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent3);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc sz"><span style="font-size:17px;">🚐</span> Large</div>
+          <div class="pc pr"><input id="p-l-ext" value="40" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent2);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc pr"><input id="p-l-int" value="45" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent2);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc pr-g"><input id="p-l-comp" value="70" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent3);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc sz"><span style="font-size:17px;">🚌</span> Extra Large</div>
+          <div class="pc pr"><input id="p-xl-ext" value="55" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent2);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc pr"><input id="p-xl-int" value="60" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent2);font-family:inherit;background:var(--bg3);"> €</div>
+          <div class="pc pr-g"><input id="p-xl-comp" value="95" type="number" style="width:60px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent3);font-family:inherit;background:var(--bg3);"> €</div>
         </div>
       </div>
       <div class="card"><div class="card-t">📊 Répartition des ventes</div><div style="display:flex;flex-direction:column;gap:9px;" id="presta-stats"></div></div>
@@ -771,7 +783,7 @@ function renderCentres() {
         <div class="cc-stat"><div class="cc-stat-v">${c.techs.length}</div><div class="cc-stat-l">Techniciens</div></div>
         <div class="cc-stat"><div class="cc-stat-v">4</div><div class="cc-stat-l">Boîtes à clés</div></div>
       </div>
-      <div class="cc-info">📞 <span contenteditable="true" class="editable" onclick="event.stopPropagation()">${c.tel}</span></div>
+      <div class="cc-info">📞 <span>${c.tel}</span></div>
       <div class="cc-info">👷 <span>${c.techs.join(', ')}</span></div>
       <button class="cc-btn">Voir la fiche complète →</button>
     </div>`;
@@ -1103,16 +1115,16 @@ function renderCompta() {
   const tb = document.getElementById('compta-tbody');
   tb.innerHTML = '';
   let totalCA=0,totalCh=0;
-  COMPTA.forEach(r => {
+  COMPTA.forEach((r,i) => {
     const result = r.ca-r.loyer-r.salaires-r.produits;
     totalCA+=r.ca; totalCh+=(r.loyer+r.salaires+r.produits);
     tb.innerHTML += `<tr>
       <td style="font-weight:700;">${r.centre}</td>
-      <td style="color:var(--accent2);font-weight:700;" contenteditable="true" class="editable" oninput="recalcCompta()">${r.ca} €</td>
-      <td style="color:var(--muted);" contenteditable="true" class="editable">${r.loyer} €</td>
-      <td style="color:var(--muted);" contenteditable="true" class="editable">${r.salaires} €</td>
-      <td style="color:var(--muted);" contenteditable="true" class="editable">${r.produits} €</td>
-      <td style="font-weight:700;color:${result>0?'var(--accent2)':'var(--accent4)'};">${result} €</td>
+      <td><input id="compx-ca-${i}" value="${r.ca}" type="number" style="width:80px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;font-weight:700;color:var(--accent2);font-family:inherit;background:var(--bg3);" onchange="COMPTA[${i}].ca=parseFloat(this.value)||0;recalcCompta();"> €</td>
+      <td><input id="compx-loyer-${i}" value="${r.loyer}" type="number" style="width:80px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;color:var(--muted);font-family:inherit;background:var(--bg3);" onchange="COMPTA[${i}].loyer=parseFloat(this.value)||0;recalcCompta();"> €</td>
+      <td><input id="compx-sal-${i}" value="${r.salaires}" type="number" style="width:80px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;color:var(--muted);font-family:inherit;background:var(--bg3);" onchange="COMPTA[${i}].salaires=parseFloat(this.value)||0;recalcCompta();"> €</td>
+      <td><input id="compx-prod-${i}" value="${r.produits}" type="number" style="width:80px;border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:13px;color:var(--muted);font-family:inherit;background:var(--bg3);" onchange="COMPTA[${i}].produits=parseFloat(this.value)||0;recalcCompta();"> €</td>
+      <td style="font-weight:700;color:${result>0?'var(--accent2)':'var(--accent4)'};" id="compx-res-${i}">${result} €</td>
       <td><span class="badge ${r.badge}">${r.evol}</span></td>
     </tr>`;
   });
@@ -1122,20 +1134,20 @@ function renderCompta() {
 }
 
 function recalcCompta() {
-  const rows = document.querySelectorAll('#compta-tbody tr');
   let totalCA=0,totalCh=0;
-  rows.forEach(r => {
-    const cells = r.querySelectorAll('td');
-    const ca=parseFloat(cells[1].textContent)||0;
-    const ch=(parseFloat(cells[2].textContent)||0)+(parseFloat(cells[3].textContent)||0)+(parseFloat(cells[4].textContent)||0);
-    totalCA+=ca; totalCh+=ch;
-    const res=ca-ch;
-    cells[5].textContent=res+' €';
-    cells[5].style.color=res>0?'var(--accent2)':'var(--accent4)';
+  COMPTA.forEach((r,i) => {
+    const ca = parseFloat(document.getElementById('compx-ca-'+i)?.value)||r.ca;
+    const loyer = parseFloat(document.getElementById('compx-loyer-'+i)?.value)||r.loyer;
+    const sal = parseFloat(document.getElementById('compx-sal-'+i)?.value)||r.salaires;
+    const prod = parseFloat(document.getElementById('compx-prod-'+i)?.value)||r.produits;
+    const res = ca - loyer - sal - prod;
+    totalCA+=ca; totalCh+=(loyer+sal+prod);
+    const resEl = document.getElementById('compx-res-'+i);
+    if(resEl) { resEl.textContent = res+' €'; resEl.style.color = res>0?'var(--accent2)':'var(--accent4)'; }
   });
-  document.getElementById('compta-ca').textContent=totalCA.toLocaleString()+' €';
-  document.getElementById('compta-charges').textContent=totalCh.toLocaleString()+' €';
-  document.getElementById('compta-net').textContent=(totalCA-totalCh).toLocaleString()+' €';
+  document.getElementById('compta-ca').textContent = totalCA.toLocaleString()+' €';
+  document.getElementById('compta-charges').textContent = totalCh.toLocaleString()+' €';
+  document.getElementById('compta-net').textContent = (totalCA-totalCh).toLocaleString()+' €';
 }
 
 function renderCharges() {
@@ -1533,6 +1545,19 @@ async function init(){
       const savedExtra = await window.loadFromFirebase('extra', null);
       if (savedExtra) EXTRA_ROWS = savedExtra;
 
+      const savedCompta = await window.loadFromFirebase('compta', null);
+      if (savedCompta) savedCompta.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); });
+
+      const savedPresta = await window.loadFromFirebase('prestations', null);
+      if (savedPresta) {
+        setTimeout(() => {
+          Object.keys(savedPresta).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = savedPresta[id];
+          });
+        }, 500);
+      }
+
       console.log('Données chargées depuis Firebase ✅');
     } catch(e) {
       console.log('Chargement Firebase erreur:', e);
@@ -1645,6 +1670,26 @@ async function saveAll() {
     if (pu) STOCK[idx].pu = parseFloat(pu.value)||0;
   });
 
+  // Capturer Comptabilité
+  COMPTA.forEach((r, i) => {
+    const ca = document.getElementById('compx-ca-'+i);
+    const loyer = document.getElementById('compx-loyer-'+i);
+    const sal = document.getElementById('compx-sal-'+i);
+    const prod = document.getElementById('compx-prod-'+i);
+    if (ca) COMPTA[i].ca = parseFloat(ca.value)||0;
+    if (loyer) COMPTA[i].loyer = parseFloat(loyer.value)||0;
+    if (sal) COMPTA[i].salaires = parseFloat(sal.value)||0;
+    if (prod) COMPTA[i].produits = parseFloat(prod.value)||0;
+  });
+
+  // Capturer Prestations
+  const PRESTA_IDS = ['p-s-ext','p-s-int','p-s-comp','p-m-ext','p-m-int','p-m-comp','p-l-ext','p-l-int','p-l-comp','p-xl-ext','p-xl-int','p-xl-comp'];
+  const prestaData = {};
+  PRESTA_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) prestaData[id] = parseFloat(el.value)||0;
+  });
+
   // Capturer Box Internet
   BOX_DATA.forEach((b, i) => {
     const c = document.getElementById('bc-'+i);
@@ -1685,6 +1730,8 @@ async function saveAll() {
     await window.saveToFirebase('box', BOX_DATA);
     await window.saveToFirebase('tel', TEL_DATA);
     await window.saveToFirebase('extra', EXTRA_ROWS);
+    await window.saveToFirebase('compta', COMPTA);
+    await window.saveToFirebase('prestations', prestaData);
     showNotif('✅ Tout sauvegardé !');
   } catch(e) {
     showNotif('❌ Erreur sauvegarde');
