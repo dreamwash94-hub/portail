@@ -829,18 +829,22 @@ function renderTechs() {
     tb.innerHTML += `<tr>
       <td><div style="display:flex;align-items:center;gap:9px;">
         <div style="width:30px;height:30px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">${t.nom.charAt(0)}</div>
-        <span style="font-weight:600;cursor:pointer;color:var(--accent);text-decoration:underline;" onclick="showFicheTech(${idx})">${t.nom}</span>
+        <input id="tnom-${idx}" value="${t.nom}" style="font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:130px;" onchange="TECHS[${idx}].nom=this.value;">
       </div></td>
-      <td><select onchange="TECHS[${idx}].centre=this.value;renderTechs();" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;cursor:pointer;">
+      <td><select onchange="TECHS[${idx}].centre=this.value;" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;cursor:pointer;">
         ${CENTRES.map(c=>`<option value="${c.nom}" ${c.nom===t.centre?'selected':''}>${c.nom}</option>`).join('')}
       </select></td>
-      <td><span class="badge ${t.contrat==='CDI'?'bl':'yl'}">${t.contrat}</span></td>
-      <td style="color:var(--muted);font-size:12px;" contenteditable="true" class="editable">${t.tel}</td>
+      <td><select onchange="TECHS[${idx}].contrat=this.value;" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
+        <option ${t.contrat==='CDI'?'selected':''}>CDI</option>
+        <option ${t.contrat==='CDD'?'selected':''}>CDD</option>
+        <option ${t.contrat==='Intérim'?'selected':''}>Intérim</option>
+      </select></td>
+      <td><input id="ttel-${idx}" value="${t.tel||''}" style="color:var(--muted);font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-family:inherit;width:130px;" onchange="TECHS[${idx}].tel=this.value;"></td>
       <td style="text-align:center;"><span class="${t.jours>0?'cra-total-g':'cra-total'}">${t.jours}j</span></td>
       <td><span class="badge gr">● Actif</span></td>
       <td><div style="display:flex;gap:5px;">
         <button class="btn btn-o btn-sm" onclick="showFicheTech(${idx})">✏️ Fiche</button>
-        <button class="btn btn-sm btn-r" onclick="if(confirm('Supprimer ?')){TECHS.splice(${idx},1);renderTechs();}">🗑️</button>
+        <button class="btn btn-sm btn-r" onclick="if(confirm('Supprimer ?')){TECHS.splice(${idx},1);renderTechs();saveAll();}">🗑️</button>
       </div></td>
     </tr>`;
   });
@@ -1151,21 +1155,33 @@ function renderAssurances() {
     list.innerHTML += `<div class="ass-card">
       <div class="ass-icon" style="background:${urgent?'#FEF3C7':'#DCFCE7'};">🛡️</div>
       <div style="flex:1;">
-        <div style="font-size:14px;font-weight:700;" contenteditable="true" class="editable">${a.nom}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px;">Assureur : <span contenteditable="true" class="editable">${a.assureur}</span> · Centres : ${a.centres}</div>
+        <input id="ass-nom-${i}" value="${a.nom}" style="font-size:14px;font-weight:700;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:inherit;width:100%;border-radius:6px;padding:4px 8px;margin-bottom:4px;">
+        <div style="font-size:12px;color:var(--muted);">Assureur : <input id="ass-assureur-${i}" value="${a.assureur}" style="font-size:12px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);font-family:inherit;width:120px;border-radius:6px;padding:3px 6px;"> · Centres : ${a.centres}</div>
       </div>
       <div style="text-align:center;min-width:100px;">
         <div style="font-size:16px;font-weight:800;color:${urgent?'var(--accent3)':'var(--accent2)'};">${a.jours}j</div>
         <div style="font-size:10px;color:var(--muted);">avant expiration</div>
         <span class="badge ${urgent?'yl':'gr'}" style="margin-top:4px;display:inline-block;">${a.expiration}</span>
       </div>
-      <div style="text-align:right;min-width:80px;">
-        <div style="font-size:14px;font-weight:700;" contenteditable="true" class="editable">${a.montant} €</div>
+      <div style="text-align:right;min-width:100px;">
+        <div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;">
+          <input id="ass-montant-${i}" value="${a.montant}" type="number" style="font-size:14px;font-weight:700;border:1px solid var(--border);background:var(--bg3);font-family:inherit;width:80px;border-radius:6px;padding:4px 8px;text-align:right;"> €
+        </div>
         <div style="font-size:10px;color:var(--muted);">/an</div>
-        <button class="btn btn-sm btn-r" style="margin-top:6px;" onclick="ASSURANCES.splice(${i},1);renderAssurances();">🗑️</button>
+        <div style="display:flex;gap:4px;margin-top:6px;justify-content:flex-end;">
+          <button class="btn btn-sm btn-p" onclick="saveAssurance(${i})">💾</button>
+          <button class="btn btn-sm btn-r" onclick="ASSURANCES.splice(${i},1);renderAssurances();saveAll();">🗑️</button>
+        </div>
       </div>
     </div>`;
   });
+}
+
+function saveAssurance(i) {
+  ASSURANCES[i].nom = document.getElementById('ass-nom-'+i).value;
+  ASSURANCES[i].assureur = document.getElementById('ass-assureur-'+i).value;
+  ASSURANCES[i].montant = parseFloat(document.getElementById('ass-montant-'+i).value)||0;
+  saveAll();
 }
 
 function addAssurance() {
@@ -1190,29 +1206,42 @@ function renderStock() {
   const filtered = stockFilter === 'tous' ? STOCK : STOCK.filter(s => s.centre === stockFilter);
   let grandTotal = 0;
   let totalQte = 0;
-  filtered.forEach(s => {
+  filtered.forEach((s,i) => {
+    const idx = STOCK.indexOf(s);
     const total = s.qte * s.pu;
     grandTotal += total;
     totalQte += s.qte;
     tb.innerHTML += `<tr>
-      <td style="color:var(--muted);font-size:12px;" contenteditable="true" class="editable">${s.date}</td>
-      <td style="font-weight:600;" contenteditable="true" class="editable">${s.centre}</td>
-      <td contenteditable="true" class="editable">${s.produit}</td>
-      <td style="text-align:center;" contenteditable="true" class="editable">${s.qte}</td>
-      <td contenteditable="true" class="editable">${s.pu} €</td>
+      <td><input id="sd-${idx}" value="${s.date}" style="font-size:12px;color:var(--muted);border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 6px;width:90px;font-family:inherit;"></td>
+      <td><input id="sc-${idx}" value="${s.centre}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 6px;width:120px;font-family:inherit;"></td>
+      <td><input id="sp-${idx}" value="${s.produit}" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 6px;width:150px;font-family:inherit;"></td>
+      <td><input id="sq-${idx}" value="${s.qte}" type="number" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 6px;width:60px;text-align:center;font-family:inherit;"></td>
+      <td><input id="spu-${idx}" value="${s.pu}" type="number" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 6px;width:70px;font-family:inherit;"> €</td>
       <td style="font-weight:700;color:var(--accent2);">${total.toFixed(2)} €</td>
-      <td><span class="badge gr">✓ ${s.statut}</span></td>
+      <td><div style="display:flex;gap:4px;">
+        <button class="btn btn-sm btn-p" onclick="saveStockRow(${idx})">💾</button>
+        <button class="btn btn-sm btn-r" onclick="STOCK.splice(${idx},1);renderStock();saveAll();">🗑️</button>
+      </div></td>
     </tr>`;
   });
   const label = stockFilter === 'tous' ? 'TOTAL — Tous centres' : 'TOTAL — ' + stockFilter;
   tb.innerHTML += '<tr style="background:var(--bg3);border-top:2px solid var(--border);">'
-    + '<td colspan="2" style="padding:12px 14px;font-weight:800;font-size:13px;color:var(--text);">' + label + '</td>'
+    + '<td colspan="2" style="padding:12px 14px;font-weight:800;font-size:13px;">' + label + '</td>'
     + '<td style="padding:12px 14px;color:var(--muted);font-size:12px;">' + filtered.length + ' commande' + (filtered.length>1?'s':'') + '</td>'
     + '<td style="padding:12px 14px;text-align:center;font-weight:700;">' + totalQte + '</td>'
     + '<td style="padding:12px 14px;color:var(--muted);">—</td>'
     + '<td style="padding:12px 14px;font-weight:800;font-size:15px;color:var(--accent2);">' + grandTotal.toFixed(2) + ' €</td>'
-    + '<td style="padding:12px 14px;"><span class="badge bl">Total</span></td>'
-    + '</tr>';
+    + '<td></td></tr>';
+}
+
+function saveStockRow(idx) {
+  STOCK[idx].date = document.getElementById('sd-'+idx)?.value || STOCK[idx].date;
+  STOCK[idx].centre = document.getElementById('sc-'+idx)?.value || STOCK[idx].centre;
+  STOCK[idx].produit = document.getElementById('sp-'+idx)?.value || STOCK[idx].produit;
+  STOCK[idx].qte = parseInt(document.getElementById('sq-'+idx)?.value)||0;
+  STOCK[idx].pu = parseFloat(document.getElementById('spu-'+idx)?.value)||0;
+  renderStock();
+  saveAll();
 }
 
 function addStock() {
@@ -1501,18 +1530,75 @@ function waitForFirebase(callback, attempts = 0) {
 waitForFirebase(() => init());
 
 async function saveAll() {
-  if (!window.saveToFirebase) return;
-  await window.saveToFirebase('techs', TECHS);
-  await window.saveToFirebase('charges', CHARGES);
-  await window.saveToFirebase('assurances', ASSURANCES);
-  await window.saveToFirebase('stock', STOCK);
-  await window.saveToFirebase('box', BOX_DATA);
-  await window.saveToFirebase('tel', TEL_DATA);
+  if (!window.saveToFirebase) { 
+    showNotif('❌ Firebase non connecté'); 
+    return; 
+  }
+
+  // Capturer toutes les valeurs des techniciens depuis les inputs
+  TECHS.forEach((t, idx) => {
+    const nomEl = document.getElementById('tnom-'+idx);
+    const telEl = document.getElementById('ttel-'+idx);
+    if (nomEl) TECHS[idx].nom = nomEl.value;
+    if (telEl) TECHS[idx].tel = telEl.value;
+  });
+
+  // Capturer les charges
+  CHARGES.forEach((c, i) => {
+    const n = document.getElementById('cn-'+i);
+    const e = document.getElementById('ce-'+i);
+    const m = document.getElementById('cm-'+i);
+    if (n) CHARGES[i].n = n.value;
+    if (e) CHARGES[i].e = e.value;
+    if (m) CHARGES[i].m = parseFloat(m.value)||0;
+  });
+
+  // Capturer les assurances
+  ASSURANCES.forEach((a, i) => {
+    const nom = document.getElementById('ass-nom-'+i);
+    const assureur = document.getElementById('ass-assureur-'+i);
+    const montant = document.getElementById('ass-montant-'+i);
+    if (nom) ASSURANCES[i].nom = nom.value;
+    if (assureur) ASSURANCES[i].assureur = assureur.value;
+    if (montant) ASSURANCES[i].montant = parseFloat(montant.value)||0;
+  });
+
+  // Capturer le stock
+  STOCK.forEach((s, idx) => {
+    const d = document.getElementById('sd-'+idx);
+    const c = document.getElementById('sc-'+idx);
+    const p = document.getElementById('sp-'+idx);
+    const q = document.getElementById('sq-'+idx);
+    const pu = document.getElementById('spu-'+idx);
+    if (d) STOCK[idx].date = d.value;
+    if (c) STOCK[idx].centre = c.value;
+    if (p) STOCK[idx].produit = p.value;
+    if (q) STOCK[idx].qte = parseInt(q.value)||0;
+    if (pu) STOCK[idx].pu = parseFloat(pu.value)||0;
+  });
+
+  // Sauvegarder tout sur Firebase
+  try {
+    await window.saveToFirebase('techs', TECHS);
+    await window.saveToFirebase('charges', CHARGES);
+    await window.saveToFirebase('assurances', ASSURANCES);
+    await window.saveToFirebase('stock', STOCK);
+    await window.saveToFirebase('box', BOX_DATA);
+    await window.saveToFirebase('tel', TEL_DATA);
+    showNotif('✅ Tout sauvegardé !');
+  } catch(e) {
+    showNotif('❌ Erreur sauvegarde');
+    console.error(e);
+  }
+}
+
+function showNotif(msg) {
   const notif = document.createElement('div');
-  notif.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#16A34A;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
-  notif.textContent = '✅ Sauvegardé !';
+  notif.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#16A34A;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+  if (msg.includes('❌')) notif.style.background = '#DC2626';
+  notif.textContent = msg;
   document.body.appendChild(notif);
-  setTimeout(() => notif.remove(), 2000);
+  setTimeout(() => notif.remove(), 3000);
 }
 
 // FIN
