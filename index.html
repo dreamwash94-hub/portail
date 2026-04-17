@@ -1013,6 +1013,7 @@ function renderPlanning() {
 function toggleSlot(el) {
   if (el.classList.contains('present')) { el.classList.remove('present'); el.classList.add('absent'); }
   else { el.classList.remove('absent'); el.classList.add('present'); }
+  saveLocal();
 }
 
 function setPF(btn, f) {
@@ -1032,6 +1033,7 @@ function addSlot() {
   PLANNING[centre][jour].push({nom:tech,statut});
   renderPlanning();
   closeModal('m-slot');
+  saveAll();
 }
 
 function renderCRA() {
@@ -1518,7 +1520,7 @@ function exportCSV(){
 function saveLocal() {
   const data = {
     TECHS, CENTRES, CHARGES, ASSURANCES, STOCK,
-    BOX_DATA, TEL_DATA, EXTRA_ROWS, COMPTA,
+    BOX_DATA, TEL_DATA, EXTRA_ROWS, COMPTA, PLANNING,
     prestations: capturePresta()
   };
   try {
@@ -1635,6 +1637,14 @@ function captureAll() {
     if (sa) COMPTA[i].salaires = parseFloat(sa.value)||0;
     if (pr) COMPTA[i].produits = parseFloat(pr.value)||0;
   });
+
+  // CRA — capturer état des cercles
+  const craCircles = document.querySelectorAll('.cra-circle');
+  if (craCircles.length > 0) {
+    const craState = {};
+    craCircles.forEach((el, i) => { craState['c'+i] = el.classList.contains('present') ? 1 : 0; });
+    try { localStorage.setItem('dw_cra_state', JSON.stringify(craState)); } catch(e) {}
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1662,6 +1672,7 @@ async function saveAll() {
         window.saveToFirebase('extra', EXTRA_ROWS),
         window.saveToFirebase('compta', COMPTA),
         window.saveToFirebase('prestations', prestaData),
+        window.saveToFirebase('planning', PLANNING),
       ]);
       firebaseOk = true;
     } catch(e) {
@@ -1707,6 +1718,7 @@ async function init() {
     if (local.TEL_DATA?.length) TEL_DATA.splice(0, TEL_DATA.length, ...local.TEL_DATA);
     if (local.EXTRA_ROWS?.length) EXTRA_ROWS.splice(0, EXTRA_ROWS.length, ...local.EXTRA_ROWS);
     if (local.COMPTA?.length) local.COMPTA.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); });
+    if (local.PLANNING) Object.assign(PLANNING, local.PLANNING);
     console.log('✅ Données locales chargées');
   }
 
@@ -1715,13 +1727,22 @@ async function init() {
   renderCRA(); renderRapport(); renderCompta(); renderCharges();
   renderAssurances(); renderStock(); renderDocs(); renderPresta();
 
+  // Restaurer état CRA
+  try {
+    const craState = JSON.parse(localStorage.getItem('dw_cra_state') || '{}');
+    const circles = document.querySelectorAll('.cra-circle');
+    circles.forEach((el, i) => {
+      if (craState['c'+i] === 1) { el.classList.add('present'); el.textContent = '✓'; }
+    });
+  } catch(e) {}
+
   // Enlever le loader
   loader.remove();
 
   // 3. Essayer Firebase en arrière-plan
   if (window.loadFromFirebase) {
     try {
-      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta] = await Promise.all([
+      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning] = await Promise.all([
         window.loadFromFirebase('techs'),
         window.loadFromFirebase('centres'),
         window.loadFromFirebase('charges'),
@@ -1732,6 +1753,7 @@ async function init() {
         window.loadFromFirebase('extra'),
         window.loadFromFirebase('compta'),
         window.loadFromFirebase('prestations'),
+        window.loadFromFirebase('planning'),
       ]);
       let updated = false;
       if (fbTechs?.length) { TECHS.splice(0, TECHS.length, ...fbTechs); updated = true; }
@@ -1743,9 +1765,10 @@ async function init() {
       if (fbTel?.length) { TEL_DATA.splice(0, TEL_DATA.length, ...fbTel); updated = true; }
       if (fbExtra?.length) { EXTRA_ROWS.splice(0, EXTRA_ROWS.length, ...fbExtra); updated = true; }
       if (fbCompta?.length) { fbCompta.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); }); updated = true; }
+      if (fbPlanning) { Object.assign(PLANNING, fbPlanning); updated = true; }
       if (updated) {
         renderDashboard(); renderCentres(); renderTechs(); renderCompta();
-        renderCharges(); renderAssurances(); renderStock();
+        renderCharges(); renderAssurances(); renderStock(); renderPlanning();
         saveLocal(); // Mettre à jour le local avec les données Firebase
         console.log('🔥 Données Firebase chargées ✅');
       }
