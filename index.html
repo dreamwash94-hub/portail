@@ -290,7 +290,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
       <div class="topbar-title" id="page-title">Dashboard</div>
     </div>
     <div class="topbar-right">
-      <div class="tdate">Mercredi 15 Avril 2026</div>
+      <div class="tdate" id="topbar-date"></div>
       <button onclick="saveAll()" style="background:#16A34A;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">💾 Sauvegarder</button>
       <div class="nb-btn" onclick="toggleNotif()" style="position:relative;">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -314,7 +314,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="page active" id="page-dashboard">
       <div style="margin-bottom:20px;">
         <div style="font-size:22px;font-weight:800;">Dreamwash</div>
-        <div style="color:var(--muted);font-size:13px;">Mercredi 15 Avril 2026</div>
+        <div style="color:var(--muted);font-size:13px;" id="dash-date"></div>
       </div>
       <div class="kpi-g">
         <div class="kpi"><div class="kpi-i">👥</div><div class="kpi-v" style="color:var(--accent);" id="dash-presences">3</div><div class="kpi-l">Présences aujourd'hui</div><div class="kpi-t up">↑ actifs</div></div>
@@ -354,9 +354,17 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
 
     <!-- TECHNICIENS -->
     <div class="page" id="page-techniciens">
-      <div class="rh"><div><div class="sec-title">Gestion des techniciens</div><div class="sec-sub" id="tech-sub">36 techniciens</div></div><button class="btn btn-p" onclick="openModal('m-tech')">+ Ajouter</button></div>
-      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-        <input class="srch" id="tech-search" placeholder="🔍 Rechercher un technicien…" oninput="renderTechs()" style="flex:1;max-width:300px;">
+      <div class="rh"><div><div class="sec-title">Gestion des techniciens</div><div class="sec-sub" id="tech-sub">22 techniciens</div></div><button class="btn btn-p" onclick="openModal('m-tech')">+ Ajouter</button></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+        <input class="srch" id="tech-search" placeholder="🔍 Rechercher…" oninput="renderTechs()" style="flex:1;max-width:240px;">
+        <select id="tech-statut-filter" onchange="renderTechs()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;cursor:pointer;">
+          <option value="tous">Tous les statuts</option>
+          <option value="actif">● Actifs</option>
+          <option value="inactif">● Inactifs</option>
+          <option value="conge">🌴 En congé</option>
+          <option value="maladie">🏥 Arrêt maladie</option>
+        </select>
+        <span id="tech-count-display" style="font-size:12px;color:var(--muted);"></span>
       </div>
       <div class="fbar" id="tech-fbar">
         <button class="fbtn active" onclick="setTF(this,'tous')">Tous</button>
@@ -458,7 +466,12 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
 
     <!-- STOCK -->
     <div class="page" id="page-stock">
-      <div class="rh"><div><div class="sec-title">Stock & Produits</div><div class="sec-sub">Commandes par mois par centre</div></div><button class="btn btn-p" onclick="openModal('m-stock')">+ Nouvelle commande</button></div>
+      <div class="rh"><div><div class="sec-title">Stock & Produits</div><div class="sec-sub">Commandes Carpolish par centre</div></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" style="background:#F59E0B;color:#fff;border:none;" onclick="openModal('m-carpolish')">🛒 Bon de commande Carpolish</button>
+          <button class="btn btn-p" onclick="openModal('m-stock')">+ Nouvelle commande</button>
+        </div>
+      </div>
       <div class="fbar" id="stock-fbar">
         <button class="fbtn active" onclick="setStockFilter(this,'tous')">Tous</button>
         <button class="fbtn" onclick="setStockFilter(this,'Aeroville A')">Aeroville A</button>
@@ -533,10 +546,15 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
 
     <!-- DOCUMENTS -->
     <div class="page" id="page-documents">
-      <div class="rh"><div><div class="sec-title">Documents Société</div><div class="sec-sub">Google Drive connecté · Cliquez pour ouvrir</div></div><button class="btn btn-p">+ Ajouter</button></div>
-      <div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:18px;">
-        <span style="font-size:18px;">☁️</span><div style="flex:1"><div style="font-size:13px;font-weight:600;">Google Drive connecté</div><div style="font-size:11px;color:var(--muted);">Synchronisation automatique</div></div>
-        <button class="btn btn-sm btn-o" onclick="openUrl('https://drive.google.com')">Ouvrir →</button>
+      <div class="rh">
+        <div><div class="sec-title">Documents Société</div><div class="sec-sub">Tous vos documents importants en un seul endroit</div></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-o btn-sm" onclick="openUrl('https://drive.google.com')">☁️ Drive</button>
+          <label class="btn btn-p btn-sm" style="cursor:pointer;">
+            📎 Ajouter
+            <input type="file" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple onchange="handleDocUpload(this)">
+          </label>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;" id="docs-grid"></div>
     </div>
@@ -553,7 +571,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
         <div class="card-t" style="color:#EA580C;">📶 Box Internet / Livebox par centre</div>
         <div class="tbl" style="box-shadow:none;border:none;">
           <table><thead><tr>
-            <th>Centre</th><th>Opérateur</th><th>N° ligne</th><th>Code WiFi</th><th>Renouvellement</th><th>Mensuel</th><th>Fichier</th>
+            <th>Centre</th><th>Opérateur</th><th>N° ligne</th><th>Code WiFi</th><th>Identifiant</th><th>Mot de passe</th><th>Renouvellement</th><th>Mensuel</th><th>Lien</th><th>Actions</th>
           </tr></thead><tbody id="box-tbody"></tbody></table>
         </div>
         <button class="btn btn-sm btn-o" style="margin-top:12px;" onclick="addBoxRow()">+ Ajouter une box</button>
@@ -598,8 +616,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
       </div>
     </div>
 
-  </div>
-</div>
+    </div>
 
     <!-- TECHNOVAP -->
     <div class="page" id="page-technovap">
@@ -634,12 +651,18 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
       <!-- DOCUMENTS -->
       <div class="card" style="border-left:4px solid #7C3AED;">
         <div class="card-t" style="color:#7C3AED;">📎 Documents & Pièces jointes</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Contrats signés, avenants, états des lieux…</div>
-        <div id="westfield-docs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px;"></div>
-        <button class="btn btn-sm btn-o" onclick="document.getElementById('westfield-upload').click()">📎 Ajouter un document</button>
-        <input type="file" id="westfield-upload" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleWestfieldUpload(this)">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Contrats signés, avenants, états des lieux, attestations…</div>
+        <div id="westfield-docs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px;"></div>
+        <label style="display:inline-flex;align-items:center;gap:8px;background:var(--bg3);border:1px dashed var(--border);border-radius:10px;padding:12px 18px;cursor:pointer;font-size:13px;font-weight:600;color:var(--accent);transition:all .15s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+          📎 Ajouter un document
+          <input type="file" style="display:none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="handleWestfieldUpload(this)" multiple>
+        </label>
       </div>
     </div>
+
+  </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
 
 <!-- MODALS -->
 <div class="modal-ov" id="m-tech" style="display:none;" onclick="if(event.target===this)closeModal('m-tech')">
@@ -671,9 +694,9 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
 <div class="modal-ov" id="m-slot" style="display:none;" onclick="if(event.target===this)closeModal('m-slot')">
   <div class="modal">
     <div class="modal-t">Ajouter un créneau <button class="mc" onclick="closeModal('m-slot')">✕</button></div>
-    <div class="field"><label>Centre</label><select id="sl-centre"><option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option></select></div>
+    <div class="field"><label>Centre</label><select id="sl-centre" onchange="updateSlotTechs()"><option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option></select></div>
     <div class="field"><label>Technicien</label><select id="sl-tech"></select></div>
-    <div class="field"><label>Jour</label><select id="sl-jour"><option value="0">Lundi 13</option><option value="1">Mardi 14</option><option value="2">Mercredi 15</option><option value="3">Jeudi 16</option><option value="4">Vendredi 17</option></select></div>
+    <div class="field"><label>Jour</label><select id="sl-jour"><option value="0">Lundi 13</option><option value="1">Mardi 14</option><option value="2">Mercredi 15</option><option value="3">Jeudi 16</option><option value="4">Vendredi 17</option><option value="5">Samedi 18</option><option value="6">Dimanche 19</option></select></div>
     <div class="field"><label>Statut</label><select id="sl-statut"><option value="present">Présent ✅</option><option value="absent">Absent ❌</option></select></div>
     <div class="mac"><button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-slot')">Annuler</button><button class="btn btn-p" style="flex:1;justify-content:center;" onclick="addSlot()">Ajouter</button></div>
   </div>
@@ -707,16 +730,6 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="field"><label>Produit Carpolish</label>
       <select id="ns-catalogue" onchange="selectCarpolish(this.value)" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;margin-bottom:6px;">
         <option value="">— Choisir dans le catalogue —</option>
-        <optgroup label="🧴 Produits">
-          ${CARPOLISH_PRODUITS.filter(p=>p.cat==='Produit').map(p=>`<option value="${p.code}">[${p.code}] ${p.nom} — ${p.prix}€</option>`).join('')}
-        </optgroup>
-        <optgroup label="🔧 Matériel">
-          ${CARPOLISH_PRODUITS.filter(p=>p.cat==='Matériel').map(p=>`<option value="${p.code}">[${p.code}] ${p.nom} — ${p.prix}€</option>`).join('')}
-        </optgroup>
-        <optgroup label="🧹 Accessoires">
-          ${CARPOLISH_PRODUITS.filter(p=>p.cat==='Accessoire').map(p=>`<option value="${p.code}">[${p.code}] ${p.nom} — ${p.prix}€</option>`).join('')}
-        </optgroup>
-        <option value="autre">✏️ Autre produit...</option>
       </select>
     </div>
     <div class="field"><label>Produit (nom)</label><input id="ns-produit" placeholder="Sélectionnez dans le catalogue ou saisissez"></div>
@@ -832,13 +845,24 @@ const COMPTA = [
 ];
 
 const DOCS = [
-  {n:"KBIS Dreamwash",i:"📋",d:"Mars 2026",s:"gr"},{n:"Contrats de bail",i:"🏠",d:"9 actifs",s:"gr"},
-  {n:"Assurance multirisque",i:"🛡️",d:"Expire 01/06/2026",s:"gr"},{n:"Statuts société",i:"⚖️",d:"Version 2024",s:"gr"},
-  {n:"Contrats Technovap",i:"🔧",d:"9 machines",s:"gr"},{n:"Convention collective",i:"📄",d:"En vigueur",s:"gr"},
-  {n:"Registre du personnel",i:"👥",d:"36 salariés",s:"gr"},{n:"Déclarations URSSAF",i:"🏛️",d:"T1 2026",s:"yl"},
-  {n:"Contrats téléphonie",i:"📱",d:"Expire 06/2026",s:"yl"},{n:"Relevés BNP",i:"🏦",d:"Mars 2026",s:"gr"},
-  {n:"Déclarations TVA",i:"💰",d:"T1 2026",s:"gr"},{n:"Plan de formation",i:"📚",d:"2026",s:"gr"},
+  {n:"KBIS Dreamwash",i:"📋",d:"Mars 2026",s:"gr",url:"https://drive.google.com"},
+  {n:"Contrats de bail",i:"🏠",d:"9 actifs",s:"gr",url:"https://drive.google.com"},
+  {n:"Assurance multirisque",i:"🛡️",d:"Expire 01/06/2026",s:"gr",url:"https://drive.google.com"},
+  {n:"Statuts société",i:"⚖️",d:"Version 2024",s:"gr",url:"https://drive.google.com"},
+  {n:"Contrats Technovap",i:"🔧",d:"9 machines",s:"gr",url:"https://drive.google.com"},
+  {n:"Convention collective",i:"📄",d:"En vigueur",s:"gr",url:"https://drive.google.com"},
+  {n:"Registre du personnel",i:"👥",d:"22 salariés",s:"gr",url:"https://drive.google.com"},
+  {n:"Déclarations URSSAF",i:"🏛️",d:"T1 2026",s:"yl",url:"https://drive.google.com"},
+  {n:"Contrats téléphonie",i:"📱",d:"Expire 06/2026",s:"yl",url:"https://drive.google.com"},
+  {n:"Relevés Bankin",i:"🏦",d:"Mars 2026",s:"gr",url:"https://app.bankin.com"},
+  {n:"Déclarations TVA",i:"💰",d:"T1 2026",s:"gr",url:"https://drive.google.com"},
+  {n:"Plan de formation",i:"📚",d:"2026",s:"gr",url:"https://drive.google.com"},
+  {n:"Catalogue Carpolish",i:"🧴",d:"Bon de commande",s:"gr",url:"carpolish",carpolish:true},
+  {n:"BON DE COMMANDE Carpolish",i:"📄",d:"PDF officiel",s:"gr",url:"carpolish_pdf",carpolish_pdf:true},
 ];
+
+// Documents uploadés manuellement
+let CUSTOM_DOCS = [];
 
 let techFilter = 'tous';
 let planFilter = 'tous';
@@ -877,11 +901,11 @@ function renderCentres() {
       <div class="cc-stats">
         <div class="cc-stat"><div class="cc-stat-v">${c.lavages}</div><div class="cc-stat-l">Lavages/jour</div></div>
         <div class="cc-stat"><div class="cc-stat-v">${c.ca} €</div><div class="cc-stat-l">CA aujourd'hui</div></div>
-        <div class="cc-stat"><div class="cc-stat-v">${c.techs.length}</div><div class="cc-stat-l">Techniciens</div></div>
+        <div class="cc-stat"><div class="cc-stat-v">${TECHS.filter(t=>t.centre===c.nom&&(t.statut||'actif')==='actif').length}</div><div class="cc-stat-l">Techniciens</div></div>
         <div class="cc-stat"><div class="cc-stat-v">4</div><div class="cc-stat-l">Boîtes à clés</div></div>
       </div>
       <div class="cc-info">📞 <span>${c.tel}</span></div>
-      <div class="cc-info">👷 <span>${c.techs.join(', ')}</span></div>
+      <div class="cc-info">👷 <span>${TECHS.filter(t=>t.centre===c.nom&&(t.statut||'actif')==='actif').map(t=>t.nom.split(' ')[0]).join(', ')||'Aucun'}</span></div>
       <button class="cc-btn">Voir la fiche complète →</button>
     </div>`;
   });
@@ -905,7 +929,7 @@ function showFiche(i) {
         <div class="card-t">📋 Informations</div>
         <div class="fr"><span class="fk">Téléphone</span><input id="ctel-${i}" value="${c.tel}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="CENTRES[${i}].tel=this.value;"></div>
         <div class="fr"><span class="fk">Loyer mensuel</span><input id="cloyer-${i}" value="${c.loyer}" type="number" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:100px;color:var(--accent4);" onchange="CENTRES[${i}].loyer=parseFloat(this.value)||0;"> €</div>
-        <div class="fr"><span class="fk">Techniciens affectés</span><span class="fv">${c.techs.join(', ')}</span></div>
+        <div class="fr"><span class="fk">Techniciens affectés</span><span class="fv">${TECHS.filter(t=>t.centre===c.nom&&(t.statut||'actif')==='actif').map(t=>t.nom).join(', ')||'Aucun'}</span></div>
         <div class="fr"><span class="fk">CA aujourd'hui</span><span class="fv" style="color:var(--accent2);font-size:16px;font-weight:800;">${c.ca} €</span></div>
         <div class="fr"><span class="fk">Lavages du jour</span><span class="fv">${c.lavages}</span></div>
       </div>
@@ -938,30 +962,53 @@ function renderTechs() {
   const tb = document.getElementById('tech-tbody');
   tb.innerHTML = '';
   const search = (document.getElementById('tech-search')?.value||'').toLowerCase();
-  const filtered = TECHS.filter(t =>
-    (techFilter === 'tous' || t.centre === techFilter) &&
-    t.nom.toLowerCase().includes(search)
-  );
-  document.getElementById('tech-sub').textContent = `${TECHS.length} techniciens · ${filtered.length} affichés`;
-  document.getElementById('nb-techs').textContent = TECHS.length;
+  const statutF = document.getElementById('tech-statut-filter')?.value || 'tous';
+  const filtered = TECHS.filter(t => {
+    if (techFilter !== 'tous' && t.centre !== techFilter) return false;
+    if (search && !t.nom.toLowerCase().includes(search)) return false;
+    if (statutF !== 'tous' && (t.statut||'actif') !== statutF) return false;
+    return true;
+  });
+  const actifs = TECHS.filter(t => (t.statut||'actif') === 'actif').length;
+  document.getElementById('tech-sub').textContent = `${TECHS.length} techniciens · ${actifs} actifs · ${filtered.length} affichés`;
+  document.getElementById('nb-techs').textContent = actifs;
+  const countEl = document.getElementById('tech-count-display');
+  if (countEl) countEl.textContent = `${filtered.length} résultat${filtered.length>1?'s':''}`;
   filtered.forEach(t => {
     const idx = TECHS.indexOf(t);
+    if (!t.statut) t.statut = 'actif';
+    const statutColors = {actif:'#16A34A', inactif:'#6B7280', conge:'#D97706', maladie:'#DC2626'};
+    const statutLabels = {actif:'● Actif', inactif:'● Inactif', conge:'🌴 Congé', maladie:'🏥 Arrêt'};
+    const sc = statutColors[t.statut] || '#16A34A';
     tb.innerHTML += `<tr>
       <td><div style="display:flex;align-items:center;gap:9px;">
-        <div style="width:30px;height:30px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">${t.nom.charAt(0)}</div>
-        <input id="tnom-${idx}" value="${t.nom}" style="font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:130px;" onchange="TECHS[${idx}].nom=this.value;">
+        <div style="width:34px;height:34px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">${t.nom.charAt(0)}</div>
+        <div>
+          <input id="tnom-${idx}" value="${t.nom}" style="font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:160px;" onchange="TECHS[${idx}].nom=this.value;">
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;">${t.poste||'Laveur Automobile'}</div>
+        </div>
       </div></td>
-      <td><select onchange="TECHS[${idx}].centre=this.value;" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;cursor:pointer;">
-        ${CENTRES.map(c=>`<option value="${c.nom}" ${c.nom===t.centre?'selected':''}>${c.nom}</option>`).join('')}
-      </select></td>
-      <td><select onchange="TECHS[${idx}].contrat=this.value;" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
+      <td>
+        <select onchange="TECHS[${idx}].centre=this.value;renderDashboard();renderCentres();saveAll();" style="border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;background:var(--bg3);font-family:inherit;cursor:pointer;width:140px;">
+          <option value="">— Choisir —</option>
+          ${CENTRES.map(c=>`<option value="${c.nom}" ${c.nom===t.centre?'selected':''}>${c.nom}</option>`).join('')}
+        </select>
+      </td>
+      <td><select onchange="TECHS[${idx}].contrat=this.value;" style="border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;background:var(--bg3);font-family:inherit;">
         <option ${t.contrat==='CDI'?'selected':''}>CDI</option>
         <option ${t.contrat==='CDD'?'selected':''}>CDD</option>
         <option ${t.contrat==='Intérim'?'selected':''}>Intérim</option>
       </select></td>
-      <td><input id="ttel-${idx}" value="${t.tel||''}" style="color:var(--muted);font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-family:inherit;width:130px;" onchange="TECHS[${idx}].tel=this.value;"></td>
+      <td><input id="ttel-${idx}" value="${t.tel||''}" style="color:var(--muted);font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-family:inherit;width:120px;" onchange="TECHS[${idx}].tel=this.value;" placeholder="06..."></td>
       <td style="text-align:center;"><span class="${t.jours>0?'cra-total-g':'cra-total'}">${t.jours}j</span></td>
-      <td><span class="badge gr">● Actif</span></td>
+      <td>
+        <select onchange="TECHS[${idx}].statut=this.value;renderTechs();saveAll();" style="border:1px solid ${sc};border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;color:${sc};background:${sc}11;font-family:inherit;cursor:pointer;appearance:none;text-align:center;">
+          <option value="actif" ${t.statut==='actif'?'selected':''}>● Actif</option>
+          <option value="inactif" ${t.statut==='inactif'?'selected':''}>● Inactif</option>
+          <option value="conge" ${t.statut==='conge'?'selected':''}>🌴 Congé</option>
+          <option value="maladie" ${t.statut==='maladie'?'selected':''}>🏥 Arrêt maladie</option>
+        </select>
+      </td>
       <td><div style="display:flex;gap:5px;">
         <button class="btn btn-o btn-sm" onclick="showFicheTech(${idx})">✏️ Fiche</button>
         <button class="btn btn-sm btn-r" onclick="if(confirm('Supprimer ?')){TECHS.splice(${idx},1);renderTechs();saveAll();}">🗑️</button>
@@ -992,6 +1039,15 @@ function showFicheTech(i) {
       </div>
       <span class="badge gr" style="margin-left:auto;">● Actif</span>
       <button class="btn btn-p btn-sm" onclick="saveFicheTech(${i})">💾 Sauvegarder</button>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px;">Statut</label>
+      <select id="ftstatut-${i}" onchange="TECHS[${i}].statut=this.value;saveAll();" style="border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;background:var(--bg3);font-family:inherit;cursor:pointer;">
+        <option value="actif" ${(t.statut||'actif')==='actif'?'selected':''}>● Actif</option>
+        <option value="inactif" ${t.statut==='inactif'?'selected':''}>● Inactif</option>
+        <option value="conge" ${t.statut==='conge'?'selected':''}>🌴 En congé</option>
+        <option value="maladie" ${t.statut==='maladie'?'selected':''}>🏥 Arrêt maladie</option>
+      </select>
     </div>
     <div class="fg">
       <div class="card">
@@ -1100,26 +1156,61 @@ function setTF(btn, f) {
 
 function renderPlanning() {
   const tb = document.getElementById('plan-tbody');
+  const thead = document.getElementById('plan-table')?.querySelector('thead tr');
+  if (!tb) return;
   tb.innerHTML = '';
-  const centres = planFilter === 'tous' ? Object.keys(PLANNING) : Object.keys(PLANNING).filter(c=>c.toLowerCase().includes(planFilter.toLowerCase())||c===planFilter);
+
+  // Update header for 7 days
+  if (thead) {
+    thead.innerHTML = `<th style="text-align:left;min-width:130px;border-right:2px solid var(--border);">Centre</th>
+      <th>Lundi 13</th><th>Mardi 14</th><th class="today-h">Mer. 15</th>
+      <th>Jeudi 16</th><th>Vendredi 17</th>
+      <th style="background:#FEF3C7;">Samedi 18</th>
+      <th style="background:#FEF3C7;">Dimanche 19</th>`;
+  }
+
+  const centres = planFilter === 'tous'
+    ? CENTRES.map(c=>c.nom)
+    : [planFilter];
+
   centres.forEach(centre => {
-    const jours = PLANNING[centre];
+    if (!PLANNING[centre]) PLANNING[centre] = [[],[],[],[],[],[],[]];
+    // Ensure 7 days
+    while (PLANNING[centre].length < 7) PLANNING[centre].push([]);
+
     let row = `<tr><td class="centre-lbl">${centre}</td>`;
-    jours.forEach((slots,di) => {
-      const isToday = di===2;
-      row += `<td class="${isToday?'today-td':''}" style="vertical-align:top;padding:5px 7px;">`;
-      slots.forEach(s => {
+    for (let j = 0; j < 7; j++) {
+      const slots = PLANNING[centre][j] || [];
+      const isToday = j === 2;
+      const isWE = j >= 5;
+      row += `<td class="${isToday?'today-td':''}" style="vertical-align:top;padding:5px 7px;${isWE?'background:#FFFBEB;':''}">`;
+      slots.forEach((s, si) => {
         const col = TECHS.find(t=>t.nom===s.nom)?.color||'#64748B';
-        row += `<div class="plan-slot ${s.statut}" onclick="toggleSlot(this)" style="border-left:3px solid ${col};">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          ${s.nom}
+        row += `<div class="plan-slot ${s.statut}" style="border-left:3px solid ${col};display:flex;align-items:center;justify-content:space-between;gap:4px;" onclick="toggleSlotPresence('${centre}',${j},${si},this)">
+          <span style="font-size:11px;">${s.nom}</span>
+          <span onclick="event.stopPropagation();removeSlot('${centre}',${j},${si})" style="color:#DC2626;font-size:14px;cursor:pointer;opacity:0.6;line-height:1;" title="Supprimer">×</span>
         </div>`;
       });
-      row += `<span class="plan-add" title="Ajouter" onclick="openModal('m-slot')">+</span></td>`;
-    });
+      row += `<span class="plan-add" title="Ajouter" onclick="openPlanModal('${centre}',${j})">+</span></td>`;
+    }
     row += '</tr>';
     tb.innerHTML += row;
   });
+}
+
+function toggleSlotPresence(centre, jour, idx, el) {
+  if (!PLANNING[centre]?.[jour]?.[idx]) return;
+  const current = PLANNING[centre][jour][idx].statut;
+  PLANNING[centre][jour][idx].statut = current === 'present' ? 'absent' : 'present';
+  renderPlanning();
+  saveLocal();
+}
+
+function removeSlot(centre, jour, idx) {
+  if (!PLANNING[centre]?.[jour]) return;
+  PLANNING[centre][jour].splice(idx, 1);
+  renderPlanning();
+  saveAll();
 }
 
 function toggleSlot(el) {
@@ -1135,15 +1226,69 @@ function setPF(btn, f) {
   renderPlanning();
 }
 
+function openPlanModal(centre, jour) {
+  openModal('m-slot');
+  // Pre-select centre and jour
+  const centreEl = document.getElementById('sl-centre');
+  const jourEl = document.getElementById('sl-jour');
+  if (centreEl && centre) centreEl.value = centre;
+  if (jourEl && jour !== undefined) jourEl.value = jour;
+  // Update tech list for selected centre
+  updateSlotTechs();
+}
+
+function updateSlotTechs() {
+  const centre = document.getElementById('sl-centre')?.value;
+  const sel = document.getElementById('sl-tech');
+  if (!sel) return;
+  // Show techs of selected centre first, then others
+  const centreTechs = TECHS.filter(t => t.centre === centre && (t.statut||'actif') === 'actif');
+  const otherTechs = TECHS.filter(t => t.centre !== centre && (t.statut||'actif') === 'actif');
+  sel.innerHTML = `<optgroup label="📍 ${centre}">
+    ${centreTechs.map(t=>`<option value="${t.nom}">${t.nom}</option>`).join('')}
+  </optgroup>
+  <optgroup label="Autres techniciens">
+    ${otherTechs.map(t=>`<option value="${t.nom}">${t.nom} (${t.centre})</option>`).join('')}
+  </optgroup>`;
+}
+
 function addSlot() {
   const centre = document.getElementById('sl-centre').value;
   const tech = document.getElementById('sl-tech').value;
   const jour = parseInt(document.getElementById('sl-jour').value);
   const statut = document.getElementById('sl-statut').value;
   if (!tech) return;
-  if (!PLANNING[centre]) PLANNING[centre] = [[],[],[],[],[]];
-  PLANNING[centre][jour].push({nom:tech,statut});
+  if (!PLANNING[centre]) PLANNING[centre] = [[],[],[],[],[],[],[]];
+  // Éviter les doublons
+  if (!PLANNING[centre][jour]) PLANNING[centre][jour] = [];
+  if (PLANNING[centre][jour].find(s => s.nom === tech)) {
+    closeModal('m-slot');
+    return;
+  }
+  PLANNING[centre][jour].push({nom:tech, statut});
+
+  // Sync avec CRA — marquer présence si statut présent
+  if (statut === 'present' || statut === 'Présent ✅') {
+    const now = new Date();
+    const JOURS_PLANNING = ['13/04/2026','14/04/2026','15/04/2026','16/04/2026','17/04/2026','18/04/2026','19/04/2026'];
+    const dateStr = JOURS_PLANNING[jour] || '';
+    if (dateStr) {
+      if (!CRA_DATA[tech]) CRA_DATA[tech] = {};
+      CRA_DATA[tech][dateStr] = centre;
+      // Mettre à jour jours technicien
+      const techIdx = TECHS.findIndex(t => t.nom === tech);
+      if (techIdx >= 0) {
+        const moisCourant = '04/2026';
+        const joursMois = Object.keys(CRA_DATA[tech]).filter(d => d.endsWith(moisCourant)).length;
+        TECHS[techIdx].jours = joursMois;
+      }
+    }
+  }
+
   renderPlanning();
+  renderCRA();
+  renderRapport();
+  renderDashboard();
   closeModal('m-slot');
   saveAll();
 }
@@ -1230,26 +1375,54 @@ function renderRapport() {
   const search = (document.getElementById('rapp-search')?.value||'').toLowerCase();
   const centreF = document.getElementById('rapp-centre')?.value||'tous';
   const presF = document.getElementById('rapp-presence')?.value||'tous';
+
+  // Utiliser CRA_DATA pour les jours réels
+  const annee = 2026;
+  const moisStr = String(rapportMoisIdx+1).padStart(2,'0') + '/' + annee;
+
   const filtered = TECHS.filter(t => {
+    const joursReel = CRA_DATA[t.nom] ? Object.keys(CRA_DATA[t.nom]).filter(d=>d.endsWith(moisStr)).length : t.jours;
     if (search && !t.nom.toLowerCase().includes(search)) return false;
     if (centreF !== 'tous' && t.centre !== centreF) return false;
-    if (presF === 'present' && t.jours === 0) return false;
-    if (presF === 'absent' && t.jours > 0) return false;
+    if (presF === 'present' && joursReel === 0) return false;
+    if (presF === 'absent' && joursReel > 0) return false;
     return true;
   });
+
   const countEl = document.getElementById('rapp-count');
   if (countEl) countEl.textContent = filtered.length;
   const visibleCentres = centreF === 'tous' ? CENTRES.map(c=>c.nom) : [centreF];
-  thead.innerHTML = `<th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:150px;">TECHNICIEN</th>
-    <th style="padding:10px 12px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">JOURS PRÉSENT</th>` +
+
+  thead.innerHTML = `<th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:170px;">TECHNICIEN</th>
+    <th style="padding:10px 12px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">JOURS</th>
+    <th style="padding:10px 12px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">CENTRE(S) TRAVAILLÉ(S)</th>` +
     visibleCentres.map(n=>`<th style="padding:10px 8px;background:var(--bg3);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">${n}</th>`).join('');
+
   filtered.forEach(t => {
+    const techCRA = CRA_DATA[t.nom] || {};
+    const joursMois = Object.keys(techCRA).filter(d => d.endsWith(moisStr));
+    const totalJours = joursMois.length || t.jours;
+
+    // Centres travaillés ce mois
+    const centresTravailles = {};
+    joursMois.forEach(d => {
+      const c = techCRA[d];
+      centresTravailles[c] = (centresTravailles[c]||0) + 1;
+    });
+    const centresLabel = Object.entries(centresTravailles).map(([c,j])=>`${c.split(' ')[0]}(${j}j)`).join(', ') || t.centre;
+
     let row = `<tr>
-      <td style="padding:9px 14px;font-weight:600;border-bottom:1px solid var(--border);">${t.nom}<br><small style="color:var(--muted);font-weight:400;font-size:10px;">${t.centre}</small></td>
-      <td style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);"><span class="rc ${t.jours>0?'g':'z'}">${t.jours}</span></td>`;
+      <td style="padding:9px 14px;font-weight:600;border-bottom:1px solid var(--border);">${t.nom}<br>
+        <small style="color:var(--muted);font-weight:400;font-size:10px;">📍 ${t.centre} · ${t.poste||'Laveur'}</small>
+      </td>
+      <td style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);">
+        <span class="rc ${totalJours>0?'g':'z'}">${totalJours}</span>
+      </td>
+      <td style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);">${centresLabel}</td>`;
     visibleCentres.forEach(cn => {
-      const val = t.centre===cn ? t.jours : 0;
-      row += `<td style="padding:9px 8px;text-align:center;border-bottom:1px solid var(--border);"><span class="rc ${val>0?'b':'z'}">${val}</span></td>`;
+      const joursIci = Object.keys(techCRA).filter(d=>d.endsWith(moisStr)&&techCRA[d]===cn).length;
+      const val = joursIci || (t.centre===cn && joursMois.length===0 ? t.jours : 0);
+      row += `<td style="padding:9px 8px;text-align:center;border-bottom:1px solid var(--border);"><span class="rc ${val>0?'b':'z'}">${val||''}</span></td>`;
     });
     row += '</tr>';
     tbody.innerHTML += row;
@@ -1483,16 +1656,63 @@ function setStockFilter(btn, f) {
 }
 
 function renderDocs() {
-  const g=document.getElementById('docs-grid');
-  g.innerHTML='';
-  DOCS.forEach(d=>{
-    g.innerHTML+=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;text-align:center;box-shadow:var(--shadow);" onclick="openUrl('https://drive.google.com')" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+  const g = document.getElementById('docs-grid');
+  g.innerHTML = '';
+
+  // Docs fixes
+  DOCS.forEach(d => {
+    let onclick;
+    if (d.carpolish) onclick = `openModal('m-carpolish')`;
+    else if (d.carpolish_pdf) onclick = `openCarpolishPDF()`;
+    else onclick = `openUrl('${d.url||'https://drive.google.com'}')`;
+    g.innerHTML += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;text-align:center;box-shadow:var(--shadow);" onclick="${onclick}" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
       <div style="font-size:26px;margin-bottom:8px;">${d.i}</div>
       <div style="font-size:12px;font-weight:700;">${d.n}</div>
       <div style="font-size:10px;color:var(--muted);margin-top:2px;">${d.d}</div>
       <div style="margin-top:7px;"><span class="badge ${d.s}">${d.s==='gr'?'✓ À jour':'⚠️ À renouveler'}</span></div>
+      ${d.carpolish ? '<div style="font-size:10px;color:var(--accent);margin-top:4px;font-weight:600;">🛒 Commander →</div>' : ''}
+      ${d.carpolish_pdf ? '<div style="font-size:10px;color:#F59E0B;margin-top:4px;font-weight:600;">📄 Voir PDF →</div>' : ''}
     </div>`;
   });
+
+  // Docs uploadés
+  CUSTOM_DOCS.forEach((d, i) => {
+    const icon = d.type?.includes('pdf') ? '📄' : d.type?.includes('image') ? '🖼️' : '📎';
+    g.innerHTML += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;text-align:center;box-shadow:var(--shadow);position:relative;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+      <button onclick="event.stopPropagation();CUSTOM_DOCS.splice(${i},1);renderDocs();saveAll();" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;">✕</button>
+      <div style="font-size:26px;margin-bottom:8px;" onclick="openCustomDoc(${i})">${icon}</div>
+      <div style="font-size:11px;font-weight:700;word-break:break-all;" onclick="openCustomDoc(${i})">${d.nom}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px;">${d.size} · ${d.date}</div>
+      <div style="margin-top:7px;"><span class="badge gr">✓ Uploadé</span></div>
+    </div>`;
+  });
+}
+
+function handleDocUpload(input) {
+  if (!input.files?.length) return;
+  Array.from(input.files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      CUSTOM_DOCS.push({
+        nom: f.name,
+        type: f.type,
+        size: (f.size/1024).toFixed(0) + ' Ko',
+        data: e.target.result,
+        date: new Date().toLocaleDateString('fr-FR')
+      });
+      renderDocs();
+      saveAll();
+    };
+    reader.readAsDataURL(f);
+  });
+  input.value = '';
+}
+
+function openCustomDoc(i) {
+  const doc = CUSTOM_DOCS[i];
+  if (!doc?.data) return;
+  const win = window.open();
+  win.document.write(`<iframe src="${doc.data}" style="width:100%;height:100vh;border:none;"></iframe>`);
 }
 
 function renderPresta() {
@@ -1515,15 +1735,15 @@ const TITLES={dashboard:"Dashboard",centres:"Centres",fiche:"Fiche Centre",techn
 
 // ── TELEPHONE DATA ─────────────────────────────────────────────────────────
 let BOX_DATA = [
-  {centre:"Aeroville A", operateur:"Orange", ligne:"01 23 45 67 89", wifi:"DreamA2024!", renouvellement:"06/2025", mensuel:"39 €"},
-  {centre:"Aeroville B", operateur:"Orange", ligne:"01 23 45 67 90", wifi:"DreamB2024!", renouvellement:"06/2025", mensuel:"39 €"},
-  {centre:"Lafayette Rouge", operateur:"SFR", ligne:"01 34 56 78 90", wifi:"Rouge2024#", renouvellement:"09/2025", mensuel:"35 €"},
-  {centre:"Lafayette Vert", operateur:"SFR", ligne:"01 34 56 78 91", wifi:"Vert2024#", renouvellement:"09/2025", mensuel:"35 €"},
-  {centre:"Cité des Sciences", operateur:"Bouygues", ligne:"01 45 67 89 01", wifi:"CDS2024$", renouvellement:"03/2026", mensuel:"32 €"},
-  {centre:"Le Parks", operateur:"Free", ligne:"01 56 78 90 12", wifi:"Parks2024@", renouvellement:"12/2025", mensuel:"30 €"},
-  {centre:"Parly2", operateur:"Orange", ligne:"01 56 78 90 13", wifi:"Parly2024@", renouvellement:"06/2026", mensuel:"39 €"},
-  {centre:"Belleville", operateur:"Bouygues", ligne:"01 67 89 01 23", wifi:"Bell2024!", renouvellement:"01/2026", mensuel:"32 €"},
-  {centre:"Suresnes", operateur:"Free", ligne:"01 78 90 12 34", wifi:"SRS2024#", renouvellement:"04/2026", mensuel:"30 €"},
+  {centre:"Aeroville A", operateur:"Orange", ligne:"01 23 45 67 89", wifi:"DreamA2024!", renouvellement:"06/2025", mensuel:"39 €", identifiant:"", mdp:"", lien:"https://espace-client.orange.fr"},
+  {centre:"Aeroville B", operateur:"Orange", ligne:"01 23 45 67 90", wifi:"DreamB2024!", renouvellement:"06/2025", mensuel:"39 €", identifiant:"", mdp:"", lien:"https://espace-client.orange.fr"},
+  {centre:"Lafayette Rouge", operateur:"SFR", ligne:"01 34 56 78 90", wifi:"Rouge2024#", renouvellement:"09/2025", mensuel:"35 €", identifiant:"", mdp:"", lien:"https://espace-client.sfr.fr"},
+  {centre:"Lafayette Vert", operateur:"SFR", ligne:"01 34 56 78 91", wifi:"Vert2024#", renouvellement:"09/2025", mensuel:"35 €", identifiant:"", mdp:"", lien:"https://espace-client.sfr.fr"},
+  {centre:"Cité des Sciences", operateur:"Bouygues", ligne:"01 45 67 89 01", wifi:"CDS2024$", renouvellement:"03/2026", mensuel:"32 €", identifiant:"", mdp:"", lien:"https://www.bouyguestelecom.fr/mon-compte"},
+  {centre:"Le Parks", operateur:"Free", ligne:"01 56 78 90 12", wifi:"Parks2024@", renouvellement:"12/2025", mensuel:"30 €", identifiant:"", mdp:"", lien:"https://subscribe.free.fr/login"},
+  {centre:"Parly2", operateur:"Orange", ligne:"01 56 78 90 13", wifi:"Parly2024@", renouvellement:"06/2026", mensuel:"39 €", identifiant:"", mdp:"", lien:"https://espace-client.orange.fr"},
+  {centre:"Belleville", operateur:"Bouygues", ligne:"01 67 89 01 23", wifi:"Bell2024!", renouvellement:"01/2026", mensuel:"32 €", identifiant:"", mdp:"", lien:"https://www.bouyguestelecom.fr/mon-compte"},
+  {centre:"Suresnes", operateur:"Free", ligne:"01 78 90 12 34", wifi:"SRS2024#", renouvellement:"04/2026", mensuel:"30 €", identifiant:"", mdp:"", lien:"https://subscribe.free.fr/login"},
 ];
 
 let TEL_DATA = [
@@ -1622,13 +1842,23 @@ function renderTelephone() {
   const bt = document.getElementById('box-tbody');
   bt.innerHTML = '';
   BOX_DATA.forEach((b,i) => {
+    if (!b.identifiant) b.identifiant = '';
+    if (!b.mdp) b.mdp = '';
+    if (!b.lien) b.lien = '';
     bt.innerHTML += `<tr>
       <td><input id="bc-${i}" value="${b.centre}" style="font-weight:700;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:120px;" onchange="BOX_DATA[${i}].centre=this.value;"></td>
-      <td><input id="bo-${i}" value="${b.operateur}" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:100px;" onchange="BOX_DATA[${i}].operateur=this.value;"></td>
-      <td><input id="bl-${i}" value="${b.ligne}" style="font-family:monospace;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;width:120px;" onchange="BOX_DATA[${i}].ligne=this.value;"></td>
-      <td><span class="secret" onclick="toggleSec(this)" data-v="${b.wifi}">${'●'.repeat(b.wifi.length)}</span></td>
-      <td><input id="br-${i}" value="${b.renouvellement}" style="color:var(--accent3);border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:80px;" onchange="BOX_DATA[${i}].renouvellement=this.value;"></td>
-      <td><input id="bm-${i}" value="${b.mensuel}" style="color:var(--accent2);font-weight:700;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:70px;" onchange="BOX_DATA[${i}].mensuel=this.value;"></td>
+      <td><input id="bo-${i}" value="${b.operateur}" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:90px;" onchange="BOX_DATA[${i}].operateur=this.value;"></td>
+      <td><input id="bl-${i}" value="${b.ligne}" style="font-family:monospace;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:12px;width:110px;" onchange="BOX_DATA[${i}].ligne=this.value;"></td>
+      <td><span class="secret" onclick="toggleSec(this)" data-v="${b.wifi}">${'●'.repeat(Math.max(b.wifi.length,1))}</span></td>
+      <td><input id="bid-${i}" value="${b.identifiant}" placeholder="identifiant" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:12px;font-family:inherit;width:110px;" onchange="BOX_DATA[${i}].identifiant=this.value;"></td>
+      <td><span class="secret" onclick="toggleSec(this)" data-v="${b.mdp||'●●●●●●●●'}">${'●'.repeat(Math.max(b.mdp?.length||8,4))}</span>
+        <input id="bmp-${i}" value="${b.mdp}" placeholder="mot de passe" type="password" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:12px;font-family:inherit;width:110px;" onchange="BOX_DATA[${i}].mdp=this.value;"></td>
+      <td><input id="br-${i}" value="${b.renouvellement}" style="color:var(--accent3);border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:12px;font-family:inherit;width:70px;" onchange="BOX_DATA[${i}].renouvellement=this.value;"></td>
+      <td><input id="bm-${i}" value="${b.mensuel}" style="color:var(--accent2);font-weight:700;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:12px;font-family:inherit;width:60px;" onchange="BOX_DATA[${i}].mensuel=this.value;"></td>
+      <td><div style="display:flex;gap:4px;align-items:center;">
+        <input id="bln-${i}" value="${b.lien}" placeholder="https://..." style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:11px;font-family:inherit;width:100px;" onchange="BOX_DATA[${i}].lien=this.value;">
+        ${b.lien ? `<button class="btn btn-sm btn-o" onclick="openUrl('${b.lien}')" title="Ouvrir">↗</button>` : ''}
+      </div></td>
       <td><button class="btn btn-sm btn-r" onclick="BOX_DATA.splice(${i},1);renderTelephone();saveAll();">🗑️</button></td>
     </tr>`;
   });
@@ -1801,7 +2031,36 @@ function setFbtn(b){document.querySelectorAll('.fbtn').forEach(x=>x.classList.re
 function openUrl(u){window.open(u,'_blank');}
 function openModal(id){
   document.getElementById(id).style.display='flex';
-  if(id==='m-slot'){const sel=document.getElementById('sl-tech');sel.innerHTML=TECHS.map(t=>`<option>${t.nom}</option>`).join('');}
+  if(id==='m-slot'){ updateSlotTechs(); }
+  if(id==='m-carpolish'){
+    document.getElementById('bdc-date').value = new Date().toISOString().split('T')[0];
+    BDC_LINES = [{code:'', nom:'', qte:1, pu:0}];
+    renderBdcLines();
+  }
+  if(id==='m-stock'){ populateCatalogue(); }
+}
+
+function populateCatalogue() {
+  const sel = document.getElementById('ns-catalogue');
+  if (!sel || sel.options.length > 2) return; // Already populated
+  sel.innerHTML = '<option value="">— Choisir dans le catalogue —</option>';
+  const cats = ['Produit','Matériel','Accessoire'];
+  const icons = {'Produit':'🧴','Matériel':'🔧','Accessoire':'🧹'};
+  cats.forEach(cat => {
+    const group = document.createElement('optgroup');
+    group.label = icons[cat] + ' ' + cat + 's';
+    CARPOLISH_PRODUITS.filter(p => p.cat === cat).forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.code;
+      opt.textContent = '[' + p.code + '] ' + p.nom + ' — ' + p.prix + '€';
+      group.appendChild(opt);
+    });
+    sel.appendChild(group);
+  });
+  const autre = document.createElement('option');
+  autre.value = 'autre';
+  autre.textContent = '✏️ Autre produit...';
+  sel.appendChild(autre);
 }
 function closeModal(id){document.getElementById(id).style.display='none';}
 function addTech(){const nom=document.getElementById('nt-nom').value,centre=document.getElementById('nt-centre').value,tel=document.getElementById('nt-tel').value,contrat=document.getElementById('nt-contrat').value;if(!nom)return;TECHS.push({nom,centre,contrat,tel,jours:0,color:'#2563EB'});renderTechs();renderDashboard();closeModal('m-tech');saveAll();}
@@ -1834,7 +2093,7 @@ function saveLocal() {
     TECHS, CENTRES, CHARGES, ASSURANCES, STOCK,
     BOX_DATA, TEL_DATA, EXTRA_ROWS, COMPTA, PLANNING, CRA_DATA,
     TECHNOVAP_MACHINES, WESTFIELD_CONTACTS, WESTFIELD_CONTRATS,
-    CARPOLISH_CONTACT,
+    CARPOLISH_CONTACT, CUSTOM_DOCS,
     prestations: capturePresta()
   };
   try {
@@ -1915,7 +2174,7 @@ function captureAll() {
   });
   // Box
   BOX_DATA.forEach((b, i) => {
-    ['bc','bo','bl','br','bm'].forEach(pre => {
+    ['bc','bo','bl','br','bm','bid','bln'].forEach(pre => {
       const el = document.getElementById(pre+'-'+i);
       if (el) {
         if (pre==='bc') BOX_DATA[i].centre = el.value;
@@ -1923,8 +2182,12 @@ function captureAll() {
         if (pre==='bl') BOX_DATA[i].ligne = el.value;
         if (pre==='br') BOX_DATA[i].renouvellement = el.value;
         if (pre==='bm') BOX_DATA[i].mensuel = el.value;
+        if (pre==='bid') BOX_DATA[i].identifiant = el.value;
+        if (pre==='bln') BOX_DATA[i].lien = el.value;
       }
     });
+    const bmpEl = document.getElementById('bmp-'+i);
+    if (bmpEl && bmpEl.value) BOX_DATA[i].mdp = bmpEl.value;
   });
   // Tel
   TEL_DATA.forEach((t, i) => {
@@ -2043,6 +2306,7 @@ async function init() {
     if (local.WESTFIELD_CONTACTS?.length) WESTFIELD_CONTACTS.splice(0, WESTFIELD_CONTACTS.length, ...local.WESTFIELD_CONTACTS);
     if (local.WESTFIELD_CONTRATS?.length) WESTFIELD_CONTRATS.splice(0, WESTFIELD_CONTRATS.length, ...local.WESTFIELD_CONTRATS);
     if (local.CARPOLISH_CONTACT) Object.assign(CARPOLISH_CONTACT, local.CARPOLISH_CONTACT);
+    if (local.CUSTOM_DOCS?.length) CUSTOM_DOCS.splice(0, CUSTOM_DOCS.length, ...local.CUSTOM_DOCS);
     console.log('✅ Données locales chargées');
   }
 
@@ -2218,16 +2482,19 @@ function renderWestfield() {
   // Docs
   const docsEl = document.getElementById('westfield-docs');
   if (docsEl) {
-    docsEl.innerHTML = WESTFIELD_DOCS.map((d,i) => `
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;" onclick="openUrl(WESTFIELD_DOCS[${i}].url)">
-        <div style="font-size:20px;margin-bottom:4px;">📄</div>
-        <div style="font-size:11px;font-weight:600;">${d.nom}</div>
-        <button class="btn btn-sm btn-r" style="margin-top:6px;" onclick="event.stopPropagation();WESTFIELD_DOCS.splice(${i},1);renderWestfield();">🗑️</button>
-      </div>`).join('') +
-      `<div style="background:#EFF6FF;border:1px dashed #93C5FD;border-radius:8px;padding:10px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;" onclick="document.getElementById('westfield-upload').click()">
-        <div style="font-size:20px;">☁️</div>
-        <div style="font-size:11px;color:var(--accent);margin-top:4px;">Ajouter</div>
-      </div>`;
+    if (WESTFIELD_DOCS.length === 0) {
+      docsEl.innerHTML = '<div style="color:var(--muted);font-size:13px;font-style:italic;">Aucun document ajouté</div>';
+    } else {
+      docsEl.innerHTML = WESTFIELD_DOCS.map((d,i) => {
+        const icon = d.type?.includes('pdf') ? '📄' : d.type?.includes('image') ? '🖼️' : '📎';
+        return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;" onmouseenter="this.style.borderColor='#7C3AED'" onmouseleave="this.style.borderColor='var(--border)'" onclick="openDoc(${i})">
+          <div style="font-size:28px;margin-bottom:6px;">${icon}</div>
+          <div style="font-size:11px;font-weight:600;word-break:break-all;">${d.nom}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;">${d.size||''} · ${d.date||''}</div>
+          <button class="btn btn-sm btn-r" style="margin-top:8px;width:100%;" onclick="event.stopPropagation();WESTFIELD_DOCS.splice(${i},1);renderWestfield();saveAll();">🗑️ Supprimer</button>
+        </div>`;
+      }).join('');
+    }
   }
 }
 
@@ -2242,11 +2509,23 @@ function addWestfieldContrat() {
 }
 
 function handleWestfieldUpload(input) {
-  if (!input.files[0]) return;
-  const f = input.files[0];
-  const url = URL.createObjectURL(f);
-  WESTFIELD_DOCS.push({nom: f.name, url});
-  renderWestfield();
+  if (!input.files?.length) return;
+  Array.from(input.files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      WESTFIELD_DOCS.push({
+        nom: f.name,
+        type: f.type,
+        size: (f.size/1024).toFixed(0) + ' Ko',
+        data: e.target.result,
+        date: new Date().toLocaleDateString('fr-FR')
+      });
+      renderWestfield();
+      saveAll();
+    };
+    reader.readAsDataURL(f);
+  });
+  input.value = '';
 }
 
 function selectCarpolish(code) {
@@ -2293,8 +2572,243 @@ function bnGo(id) {
   document.querySelector(`.bn-item[data-page="${id}"]`)?.classList.add('active');
 }
 
+function openDoc(i) {
+  const doc = WESTFIELD_DOCS[i];
+  if (!doc?.data) return;
+  const win = window.open();
+  win.document.write(`<iframe src="${doc.data}" style="width:100%;height:100vh;border:none;"></iframe>`);
+}
+
+// ═══ BON DE COMMANDE CARPOLISH ════════════════════════════════
+let BDC_LINES = [];
+
+function openBdcModal() {
+  openModal('m-carpolish');
+  document.getElementById('bdc-date').value = new Date().toISOString().split('T')[0];
+  BDC_LINES = [{code:'', nom:'', qte:1, pu:0}];
+  renderBdcLines();
+}
+
+function addBdcLine() {
+  BDC_LINES.push({code:'', nom:'', qte:1, pu:0});
+  renderBdcLines();
+}
+
+function renderBdcLines() {
+  const el = document.getElementById('bdc-lines');
+  if (!el) return;
+  el.innerHTML = BDC_LINES.map((l, i) => `
+    <div style="display:grid;grid-template-columns:1fr 2fr 60px 80px 80px 32px;gap:6px;align-items:center;margin-bottom:6px;">
+      <select onchange="selectBdcProd(${i},this.value)" style="border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:11px;background:var(--bg3);font-family:inherit;">
+        <option value="">— Code —</option>
+        ${CARPOLISH_PRODUITS.map(p=>`<option value="${p.code}" ${p.code===l.code?'selected':''}>${p.code}</option>`).join('')}
+      </select>
+      <input value="${l.nom}" placeholder="Désignation" style="border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;background:var(--bg3);font-family:inherit;" onchange="BDC_LINES[${i}].nom=this.value;updateBdcTotal();">
+      <input type="number" value="${l.qte}" min="1" style="border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:12px;font-weight:700;background:var(--bg3);font-family:inherit;text-align:center;" onchange="BDC_LINES[${i}].qte=parseInt(this.value)||1;updateBdcTotal();">
+      <input type="number" value="${l.pu}" step="0.01" style="border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:11px;background:var(--bg3);font-family:inherit;" onchange="BDC_LINES[${i}].pu=parseFloat(this.value)||0;updateBdcTotal();">
+      <span style="font-size:12px;font-weight:700;color:var(--accent2);text-align:right;">${(l.qte*l.pu).toFixed(2)} €</span>
+      <button onclick="BDC_LINES.splice(${i},1);renderBdcLines();" style="background:#FEE2E2;border:1px solid #FECACA;border-radius:6px;padding:4px 6px;cursor:pointer;font-size:13px;color:#DC2626;">✕</button>
+    </div>`).join('');
+  updateBdcTotal();
+}
+
+function selectBdcProd(i, code) {
+  const prod = CARPOLISH_PRODUITS.find(p => p.code === code);
+  if (prod) {
+    BDC_LINES[i].code = prod.code;
+    BDC_LINES[i].nom = prod.nom;
+    BDC_LINES[i].pu = prod.prix;
+  }
+  renderBdcLines();
+}
+
+function updateBdcTotal() {
+  const total = BDC_LINES.reduce((s, l) => s + (l.qte * l.pu), 0);
+  const el = document.getElementById('bdc-total');
+  if (el) el.textContent = total.toFixed(2).replace('.', ',') + ' €';
+}
+
+function buildBdcText() {
+  const centre = document.getElementById('bdc-centre')?.value || '';
+  const date = document.getElementById('bdc-date')?.value || '';
+  const adresse = document.getElementById('bdc-adresse')?.value || '';
+  const total = BDC_LINES.reduce((s, l) => s + (l.qte * l.pu), 0);
+  let txt = `BON DE COMMANDE DREAMWASH\nDate : ${date}\nCentre : ${centre}\n`;
+  if (adresse) txt += `Livraison : ${adresse}\n`;
+  txt += `\n${'─'.repeat(40)}\n`;
+  BDC_LINES.forEach(l => {
+    if (l.nom) txt += `[${l.code||'—'}] ${l.nom}\n   Qté: ${l.qte} × ${l.pu.toFixed(2)}€ = ${(l.qte*l.pu).toFixed(2)}€\n`;
+  });
+  txt += `${'─'.repeat(40)}\nTOTAL HT : ${total.toFixed(2).replace('.',',')} €\n(Remise partenariat 25% applicable)`;
+  return txt;
+}
+
+function sendBdcWhatsApp() {
+  const txt = buildBdcText();
+  const num = CARPOLISH_CONTACT.whatsapp.replace(/\D/g,'');
+  openUrl(`https://wa.me/33${num.substring(1)}?text=${encodeURIComponent(txt)}`);
+}
+
+function sendBdcEmail() {
+  const txt = buildBdcText();
+  const centre = document.getElementById('bdc-centre')?.value || '';
+  const date = document.getElementById('bdc-date')?.value || '';
+  openUrl(`mailto:${CARPOLISH_CONTACT.email}?subject=Bon de commande Dreamwash - ${centre} - ${date}&body=${encodeURIComponent(txt)}`);
+}
+
+function printBdc() {
+  const centre = document.getElementById('bdc-centre')?.value || '';
+  const date = document.getElementById('bdc-date')?.value || '';
+  const total = BDC_LINES.reduce((s, l) => s + (l.qte * l.pu), 0);
+  const rows = BDC_LINES.filter(l=>l.nom).map(l =>
+    `<tr><td>${l.code||'—'}</td><td>${l.nom}</td><td style="text-align:center;">${l.qte}</td><td style="text-align:right;">${l.pu.toFixed(2)} €</td><td style="text-align:right;font-weight:700;">${(l.qte*l.pu).toFixed(2)} €</td></tr>`
+  ).join('');
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bon de commande Carpolish</title>
+  <style>body{font-family:Arial,sans-serif;padding:30px;max-width:700px;margin:0 auto;}
+  h1{color:#F59E0B;}table{width:100%;border-collapse:collapse;margin:20px 0;}
+  th{background:#F59E0B;color:#fff;padding:8px 10px;text-align:left;}
+  td{padding:7px 10px;border-bottom:1px solid #eee;}
+  .total{font-size:20px;font-weight:800;color:#D97706;text-align:right;margin-top:14px;}
+  .footer{margin-top:30px;font-size:12px;color:#888;}
+  @media print{button{display:none;}}</style></head><body>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <div><h1>🛒 Bon de Commande</h1><div style="font-size:13px;color:#888;">Dreamwash → Carpolish</div></div>
+    <div style="text-align:right;font-size:13px;"><strong>Date :</strong> ${date}<br><strong>Centre :</strong> ${centre}</div>
+  </div>
+  <table><thead><tr><th>Code</th><th>Désignation</th><th>Qté</th><th>Prix HT</th><th>Total HT</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="total">Total HT : ${total.toFixed(2).replace('.',',')} €</div>
+  <div style="font-size:12px;color:#888;margin-top:6px;">Remise partenariat 25% applicable (hors articles RF, SC, Mi)</div>
+  <div class="footer">
+    <strong>Carpolish</strong> · ${CARPOLISH_CONTACT.email} · ${CARPOLISH_CONTACT.tel}<br>
+    <strong>Dreamwash</strong> · Dossier : wash
+  </div>
+  <button onclick="window.print()" style="margin-top:20px;background:#F59E0B;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;">🖨️ Imprimer</button>
+  </body></html>`);
+  win.document.close();
+}
+
+function openCarpolishPDF() {
+  const win = window.open('', '_blank');
+  const prodRows = CARPOLISH_PRODUITS.filter(p=>p.cat==='Produit').map(p=>
+    `<tr><td style="font-weight:700;color:#666;">${p.code}</td><td>${p.nom}</td><td style="text-align:right;font-weight:700;color:#D97706;">${p.prix.toFixed(2)} €</td></tr>`
+  ).join('');
+  const matRows = CARPOLISH_PRODUITS.filter(p=>p.cat==='Matériel').map(p=>
+    `<tr><td style="font-weight:700;color:#666;">${p.code}</td><td>${p.nom}</td><td style="text-align:right;font-weight:700;color:#D97706;">${p.prix.toFixed(2)} €</td></tr>`
+  ).join('');
+  const accRows = CARPOLISH_PRODUITS.filter(p=>p.cat==='Accessoire').map(p=>
+    `<tr><td style="font-weight:700;color:#666;">${p.code}</td><td>${p.nom}</td><td style="text-align:right;font-weight:700;color:#D97706;">${p.prix.toFixed(2)} €</td></tr>`
+  ).join('');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Catalogue Carpolish - Dreamwash</title>
+  <style>
+    body{font-family:Arial,sans-serif;padding:30px;max-width:800px;margin:0 auto;color:#1e293b;}
+    h1{color:#F59E0B;margin-bottom:4px;}
+    h2{color:#F59E0B;font-size:14px;margin:20px 0 8px;padding:6px 12px;background:#FEF3C7;border-radius:6px;}
+    table{width:100%;border-collapse:collapse;margin-bottom:14px;}
+    th{background:#F59E0B;color:#fff;padding:8px 10px;text-align:left;font-size:12px;}
+    td{padding:7px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;}
+    tr:hover td{background:#FFFBEB;}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;border-bottom:2px solid #F59E0B;padding-bottom:14px;}
+    .contact{font-size:12px;color:#64748B;text-align:right;}
+    .note{background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:20px;}
+    @media print{button{display:none;}}
+  </style></head><body>
+  <div class="header">
+    <div>
+      <h1>🧴 Catalogue Carpolish</h1>
+      <div style="font-size:13px;color:#64748B;">Tarifs partenariat Dreamwash · ${new Date().toLocaleDateString('fr-FR')}</div>
+    </div>
+    <div class="contact">
+      <strong>Carpolish</strong><br>
+      📧 ${CARPOLISH_CONTACT.email}<br>
+      📞 ${CARPOLISH_CONTACT.tel}<br>
+      💬 WhatsApp : ${CARPOLISH_CONTACT.whatsapp}
+    </div>
+  </div>
+  <div class="note">⭐ <strong>Remise partenariat 25%</strong> appliquée sur tous les produits (sauf codes RF, SC, Mi)</div>
+  <h2>🧴 PRODUITS</h2>
+  <table><thead><tr><th>Code</th><th>Désignation</th><th>Prix HT</th></tr></thead><tbody>${prodRows}</tbody></table>
+  <h2>🔧 MATÉRIEL</h2>
+  <table><thead><tr><th>Code</th><th>Désignation</th><th>Prix HT</th></tr></thead><tbody>${matRows}</tbody></table>
+  <h2>🧹 ACCESSOIRES</h2>
+  <table><thead><tr><th>Code</th><th>Désignation</th><th>Prix HT</th></tr></thead><tbody>${accRows}</tbody></table>
+  <div style="margin-top:20px;display:flex;gap:10px;">
+    <button onclick="window.print()" style="background:#F59E0B;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;">🖨️ Imprimer / Télécharger PDF</button>
+    <button onclick="window.close()" style="background:#e2e8f0;color:#1e293b;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;">✕ Fermer</button>
+  </div>
+  </body></html>`);
+  win.document.close();
+}
+
+// ═══ DATE EN TEMPS RÉEL ═══════════════════════════════════════
+function updateDate() {
+  const now = new Date();
+  const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const mois = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const dateStr = `${jours[now.getDay()]} ${now.getDate()} ${mois[now.getMonth()]} ${now.getFullYear()}`;
+  const el1 = document.getElementById('topbar-date');
+  const el2 = document.getElementById('dash-date');
+  if (el1) el1.textContent = dateStr;
+  if (el2) el2.textContent = dateStr;
+}
+updateDate();
+setInterval(updateDate, 60000); // Mise à jour toutes les minutes
+
 // FIN
 </script>
+<!-- MODAL BON DE COMMANDE CARPOLISH -->
+<div class="modal-ov" id="m-carpolish" style="display:none;" onclick="if(event.target===this)closeModal('m-carpolish')">
+  <div class="modal" style="max-width:700px;width:95vw;max-height:90vh;overflow-y:auto;">
+    <div class="modal-t" style="background:#F59E0B;color:#fff;border-radius:10px 10px 0 0;margin:-18px -18px 16px -18px;padding:14px 18px;">
+      🛒 Bon de Commande Carpolish <button class="mc" onclick="closeModal('m-carpolish')" style="color:#fff;background:rgba(255,255,255,0.2);">✕</button>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:150px;">
+        <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:4px;">Centre destinataire</label>
+        <select id="bdc-centre" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;background:var(--bg3);font-family:inherit;">
+          <option value="Tous les centres">Tous les centres</option>
+          <option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option>
+          <option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option>
+          <option>Parly2</option><option>Belleville</option><option>Suresnes</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:150px;">
+        <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:4px;">Date</label>
+        <input type="date" id="bdc-date" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;background:var(--bg3);font-family:inherit;">
+      </div>
+    </div>
+
+    <!-- Produits -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">🧴 Produits</div>
+    <div id="bdc-lines" style="margin-bottom:14px;"></div>
+    <button class="btn btn-sm btn-o" onclick="addBdcLine()" style="margin-bottom:16px;">+ Ajouter un produit</button>
+
+    <!-- Total -->
+    <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-weight:700;font-size:14px;">Total HT</span>
+      <span id="bdc-total" style="font-size:20px;font-weight:800;color:#D97706;">0,00 €</span>
+    </div>
+
+    <!-- Infos livraison -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">📦 Adresse de livraison</div>
+    <textarea id="bdc-adresse" rows="2" placeholder="Dreamwash — Adresse du centre..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;margin-bottom:14px;"></textarea>
+
+    <!-- Boutons envoi -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn btn-sm" style="background:#25D366;color:#fff;border:none;justify-content:center;" onclick="sendBdcWhatsApp()">
+        💬 Envoyer par WhatsApp
+      </button>
+      <button class="btn btn-sm" style="background:var(--accent);color:#fff;border:none;justify-content:center;" onclick="sendBdcEmail()">
+        📧 Envoyer par Email
+      </button>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="btn btn-sm btn-o" style="width:100%;justify-content:center;" onclick="printBdc()">🖨️ Imprimer / Télécharger PDF</button>
+    </div>
+  </div>
+</div>
+
 <!-- DRAWER OVERLAY -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 
