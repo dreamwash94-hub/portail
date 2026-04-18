@@ -22,7 +22,8 @@
   window.saveToFirebase = async function(key, data) {
     try {
       await setDoc(doc(db, 'portail', key), { data: JSON.stringify(data), updated: Date.now() });
-    } catch(e) { console.log('Firebase save error:', key, e.message); }
+      return true;
+    } catch(e) { console.log('Firebase save error:', key, e.message); return false; }
   };
 
   window.loadFromFirebase = async function(key) {
@@ -42,6 +43,16 @@
       snap.forEach(d => data.push(d.data()));
       return data.filter(l => l.date === dateStr).sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
     } catch(e) { return []; }
+  };
+
+  // Exposer getDocs et collection pour syncAllBadgeages
+  window.getAllBadgeages = async function() {
+    try {
+      const snap = await getDocs(collection(db, 'badgeages'));
+      const data = [];
+      snap.forEach(d => data.push(d.data()));
+      return data;
+    } catch(e) { console.log('Erreur getAllBadgeages:', e.message); return []; }
   };
 
   window._firebaseReady = true;
@@ -410,6 +421,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-sm" style="background:#7C3AED;color:#fff;border:none;" onclick="syncAllBadgeages()">🔄 Sync Badgeuse</button>
+          <button class="btn btn-sm" style="background:#16A34A;color:#fff;border:none;" onclick="openModal('m-cra-manuel')">✏️ Saisie manuelle</button>
           <button class="btn btn-o btn-sm" onclick="copyCRA()">📋 Copier</button>
           <button class="btn btn-p btn-sm" onclick="exportCSV()">📤 CSV</button>
         </div>
@@ -688,6 +700,52 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
   </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
+
+<!-- MODAL CRA MANUEL -->
+<div class="modal-ov" id="m-cra-manuel" style="display:none;" onclick="if(event.target===this)closeModal('m-cra-manuel')">
+  <div class="modal" style="max-width:500px;width:95vw;">
+    <div class="modal-t" style="background:#16A34A;color:#fff;border-radius:10px 10px 0 0;margin:-18px -18px 16px -18px;padding:14px 18px;">
+      ✏️ Saisie manuelle CRA <button class="mc" onclick="closeModal('m-cra-manuel')" style="color:#fff;background:rgba(255,255,255,0.2);">✕</button>
+    </div>
+
+    <div class="field">
+      <label>Technicien</label>
+      <select id="cra-m-tech" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;">
+        ${TECHS.map(t=>`<option value="${t.nom}">${t.nom} — ${t.centre}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Centre travaillé</label>
+      <select id="cra-m-centre" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;">
+        <option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option>
+        <option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option>
+        <option>Parly2</option><option>Belleville</option><option>Suresnes</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Date(s) de présence</label>
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:12px;color:#15803D;">
+        💡 Vous pouvez sélectionner plusieurs dates en maintenant <strong>Ctrl</strong> (PC) ou en cochant plusieurs jours
+      </div>
+      <input type="date" id="cra-m-date" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;">
+    </div>
+
+    <div id="cra-m-dates-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+
+    <button class="btn btn-sm btn-o" onclick="addCRADate()" style="margin-bottom:14px;width:100%;justify-content:center;">+ Ajouter cette date</button>
+
+    <div style="background:#EFF6FF;border:1px solid #DBEAFE;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#1D4ED8;">
+      📋 Dates sélectionnées : <strong id="cra-m-count">0</strong> jour(s)
+    </div>
+
+    <div class="mac">
+      <button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-cra-manuel');pendingCRADates=[];">Annuler</button>
+      <button class="btn btn-sm" style="flex:1;justify-content:center;background:#16A34A;color:#fff;border:none;" onclick="saveCRAManuel()">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODALS -->
 <div class="modal-ov" id="m-tech" style="display:none;" onclick="if(event.target===this)closeModal('m-tech')">
@@ -2081,18 +2139,14 @@ async function refreshBadgeuse() {
 async function syncAllBadgeages() {
   showNotif('🔄 Synchronisation en cours...', '#7C3AED');
   try {
-    // Charger tous les badges depuis Firebase
-    const { collection, getDocs } = window._firebase || {};
-    if (!window._db || !getDocs) {
+    if (!window.getAllBadgeages) {
       showNotif('⚠️ Firebase non connecté', '#D97706');
       return;
     }
-    const snap = await getDocs(collection(window._db, 'badgeages'));
-    const allBadges = [];
-    snap.forEach(d => allBadges.push(d.data()));
+    const allBadges = await window.getAllBadgeages();
 
     if (allBadges.length === 0) {
-      showNotif('ℹ️ Aucun badge trouvé', '#D97706');
+      showNotif('ℹ️ Aucun badge trouvé dans Firebase', '#D97706');
       return;
     }
 
@@ -2104,7 +2158,7 @@ async function syncAllBadgeages() {
       CRA_DATA[b.nom][b.date] = b.centreBadge || b.centreHabituel || b.centre || '—';
     });
 
-    // Mettre à jour jours dans TECHS pour chaque mois
+    // Mettre à jour jours dans TECHS pour le mois courant
     const now = new Date();
     const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
     TECHS.forEach((t, i) => {
@@ -2114,7 +2168,7 @@ async function syncAllBadgeages() {
     });
 
     // Sauvegarder
-    await window.saveToFirebase('cra_data', CRA_DATA);
+    if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
     saveLocal();
 
     // Tout re-rendre
@@ -2125,10 +2179,10 @@ async function syncAllBadgeages() {
 
     const nbTechs = Object.keys(CRA_DATA).length;
     const nbBadges = allBadges.length;
-    showNotif(`✅ ${nbBadges} badges synchronisés — ${nbTechs} techniciens`, '#16A34A');
+    showNotif(`✅ ${nbBadges} badges — ${nbTechs} techniciens synchronisés`, '#16A34A');
   } catch(e) {
     console.log('Erreur sync CRA:', e.message);
-    showNotif('❌ Erreur synchronisation', '#DC2626');
+    showNotif('❌ Erreur synchronisation : ' + e.message, '#DC2626');
   }
 }
 
@@ -2169,9 +2223,7 @@ function go(id){
 function toggleSec(el){const v=el.dataset.v;el.textContent=el.textContent.includes('●')?v:'●'.repeat(v.length);el.style.color=el.textContent.includes('●')?'':'var(--accent)';}
 function setFbtn(b){document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}
 function openUrl(u){window.open(u,'_blank');}
-function openModal(id){
-  document.getElementById(id).style.display='flex';
-  if(id==='m-slot'){ updateSlotTechs(); }
+function openModal_carpolish_stock(id) {
   if(id==='m-carpolish'){
     document.getElementById('bdc-date').value = new Date().toISOString().split('T')[0];
     BDC_LINES = [{code:'', nom:'', qte:1, pu:0}];
@@ -2510,7 +2562,7 @@ async function init() {
         });
       }
       // Sync automatique badgeuse → CRA au chargement
-      setTimeout(() => syncAllBadgeages(), 2000);
+      setTimeout(() => syncAllBadgeages(), 3000);
     } catch(e) {
       console.log('Firebase load error:', e.message);
     }
@@ -2893,6 +2945,100 @@ function updateDate() {
 }
 updateDate();
 setInterval(updateDate, 60000); // Mise à jour toutes les minutes
+
+// ═══ CRA MANUEL ═══════════════════════════════════════════════
+let pendingCRADates = [];
+
+function openModal(id) {
+  document.getElementById(id).style.display='flex';
+  if (id==='m-slot') { updateSlotTechs(); }
+  if (id==='m-carpolish') {
+    document.getElementById('bdc-date').value = new Date().toISOString().split('T')[0];
+    BDC_LINES = [{code:'', nom:'', qte:1, pu:0}];
+    renderBdcLines();
+  }
+  if (id==='m-stock') { populateCatalogue(); }
+  if (id==='m-cra-manuel') {
+    pendingCRADates = [];
+    renderPendingDates();
+    const sel = document.getElementById('cra-m-tech');
+    if (sel) {
+      sel.innerHTML = TECHS.map(t=>`<option value="${t.nom}">${t.nom} — ${t.centre}</option>`).join('');
+      sel.onchange = function() {
+        const tech = TECHS.find(t => t.nom === this.value);
+        if (tech) { const c = document.getElementById('cra-m-centre'); if(c) c.value = tech.centre; }
+      };
+    }
+    const tech0 = TECHS[0];
+    if (tech0) { const c = document.getElementById('cra-m-centre'); if(c) c.value = tech0.centre; }
+    const dateEl = document.getElementById('cra-m-date');
+    if (dateEl) dateEl.valueAsDate = new Date();
+  }
+}
+
+function addCRADate() {
+  const dateEl = document.getElementById('cra-m-date');
+  if (!dateEl?.value) return;
+  const d = new Date(dateEl.value);
+  const dateStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+  if (!pendingCRADates.includes(dateStr)) {
+    pendingCRADates.push(dateStr);
+    pendingCRADates.sort();
+    renderPendingDates();
+  }
+}
+
+function removeCRADate(dateStr) {
+  pendingCRADates = pendingCRADates.filter(d => d !== dateStr);
+  renderPendingDates();
+}
+
+function renderPendingDates() {
+  const el = document.getElementById('cra-m-dates-list');
+  const countEl = document.getElementById('cra-m-count');
+  if (!el) return;
+  el.innerHTML = pendingCRADates.map(d => `
+    <span style="background:#DCFCE7;color:#15803D;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;">
+      📅 ${d}
+      <span onclick="removeCRADate('${d}')" style="cursor:pointer;color:#DC2626;font-size:14px;line-height:1;">×</span>
+    </span>`).join('');
+  if (countEl) countEl.textContent = pendingCRADates.length;
+}
+
+async function saveCRAManuel() {
+  const tech = document.getElementById('cra-m-tech')?.value;
+  const centre = document.getElementById('cra-m-centre')?.value;
+  if (!tech || pendingCRADates.length === 0) {
+    showNotif('⚠️ Sélectionnez un technicien et au moins une date', '#D97706');
+    return;
+  }
+
+  // Ajouter dans CRA_DATA
+  if (!CRA_DATA[tech]) CRA_DATA[tech] = {};
+  pendingCRADates.forEach(d => { CRA_DATA[tech][d] = centre; });
+
+  // Mettre à jour jours technicien
+  const now = new Date();
+  const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+  const techIdx = TECHS.findIndex(t => t.nom === tech);
+  if (techIdx >= 0) {
+    TECHS[techIdx].jours = Object.keys(CRA_DATA[tech]).filter(d => d.endsWith(moisCourant)).length;
+  }
+
+  // Sauvegarder
+  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  saveLocal();
+
+  // Mettre à jour l'affichage
+  renderCRA();
+  renderRapport();
+  renderTechs();
+  renderDashboard();
+
+  closeModal('m-cra-manuel');
+  pendingCRADates = [];
+  showNotif(`✅ ${tech} — ${Object.keys(CRA_DATA[tech]).length} jours enregistrés`, '#16A34A');
+}
 
 // FIN
 </script>
