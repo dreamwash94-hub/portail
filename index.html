@@ -271,7 +271,6 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="nav-item" onclick="go('badgeuse-view')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Badgeuse</div>
     <div class="nav-label">Outils</div>
     <div class="nav-item" onclick="openUrl('https://dreamwash.simplybook.it/v2/')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Réservations <span class="nav-ext">↗</span></div>
-    <div class="nav-item" onclick="openUrl('https://dreamwash.simplybook.it/v2/')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Réservations <span class="nav-ext">↗</span></div>
     <div class="nav-item" onclick="openUrl('https://facture.dreamwash.fr/login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Facturation <span class="nav-ext">↗</span></div>
     <div class="nav-item" onclick="openUrl('https://dashboard.dreamwash.fr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Dashboard CA <span class="nav-ext">↗</span></div>
     <div class="nav-item" onclick="openUrl('https://www.tiime.fr/app')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Tiime <span class="nav-ext">↗</span></div>
@@ -407,30 +406,45 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
       <div class="rh">
         <div>
           <div class="sec-title">CRA — Compte Rendu d'Activité</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px;">Alimenté automatiquement par la badgeuse</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">Synchronisé avec la badgeuse en temps réel</div>
         </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-sm" style="background:#7C3AED;color:#fff;border:none;" onclick="syncAllBadgeages()">🔄 Sync Badgeuse → CRA</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm" style="background:#7C3AED;color:#fff;border:none;" onclick="syncAllBadgeages()">🔄 Sync Badgeuse</button>
           <button class="btn btn-o btn-sm" onclick="copyCRA()">📋 Copier</button>
-          <button class="btn btn-p btn-sm" onclick="exportCSV()">📤 Exporter CSV</button>
+          <button class="btn btn-p btn-sm" onclick="exportCSV()">📤 CSV</button>
         </div>
       </div>
-      <div style="background:#EFF6FF;border:1px solid #DBEAFE;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
-        <span style="font-size:18px;">💡</span>
-        <div style="font-size:13px;color:#1D4ED8;">Cliquez <strong>"Sync Badgeuse → CRA"</strong> pour importer automatiquement toutes les présences depuis la badgeuse. Le nombre de jours travaillés et les centres sont mis à jour automatiquement.</div>
+
+      <!-- KPI CRA -->
+      <div class="kpi-g" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+        <div class="kpi"><div class="kpi-i">👷</div><div class="kpi-v" style="color:var(--accent);" id="cra-kpi-techs">0</div><div class="kpi-l">Techniciens actifs</div></div>
+        <div class="kpi"><div class="kpi-i">📅</div><div class="kpi-v" style="color:var(--accent2);" id="cra-kpi-jours">0</div><div class="kpi-l">Jours travaillés (mois)</div></div>
+        <div class="kpi"><div class="kpi-i">🏢</div><div class="kpi-v" style="color:var(--accent5);" id="cra-kpi-centres">0</div><div class="kpi-l">Centres couverts</div></div>
+        <div class="kpi"><div class="kpi-i">⏱️</div><div class="kpi-v" style="color:var(--accent3);" id="cra-kpi-today">0</div><div class="kpi-l">Présents aujourd'hui</div></div>
       </div>
+
+      <div style="background:#EFF6FF;border:1px solid #DBEAFE;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">💡</span>
+        <div style="font-size:12px;color:#1D4ED8;">Les présences viennent de la <strong>badgeuse</strong> (temps réel) et du <strong>planning</strong>. Cliquez 🔄 Sync pour forcer la mise à jour.</div>
+      </div>
+
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
-        <input class="srch" id="cra-search" placeholder="🔍 Rechercher un technicien…" oninput="renderCRA()" style="max-width:240px;">
+        <input class="srch" id="cra-search" placeholder="🔍 Rechercher…" oninput="renderCRA()" style="max-width:220px;">
         <select id="cra-centre-filter" onchange="renderCRA()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;">
           <option value="tous">Tous les centres</option>
           <option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option>
         </select>
         <select id="cra-statut-filter" onchange="renderCRA()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;">
-          <option value="tous">Tous les statuts</option>
-          <option value="present">Présents uniquement</option>
-          <option value="absent">Absents uniquement</option>
+          <option value="tous">Tous</option>
+          <option value="present">Avec présences</option>
+          <option value="absent">Sans présences</option>
         </select>
-        <span style="font-size:12px;color:var(--muted);">Affiché : <strong id="cra-count">36</strong> techniciens</span>
+        <select id="cra-mois-filter" onchange="renderCRA()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;">
+          <option value="04/2026">Avril 2026</option>
+          <option value="03/2026">Mars 2026</option>
+          <option value="05/2026">Mai 2026</option>
+        </select>
+        <span style="font-size:12px;color:var(--muted);">Affiché : <strong id="cra-count">0</strong> techniciens</span>
       </div>
       <div class="tbl" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:900px;"><thead><tr id="cra-thead"></tr></thead><tbody id="cra-tbody"></tbody></table></div>
     </div>
@@ -446,10 +460,21 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
             <button class="btn btn-o btn-sm" onclick="rapportNav(1)">→</button>
           </div>
         </div>
-        <button class="btn btn-o" onclick="exportCSV()">⬇️ Exporter CSV</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" style="background:#7C3AED;color:#fff;border:none;" onclick="syncAllBadgeages()">🔄 Sync Badgeuse</button>
+          <button class="btn btn-o btn-sm" onclick="exportCSV()">⬇️ CSV</button>
+        </div>
       </div>
+
+      <!-- KPI Rapport -->
+      <div class="kpi-g" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;">
+        <div class="kpi"><div class="kpi-i">📅</div><div class="kpi-v" style="color:var(--accent2);" id="rapp-kpi-total">0</div><div class="kpi-l">Total jours travaillés</div></div>
+        <div class="kpi"><div class="kpi-i">👷</div><div class="kpi-v" style="color:var(--accent);" id="rapp-kpi-techs">0</div><div class="kpi-l">Techniciens ayant travaillé</div></div>
+        <div class="kpi"><div class="kpi-i">📊</div><div class="kpi-v" style="color:var(--accent3);" id="rapp-kpi-moy">0</div><div class="kpi-l">Jours moy. / technicien</div></div>
+      </div>
+
       <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-        <input class="srch" id="rapp-search" placeholder="🔍 Rechercher un technicien…" oninput="renderRapport()" style="max-width:240px;">
+        <input class="srch" id="rapp-search" placeholder="🔍 Rechercher…" oninput="renderRapport()" style="max-width:220px;">
         <select id="rapp-centre" onchange="renderRapport()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;">
           <option value="tous">Tous les centres</option>
           <option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option>
@@ -459,7 +484,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
           <option value="present">Avec jours travaillés</option>
           <option value="absent">Sans jours travaillés</option>
         </select>
-        <span style="font-size:12px;color:var(--muted);">Affiché : <strong id="rapp-count">36</strong> techniciens</span>
+        <span style="font-size:12px;color:var(--muted);">Affiché : <strong id="rapp-count">0</strong> techniciens</span>
       </div>
       <div class="tbl" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:900px;"><thead><tr id="rapport-thead"></tr></thead><tbody id="rapport-tbody"></tbody></table></div>
     </div>
@@ -1270,18 +1295,22 @@ function addSlot() {
   // Sync avec CRA — marquer présence si statut présent
   if (statut === 'present' || statut === 'Présent ✅') {
     const now = new Date();
-    const JOURS_PLANNING = ['13/04/2026','14/04/2026','15/04/2026','16/04/2026','17/04/2026','18/04/2026','19/04/2026'];
-    const dateStr = JOURS_PLANNING[jour] || '';
-    if (dateStr) {
-      if (!CRA_DATA[tech]) CRA_DATA[tech] = {};
-      CRA_DATA[tech][dateStr] = centre;
-      // Mettre à jour jours technicien
-      const techIdx = TECHS.findIndex(t => t.nom === tech);
-      if (techIdx >= 0) {
-        const moisCourant = '04/2026';
-        const joursMois = Object.keys(CRA_DATA[tech]).filter(d => d.endsWith(moisCourant)).length;
-        TECHS[techIdx].jours = joursMois;
-      }
+    // Calculer la date réelle du jour sélectionné dans la semaine courante
+    const lundiSemaine = new Date(now);
+    const dayOfWeek = now.getDay() || 7;
+    lundiSemaine.setDate(now.getDate() - dayOfWeek + 1);
+    const jourDate = new Date(lundiSemaine);
+    jourDate.setDate(lundiSemaine.getDate() + jour);
+    const dateStr = String(jourDate.getDate()).padStart(2,'0') + '/' +
+                    String(jourDate.getMonth()+1).padStart(2,'0') + '/' +
+                    jourDate.getFullYear();
+    if (!CRA_DATA[tech]) CRA_DATA[tech] = {};
+    CRA_DATA[tech][dateStr] = centre;
+    // Mettre à jour jours technicien
+    const techIdx = TECHS.findIndex(t => t.nom === tech);
+    if (techIdx >= 0) {
+      const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+      TECHS[techIdx].jours = Object.keys(CRA_DATA[tech]).filter(d => d.endsWith(moisCourant)).length;
     }
   }
 
@@ -1296,137 +1325,234 @@ function addSlot() {
 function renderCRA() {
   const thead = document.getElementById('cra-thead');
   const tbody = document.getElementById('cra-tbody');
+  if (!thead || !tbody) return;
   thead.innerHTML = ''; tbody.innerHTML = '';
+
   const search = (document.getElementById('cra-search')?.value||'').toLowerCase();
   const centreF = document.getElementById('cra-centre-filter')?.value||'tous';
   const statutF = document.getElementById('cra-statut-filter')?.value||'tous';
+  const moisF = document.getElementById('cra-mois-filter')?.value || (String(new Date().getMonth()+1).padStart(2,'0') + '/' + new Date().getFullYear());
 
-  // Calculer jours depuis CRA_DATA
-  const now = new Date();
-  const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+  const today = new Date();
+  const todayStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
+
+  // Calculer jours réels depuis CRA_DATA
+  const getTechJours = (nom) => {
+    if (!CRA_DATA[nom]) return 0;
+    return Object.keys(CRA_DATA[nom]).filter(d => d.endsWith(moisF)).length;
+  };
 
   const filtered = TECHS.filter(t => {
-    const joursReel = CRA_DATA[t.nom] ? Object.keys(CRA_DATA[t.nom]).filter(d => d.endsWith(moisCourant)).length : t.jours;
+    const j = getTechJours(t.nom) || t.jours;
     if (search && !t.nom.toLowerCase().includes(search)) return false;
     if (centreF !== 'tous' && t.centre !== centreF) return false;
-    if (statutF === 'present' && joursReel === 0) return false;
-    if (statutF === 'absent' && joursReel > 0) return false;
+    if (statutF === 'present' && j === 0) return false;
+    if (statutF === 'absent' && j > 0) return false;
     return true;
   });
 
+  // KPIs
+  const totalJours = filtered.reduce((s,t) => s + (getTechJours(t.nom)||t.jours), 0);
+  const techsActifs = filtered.filter(t => (getTechJours(t.nom)||t.jours) > 0).length;
+  const centresActifs = new Set(filtered.filter(t => (getTechJours(t.nom)||t.jours) > 0).map(t => t.centre)).size;
+  const presentsAujourdhui = TECHS.filter(t => CRA_DATA[t.nom]?.[todayStr]).length;
+
+  const kpi1 = document.getElementById('cra-kpi-techs');
+  const kpi2 = document.getElementById('cra-kpi-jours');
+  const kpi3 = document.getElementById('cra-kpi-centres');
+  const kpi4 = document.getElementById('cra-kpi-today');
+  if (kpi1) kpi1.textContent = techsActifs;
+  if (kpi2) kpi2.textContent = totalJours;
+  if (kpi3) kpi3.textContent = centresActifs;
+  if (kpi4) kpi4.textContent = presentsAujourdhui;
+
   const countEl = document.getElementById('cra-count');
   if (countEl) countEl.textContent = filtered.length;
+
   const visibleCentres = centreF === 'tous' ? CENTRES.map(c=>c.nom) : [centreF];
 
-  thead.innerHTML = `<th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);min-width:180px;">Employé</th>` +
-    visibleCentres.map(n=>`<th style="padding:8px 6px;background:var(--bg3);font-size:10px;font-weight:600;color:var(--muted);text-align:center;">${n}<br><small style="font-weight:400;color:var(--light);">(${filtered.filter(t=>{
-      return CRA_DATA[t.nom] && Object.values(CRA_DATA[t.nom]).some(c=>c===n);
-    }).length})</small></th>`).join('') +
-    `<th style="padding:8px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Total jours</th>
-    <th style="padding:8px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Dernière présence</th>`;
+  thead.innerHTML = `<th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);min-width:180px;position:sticky;left:0;z-index:2;">Employé</th>` +
+    visibleCentres.map(n => {
+      const cnt = filtered.filter(t => CRA_DATA[t.nom] && Object.values(CRA_DATA[t.nom]).some(c=>c===n)).length;
+      return `<th style="padding:8px 6px;background:var(--bg3);font-size:10px;font-weight:600;color:var(--muted);text-align:center;min-width:80px;">${n.split(' ')[0]}<br><small style="color:var(--accent2);font-weight:700;">${cnt}j</small></th>`;
+    }).join('') +
+    `<th style="padding:8px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Total</th>
+    <th style="padding:8px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Dernière présence</th>
+    <th style="padding:8px;background:var(--bg3);font-size:11px;font-weight:600;color:var(--muted);text-align:center;">Aujourd'hui</th>`;
 
   filtered.forEach(t => {
     const techCRA = CRA_DATA[t.nom] || {};
-    const joursMois = Object.keys(techCRA).filter(d => d.endsWith(moisCourant));
-    const totalJours = joursMois.length || t.jours;
-
-    // Trouver le centre le plus fréquent ce mois
-    const centreCount = {};
-    joursMois.forEach(d => {
-      const c = techCRA[d];
-      centreCount[c] = (centreCount[c]||0) + 1;
-    });
-
-    // Dernière présence
-    const dernier = joursMois.sort().reverse()[0] || '—';
-    const dernierCentre = dernier !== '—' ? techCRA[dernier] : t.centre;
+    const joursMois = Object.keys(techCRA).filter(d => d.endsWith(moisF));
+    const totalJoursTech = joursMois.length || t.jours;
+    const dernier = [...joursMois].sort().reverse()[0] || '—';
+    const presentAujourd = techCRA[todayStr] ? `<span class="badge gr">✓ ${techCRA[todayStr].split(' ')[0]}</span>` : '<span style="color:var(--muted);font-size:11px;">—</span>';
 
     let row = `<tr>
-      <td style="text-align:left;font-weight:600;padding:8px 14px;font-size:13px;">${t.nom}
-        <br><small style="color:var(--muted);font-weight:400;font-size:10px;">📍 ${t.centre} · ${t.contrat}</small>
+      <td style="text-align:left;font-weight:600;padding:8px 14px;font-size:13px;position:sticky;left:0;background:var(--bg2);z-index:1;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;">${t.nom.charAt(0)}</div>
+          <div>
+            <div>${t.nom}</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:400;">📍 ${t.centre} · ${t.contrat}</div>
+          </div>
+        </div>
       </td>`;
 
     visibleCentres.forEach(cn => {
-      const joursIci = Object.keys(techCRA).filter(d => d.endsWith(moisCourant) && techCRA[d] === cn).length;
-      const present = joursIci > 0 || (joursMois.length === 0 && t.centre === cn && t.jours > 0);
-      row += `<td style="text-align:center;padding:6px;">
-        ${joursIci > 0 ?
-          `<span style="background:#DCFCE7;color:#15803D;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;">✓ ${joursIci}j</span>` :
-          `<div class="cra-circle" onclick="this.classList.toggle('present');this.textContent=this.classList.contains('present')?'✓':'';"></div>`
+      const joursIci = Object.keys(techCRA).filter(d => d.endsWith(moisF) && techCRA[d] === cn).length;
+      row += `<td style="text-align:center;padding:6px;border-bottom:1px solid var(--border);">
+        ${joursIci > 0
+          ? `<span style="background:#DCFCE7;color:#15803D;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;" onclick="showCRATechDetail('${t.nom}','${cn}','${moisF}')">✓ ${joursIci}j</span>`
+          : (t.centre === cn && totalJoursTech > 0 && joursMois.length === 0)
+            ? `<span style="background:#DBEAFE;color:#1D4ED8;border-radius:20px;padding:3px 8px;font-size:11px;">${totalJoursTech}j</span>`
+            : `<span style="color:var(--light);font-size:11px;">—</span>`
         }
       </td>`;
     });
 
-    row += `<td style="text-align:center;padding:6px;"><span class="${totalJours>0?'cra-total-g':'cra-total'}">${totalJours}</span></td>
-      <td style="text-align:center;padding:6px;font-size:11px;color:var(--muted);">${dernier}</td>
+    row += `
+      <td style="text-align:center;padding:6px;border-bottom:1px solid var(--border);">
+        <span class="${totalJoursTech>0?'cra-total-g':'cra-total'}">${totalJoursTech}</span>
+      </td>
+      <td style="text-align:center;padding:6px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);">${dernier}</td>
+      <td style="text-align:center;padding:6px;border-bottom:1px solid var(--border);">${presentAujourd}</td>
     </tr>`;
     tbody.innerHTML += row;
   });
+
+  // Mettre à jour le rapport en même temps
+  renderRapport();
+}
+
+function showCRATechDetail(nom, centre, mois) {
+  const techCRA = CRA_DATA[nom] || {};
+  const jours = Object.keys(techCRA).filter(d => d.endsWith(mois) && techCRA[d] === centre).sort();
+  if (!jours.length) return;
+  alert(`${nom} — ${centre}\nJours travaillés (${mois}) :\n${jours.join('\n')}`);
 }
 
 let rapportMoisIdx = 3;
 const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
 function renderRapport() {
-  document.getElementById('rapport-mois').textContent = `${MOIS_NOMS[rapportMoisIdx]} 2026`;
+  const moisNom = MOIS_NOMS[rapportMoisIdx];
+  const annee = 2026;
+  const moisStr = String(rapportMoisIdx+1).padStart(2,'0') + '/' + annee;
+  const moisEl = document.getElementById('rapport-mois');
+  if (moisEl) moisEl.textContent = `${moisNom} ${annee}`;
+
   const thead = document.getElementById('rapport-thead');
   const tbody = document.getElementById('rapport-tbody');
+  if (!thead || !tbody) return;
   thead.innerHTML = ''; tbody.innerHTML = '';
+
   const search = (document.getElementById('rapp-search')?.value||'').toLowerCase();
   const centreF = document.getElementById('rapp-centre')?.value||'tous';
   const presF = document.getElementById('rapp-presence')?.value||'tous';
 
-  // Utiliser CRA_DATA pour les jours réels
-  const annee = 2026;
-  const moisStr = String(rapportMoisIdx+1).padStart(2,'0') + '/' + annee;
+  // Jours travaillés depuis CRA_DATA
+  const getJours = (nom) => {
+    if (!CRA_DATA[nom]) return t => t.nom === nom ? (TECHS.find(t=>t.nom===nom)?.jours||0) : 0;
+    return Object.keys(CRA_DATA[nom]).filter(d => d.endsWith(moisStr)).length;
+  };
 
   const filtered = TECHS.filter(t => {
-    const joursReel = CRA_DATA[t.nom] ? Object.keys(CRA_DATA[t.nom]).filter(d=>d.endsWith(moisStr)).length : t.jours;
+    const j = CRA_DATA[t.nom] ? Object.keys(CRA_DATA[t.nom]).filter(d=>d.endsWith(moisStr)).length : t.jours;
     if (search && !t.nom.toLowerCase().includes(search)) return false;
     if (centreF !== 'tous' && t.centre !== centreF) return false;
-    if (presF === 'present' && joursReel === 0) return false;
-    if (presF === 'absent' && joursReel > 0) return false;
+    if (presF === 'present' && j === 0) return false;
+    if (presF === 'absent' && j > 0) return false;
     return true;
   });
 
   const countEl = document.getElementById('rapp-count');
   if (countEl) countEl.textContent = filtered.length;
+
+  // KPIs rapport
+  const totalJoursTous = filtered.reduce((s,t) => {
+    const tc = CRA_DATA[t.nom]||{};
+    return s + (Object.keys(tc).filter(d=>d.endsWith(moisStr)).length || t.jours);
+  }, 0);
+  const techsAvecJours = filtered.filter(t => {
+    const tc = CRA_DATA[t.nom]||{};
+    return (Object.keys(tc).filter(d=>d.endsWith(moisStr)).length || t.jours) > 0;
+  }).length;
+  const moy = techsAvecJours > 0 ? (totalJoursTous/techsAvecJours).toFixed(1) : 0;
+  const k1 = document.getElementById('rapp-kpi-total');
+  const k2 = document.getElementById('rapp-kpi-techs');
+  const k3 = document.getElementById('rapp-kpi-moy');
+  if (k1) k1.textContent = totalJoursTous;
+  if (k2) k2.textContent = techsAvecJours;
+  if (k3) k3.textContent = moy;
+
   const visibleCentres = centreF === 'tous' ? CENTRES.map(c=>c.nom) : [centreF];
 
-  thead.innerHTML = `<th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:170px;">TECHNICIEN</th>
-    <th style="padding:10px 12px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">JOURS</th>
-    <th style="padding:10px 12px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">CENTRE(S) TRAVAILLÉ(S)</th>` +
-    visibleCentres.map(n=>`<th style="padding:10px 8px;background:var(--bg3);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">${n}</th>`).join('');
+  // Totaux par centre
+  const totalParCentre = {};
+  visibleCentres.forEach(cn => {
+    totalParCentre[cn] = TECHS.reduce((s,t) => {
+      const tc = CRA_DATA[t.nom] || {};
+      return s + Object.keys(tc).filter(d=>d.endsWith(moisStr)&&tc[d]===cn).length;
+    }, 0);
+  });
+
+  thead.innerHTML = `
+    <th style="text-align:left;padding:10px 14px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;min-width:180px;position:sticky;left:0;z-index:2;">Technicien</th>
+    <th style="padding:10px 8px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-align:center;">Jours</th>
+    <th style="padding:10px 8px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-align:center;">Centres travaillés</th>
+    <th style="padding:10px 8px;background:var(--bg3);font-size:11px;font-weight:700;color:var(--muted);text-align:center;">Dernière présence</th>` +
+    visibleCentres.map(cn => `<th style="padding:8px 6px;background:var(--bg3);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:center;">${cn.split(' ')[0]}<br><small style="color:var(--accent2);font-weight:700;">${totalParCentre[cn]}j</small></th>`).join('');
 
   filtered.forEach(t => {
     const techCRA = CRA_DATA[t.nom] || {};
     const joursMois = Object.keys(techCRA).filter(d => d.endsWith(moisStr));
     const totalJours = joursMois.length || t.jours;
+    const dernier = [...joursMois].sort().reverse()[0] || '—';
 
-    // Centres travaillés ce mois
-    const centresTravailles = {};
-    joursMois.forEach(d => {
-      const c = techCRA[d];
-      centresTravailles[c] = (centresTravailles[c]||0) + 1;
-    });
-    const centresLabel = Object.entries(centresTravailles).map(([c,j])=>`${c.split(' ')[0]}(${j}j)`).join(', ') || t.centre;
+    // Centres travaillés
+    const centresTrav = {};
+    joursMois.forEach(d => { const c = techCRA[d]; centresTrav[c] = (centresTrav[c]||0)+1; });
+    const centresLabel = Object.entries(centresTrav).map(([c,j])=>`${c.split(' ')[0]}(${j}j)`).join(', ') || `${t.centre}`;
 
     let row = `<tr>
-      <td style="padding:9px 14px;font-weight:600;border-bottom:1px solid var(--border);">${t.nom}<br>
-        <small style="color:var(--muted);font-weight:400;font-size:10px;">📍 ${t.centre} · ${t.poste||'Laveur'}</small>
+      <td style="padding:9px 14px;font-weight:600;border-bottom:1px solid var(--border);position:sticky;left:0;background:var(--bg2);z-index:1;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:26px;height:26px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex-shrink:0;">${t.nom.charAt(0)}</div>
+          <div>
+            <div style="font-size:13px;">${t.nom}</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:400;">${t.poste||'Laveur'} · N°${t.numero||'—'}</div>
+          </div>
+        </div>
       </td>
-      <td style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);">
+      <td style="padding:9px 8px;text-align:center;border-bottom:1px solid var(--border);">
         <span class="rc ${totalJours>0?'g':'z'}">${totalJours}</span>
       </td>
-      <td style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);">${centresLabel}</td>`;
+      <td style="padding:9px 8px;text-align:center;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);">${centresLabel}</td>
+      <td style="padding:9px 8px;text-align:center;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);">${dernier}</td>`;
+
     visibleCentres.forEach(cn => {
       const joursIci = Object.keys(techCRA).filter(d=>d.endsWith(moisStr)&&techCRA[d]===cn).length;
       const val = joursIci || (t.centre===cn && joursMois.length===0 ? t.jours : 0);
-      row += `<td style="padding:9px 8px;text-align:center;border-bottom:1px solid var(--border);"><span class="rc ${val>0?'b':'z'}">${val||''}</span></td>`;
+      row += `<td style="padding:9px 6px;text-align:center;border-bottom:1px solid var(--border);">
+        ${val > 0 ? `<span class="rc b">${val}</span>` : `<span class="rc z">—</span>`}
+      </td>`;
     });
     row += '</tr>';
     tbody.innerHTML += row;
   });
+
+  // Ligne total
+  const grandTotal = filtered.reduce((s,t) => {
+    const tc = CRA_DATA[t.nom] || {};
+    return s + Object.keys(tc).filter(d=>d.endsWith(moisStr)).length || t.jours;
+  }, 0);
+
+  tbody.innerHTML += `<tr style="background:var(--bg3);font-weight:800;">
+    <td style="padding:10px 14px;position:sticky;left:0;background:var(--bg3);z-index:1;">TOTAL</td>
+    <td style="padding:10px 8px;text-align:center;"><span class="cra-total-g">${grandTotal}</span></td>
+    <td colspan="2"></td>
+    ${visibleCentres.map(cn=>`<td style="padding:10px 6px;text-align:center;"><span class="cra-total-g">${totalParCentre[cn]}</span></td>`).join('')}
+  </tr>`;
 }
 
 function rapportNav(d) {
@@ -1953,42 +2079,56 @@ async function refreshBadgeuse() {
 
 // ═══ SYNCHRONISATION BADGEUSE → CRA ═══════════════════════════
 async function syncAllBadgeages() {
-  if (!window._db || !window._firebase) return;
+  showNotif('🔄 Synchronisation en cours...', '#7C3AED');
   try {
+    // Charger tous les badges depuis Firebase
     const { collection, getDocs } = window._firebase || {};
-    if (!getDocs) return;
+    if (!window._db || !getDocs) {
+      showNotif('⚠️ Firebase non connecté', '#D97706');
+      return;
+    }
     const snap = await getDocs(collection(window._db, 'badgeages'));
     const allBadges = [];
     snap.forEach(d => allBadges.push(d.data()));
+
+    if (allBadges.length === 0) {
+      showNotif('ℹ️ Aucun badge trouvé', '#D97706');
+      return;
+    }
 
     // Construire CRA_DATA depuis tous les badges
     CRA_DATA = {};
     allBadges.forEach(b => {
       if (!b.nom || !b.date) return;
       if (!CRA_DATA[b.nom]) CRA_DATA[b.nom] = {};
-      CRA_DATA[b.nom][b.date] = b.centreBadge || b.centreHabituel;
+      CRA_DATA[b.nom][b.date] = b.centreBadge || b.centreHabituel || b.centre || '—';
     });
 
-    // Mettre à jour jours dans TECHS (mois en cours)
+    // Mettre à jour jours dans TECHS pour chaque mois
     const now = new Date();
     const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
     TECHS.forEach((t, i) => {
       if (CRA_DATA[t.nom]) {
-        const joursMois = Object.keys(CRA_DATA[t.nom]).filter(d => d.endsWith(moisCourant)).length;
-        TECHS[i].jours = joursMois;
+        TECHS[i].jours = Object.keys(CRA_DATA[t.nom]).filter(d => d.endsWith(moisCourant)).length;
       }
     });
 
-    // Sauvegarder CRA_DATA
+    // Sauvegarder
     await window.saveToFirebase('cra_data', CRA_DATA);
     saveLocal();
+
+    // Tout re-rendre
     renderCRA();
     renderRapport();
     renderTechs();
     renderDashboard();
-    console.log('✅ CRA synchronisé depuis badgeuse', Object.keys(CRA_DATA).length, 'techniciens');
+
+    const nbTechs = Object.keys(CRA_DATA).length;
+    const nbBadges = allBadges.length;
+    showNotif(`✅ ${nbBadges} badges synchronisés — ${nbTechs} techniciens`, '#16A34A');
   } catch(e) {
     console.log('Erreur sync CRA:', e.message);
+    showNotif('❌ Erreur synchronisation', '#DC2626');
   }
 }
 
