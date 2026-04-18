@@ -1068,7 +1068,7 @@ function renderTechs() {
         <div style="width:34px;height:34px;border-radius:50%;background:${t.color}22;color:${t.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">${t.nom.charAt(0)}</div>
         <div>
           <input id="tnom-${idx}" value="${t.nom}" style="font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:160px;" onchange="TECHS[${idx}].nom=this.value;">
-          <div style="font-size:10px;color:var(--muted);margin-top:2px;">${t.poste||'Laveur Automobile'}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;">${t.poste||'Laveur Automobile'} · <span style="font-family:monospace;color:var(--accent);font-weight:700;">Code: ${t.code||'—'}</span></div>
         </div>
       </div></td>
       <td>
@@ -1176,7 +1176,15 @@ function showFicheTech(i) {
         <div class="fr"><span class="fk">Numéro</span><input id="ftcninum-${i}" value="${t.cni_num}" placeholder="À compléter" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="TECHS[${i}].cni_num=this.value;"></div>
         <div class="fr"><span class="fk">Date expiration</span><input id="ftcniexp-${i}" value="${t.cni_exp}" type="date" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;" onchange="TECHS[${i}].cni_exp=this.value;"></div>
         <div class="fr"><span class="fk">Nationalité</span><input id="ftnatio-${i}" value="${t.nationalite}" placeholder="À compléter" style="font-size:13px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="TECHS[${i}].nationalite=this.value;"></div>
-        <div class="fr"><span class="fk">🔐 Code badgeuse</span><span class="fv" style="background:#EFF6FF;border:1px solid #DBEAFE;padding:3px 12px;border-radius:20px;font-family:monospace;font-size:15px;font-weight:800;color:var(--accent);letter-spacing:.1em;">${String(1000 + i + 1).padStart(4,'0')}</span></div>
+        <div class="fr"><span class="fk">🔐 Code badgeuse</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input id="ftcode-${i}" value="${t.code||String(1000+i+1).padStart(4,'0')}" 
+              style="background:#EFF6FF;border:2px solid #DBEAFE;padding:5px 14px;border-radius:20px;font-family:monospace;font-size:15px;font-weight:800;color:var(--accent);letter-spacing:.1em;width:100px;text-align:center;outline:none;" 
+              onchange="TECHS[${i}].code=this.value;saveAll();"
+              placeholder="ex: 1001">
+            <span style="font-size:11px;color:var(--muted);">Modifiable</span>
+          </div>
+        </div>
         <div style="margin-top:10px;"><button class="btn btn-o btn-sm" onclick="openUrl('https://drive.google.com')">📎 Ajouter document</button></div>
       </div>
       <div class="card" style="grid-column:1/-1;">
@@ -1227,6 +1235,7 @@ function saveFicheTech(i) {
   TECHS[i].cni_num = document.getElementById('ftcninum-'+i)?.value || '';
   TECHS[i].cni_exp = document.getElementById('ftcniexp-'+i)?.value || '';
   TECHS[i].nationalite = document.getElementById('ftnatio-'+i)?.value || '';
+  TECHS[i].code = document.getElementById('ftcode-'+i)?.value || TECHS[i].code;
   saveAll();
 }
 
