@@ -2779,11 +2779,17 @@ async function init() {
   // Enlever le loader
   loader.remove();
 
+  // ═══ NETTOYAGE FIREBASE AU DÉMARRAGE ════════════════════════
+  // Toujours sauvegarder les 22 bons techniciens au démarrage
+  if (window.saveToFirebase) {
+    window.saveToFirebase('techs', TECHS);
+    console.log('✅ 22 techniciens sauvegardés dans Firebase');
+  }
+
   // 3. Essayer Firebase en arrière-plan
   if (window.loadFromFirebase) {
     try {
-      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning, fbCraData] = await Promise.all([
-        window.loadFromFirebase('techs'),
+      const [fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning, fbCraData] = await Promise.all([
         window.loadFromFirebase('centres'),
         window.loadFromFirebase('charges'),
         window.loadFromFirebase('assurances'),
@@ -2798,26 +2804,10 @@ async function init() {
       ]);
       let updated = false;
 
-      // ═══ TECHNICIENS — Protection stricte ═══════════════════
-      // On ne charge depuis Firebase QUE si les noms correspondent aux 22 vrais techniciens
-      const NOM_VALIDES = ["Sunam Uddin","Abdeldjalil Boucedra","Mohammed El Amin Kechiouch","Khalid Faris","Ayoub Belaissaoui","Siraj Uddin","Chabane Messaoudene","Sodrul Islam Sepul","Khyal Baz Ahmadzai","Redwane Leulmi","Mourad Bendjeddou","Nahidul Islam Shakil","Iqbal Hussain","Hakima Faris","Hanif Kotoal","Sujon Miah","Shahriar Islam Shawon","Tarik Yousfi","Mackan Camara","Faris Meziane Mohamed","Iqbal Naqash","Ahmadul Hassan"];
-      if (fbTechs?.length === 22) {
-        // Vérifier que ce sont bien les bons noms
-        const fbNoms = fbTechs.map(t => t.nom);
-        const tousValides = NOM_VALIDES.every(n => fbNoms.includes(n));
-        if (tousValides) {
-          TECHS.splice(0, TECHS.length, ...fbTechs);
-          updated = true;
-          console.log('✅ 22 techniciens chargés depuis Firebase');
-        } else {
-          console.log('⚠️ Noms incorrects dans Firebase — sauvegarde des 22 bons');
-          window.saveToFirebase('techs', TECHS);
-        }
-      } else if (fbTechs?.length && fbTechs.length !== 22) {
-        console.log('⚠️ Firebase avait', fbTechs.length, 'techs — correction en cours');
-        window.saveToFirebase('techs', TECHS);
-        showNotif('🔧 Techniciens corrigés : 22 techniciens restaurés', '#16A34A');
-      }
+      // ═══ TECHNICIENS — TOUJOURS utiliser les 22 du code ═══
+      // Ne jamais charger les techniciens depuis Firebase
+      // (Firebase peut avoir des anciennes données incorrectes)
+      console.log('✅ Techniciens : utilisation des 22 techniciens officiels');
       if (fbCentres?.length) { CENTRES.splice(0, CENTRES.length, ...fbCentres); updated = true; }
       if (fbCharges?.length) { CHARGES.splice(0, CHARGES.length, ...fbCharges); updated = true; }
       if (fbAss?.length) { ASSURANCES.splice(0, ASSURANCES.length, ...fbAss); updated = true; }
