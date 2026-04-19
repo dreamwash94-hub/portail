@@ -462,7 +462,7 @@ document.getElementById('login-pwd').focus();
 
     <!-- PLANNING -->
     <div class="page" id="page-planning">
-      <div class="rh"><div><div class="sec-title">Planning</div><div class="sec-sub">Semaine du 13 au 17 avril 2026</div></div><button class="btn btn-p" onclick="openModal('m-slot')">+ Ajouter créneau</button></div>
+      <div class="rh"><div><div class="sec-title">Planning</div><div class="sec-sub">Organisation des équipes — indépendant du CRA et Rapport</div></div><button class="btn btn-p" onclick="openModal('m-slot')">+ Ajouter créneau</button></div>
       <div class="fbar" id="plan-fbar">
         <button class="fbtn active" onclick="setPF(this,'tous')">Tous les centres</button>
         <button class="fbtn" onclick="setPF(this,'Aeroville A')">Aeroville A</button>
@@ -1447,7 +1447,6 @@ function addSlot() {
   const statut = document.getElementById('sl-statut').value;
   if (!tech) return;
   if (!PLANNING[centre]) PLANNING[centre] = [[],[],[],[],[],[],[]];
-  // Éviter les doublons
   if (!PLANNING[centre][jour]) PLANNING[centre][jour] = [];
   if (PLANNING[centre][jour].find(s => s.nom === tech)) {
     closeModal('m-slot');
@@ -1455,32 +1454,10 @@ function addSlot() {
   }
   PLANNING[centre][jour].push({nom:tech, statut});
 
-  // Sync avec CRA — marquer présence si statut présent
-  if (statut === 'present' || statut === 'Présent ✅') {
-    const now = new Date();
-    // Calculer la date réelle du jour sélectionné dans la semaine courante
-    const lundiSemaine = new Date(now);
-    const dayOfWeek = now.getDay() || 7;
-    lundiSemaine.setDate(now.getDate() - dayOfWeek + 1);
-    const jourDate = new Date(lundiSemaine);
-    jourDate.setDate(lundiSemaine.getDate() + jour);
-    const dateStr = String(jourDate.getDate()).padStart(2,'0') + '/' +
-                    String(jourDate.getMonth()+1).padStart(2,'0') + '/' +
-                    jourDate.getFullYear();
-    if (!CRA_DATA[tech]) CRA_DATA[tech] = {};
-    CRA_DATA[tech][dateStr] = centre;
-    // Mettre à jour jours technicien
-    const techIdx = TECHS.findIndex(t => t.nom === tech);
-    if (techIdx >= 0) {
-      const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
-      TECHS[techIdx].jours = Object.keys(CRA_DATA[tech]).filter(d => d.endsWith(moisCourant)).length;
-    }
-  }
+  // ⚠️ Le planning ne met PAS à jour le CRA
+  // Le CRA est alimenté uniquement par la badgeuse et la saisie manuelle
 
   renderPlanning();
-  renderCRA();
-  renderRapport();
-  renderDashboard();
   closeModal('m-slot');
   saveAll();
 }
@@ -2303,8 +2280,8 @@ async function refreshBadgeuse() {
     todayLog = log.filter(l => l.date === dateStr);
   }
 
-  // Synchroniser avec le CRA
-  syncBadgeagesToCRA(todayLog);
+  // La sync CRA est gérée par syncAllBadgeages() — pas par refreshBadgeuse
+  // syncBadgeagesToCRA(todayLog); // supprimé
 
   const uniq = [...new Set(todayLog.map(l=>l.nom))];
   const centres = [...new Set(todayLog.map(l=>l.centreBadge))];
