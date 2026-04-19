@@ -93,35 +93,51 @@
   onSnapshot(collection(db, 'badgeages'), (snap) => {
     if (!_badgeListenerReady) { _badgeListenerReady = true; return; }
     console.log('🔴 Nouveau badge détecté — sync en cours...');
-    // Attendre 1s que Firebase soit stable puis sync
     setTimeout(async () => {
+      // Ne sync que si c'est un vrai nouveau badge (pas une suppression)
+      const now = Date.now();
+      if (now - _lastCRASave < 5000) return; // Éviter conflit avec sauvegarde manuelle
       await syncAllBadgeages();
       const page = document.querySelector('.page.active');
       if (page?.id === 'page-badgeuse-view') refreshBadgeuse();
-    }, 1000);
+    }, 2000);
   });
 
   // 2. Écouter les changements CRA en temps réel (tous appareils)
   let _craListenerReady = false;
-  let _lastCRASave = 0; // timestamp de notre dernière sauvegarde
+  let _lastCRASave = 0;
+  let _lastCRATimestamp = 0; // timestamp Firebase de la dernière version connue
   onSnapshot(doc(db, 'portail', 'cra_data'), (snap) => {
-    if (!_craListenerReady) { _craListenerReady = true; return; }
+    if (!_craListenerReady) { 
+      _craListenerReady = true; 
+      // Mémoriser le timestamp initial
+      if (snap.exists()) _lastCRATimestamp = snap.data().updated || 0;
+      return; 
+    }
     if (!snap.exists()) return;
-    // Ignorer si c'est nous qui venons de sauvegarder (éviter boucle)
+    
+    const snapUpdated = snap.data().updated || 0;
+    
+    // Ignorer si c'est nous qui venons de sauvegarder
     const now = Date.now();
-    if (now - _lastCRASave < 3000) return;
+    if (now - _lastCRASave < 5000) return;
+    
+    // Ignorer si c'est une version plus ancienne que ce qu'on connaît
+    if (snapUpdated <= _lastCRATimestamp) return;
+    
+    _lastCRATimestamp = snapUpdated;
+    
     try {
       const newCRA = JSON.parse(snap.data().data);
-      if (newCRA && typeof newCRA === 'object') {
+      if (newCRA && typeof newCRA === 'object' && Object.keys(newCRA).length > 0) {
         Object.keys(newCRA).forEach(nom => { CRA_DATA[nom] = newCRA[nom]; });
         const nowDate = new Date();
         const moisCourant = String(nowDate.getMonth()+1).padStart(2,'0') + '/' + nowDate.getFullYear();
         TECHS.forEach((t,i) => {
           if (CRA_DATA[t.nom]) TECHS[i].jours = Object.keys(CRA_DATA[t.nom]).filter(d=>d.endsWith(moisCourant)).length;
         });
-        // Sauvegarder LOCAL seulement (pas Firebase pour éviter boucle)
         saveLocal();
-        console.log('🔴 CRA mis à jour depuis un autre appareil');
+        console.log('🔴 CRA mis à jour depuis un autre appareil - timestamp:', snapUpdated);
         renderCRA();
         renderRapport();
         renderDashboard();
@@ -130,7 +146,10 @@
   });
 
   // Exposer pour marquer nos propres sauvegardes
-  window._markCRASave = () => { _lastCRASave = Date.now(); };
+  window._markCRASave = () => { 
+    _lastCRASave = Date.now(); 
+    _lastCRATimestamp = Date.now();
+  };
 
   window._firebaseReady = true;
   window._db = db;
