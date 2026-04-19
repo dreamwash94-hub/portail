@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, setDoc, getDoc, doc, collection, getDocs, query, addDoc, deleteDoc, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, setDoc, getDoc, doc, collection, getDocs, query, addDoc, deleteDoc, where, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyCSZqfL3G-DK0VzNmptblT7F_kgq5R4Oww",
     authDomain: "dreamwash-d4a2c.firebaseapp.com",
@@ -54,7 +54,6 @@
     } catch(e) { console.log('Erreur getAllBadgeages:', e.message); return []; }
   };
 
-  // Supprimer un badge par timestamp+nom (identifiant unique)
   window.deleteBadgeFromFirebase = async function(nom, timestamp) {
     try {
       const snap = await getDocs(collection(db, 'badgeages'));
@@ -72,13 +71,45 @@
     } catch(e) { console.log('Erreur suppression badge:', e.message); return false; }
   };
 
-  // Ajouter un badge dans Firebase
   window.addBadgeToFirebase = async function(entry) {
     try {
       await addDoc(collection(db, 'badgeages'), entry);
       return true;
     } catch(e) { return false; }
   };
+
+  // ═══ LISTENERS TEMPS RÉEL ════════════════════════════════════
+  // 1. Écouter les badges en temps réel (badgeuse → portail)
+  const today = new Date();
+  const todayStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
+
+  let _badgeListenerReady = false;
+  onSnapshot(collection(db, 'badgeages'), (snap) => {
+    if (!_badgeListenerReady) { _badgeListenerReady = true; return; } // Ignorer le premier chargement
+    console.log('🔴 Nouveau badge détecté — sync en cours...');
+    // Déclencher sync complète
+    if (typeof syncAllBadgeages === 'function') {
+      syncAllBadgeages();
+      if (typeof refreshBadgeuse === 'function') refreshBadgeuse();
+    }
+  });
+
+  // 2. Écouter les changements CRA en temps réel (portail → portail)
+  let _craListenerReady = false;
+  onSnapshot(doc(db, 'portail', 'cra_data'), (snap) => {
+    if (!_craListenerReady) { _craListenerReady = true; return; }
+    if (!snap.exists()) return;
+    try {
+      const newCRA = JSON.parse(snap.data().data);
+      if (newCRA && typeof newCRA === 'object') {
+        Object.assign(window._CRA_DATA_REF || {}, newCRA);
+        console.log('🔴 CRA mis à jour depuis un autre appareil');
+        if (typeof renderCRA === 'function') renderCRA();
+        if (typeof renderRapport === 'function') renderRapport();
+        if (typeof renderDashboard === 'function') renderDashboard();
+      }
+    } catch(e) {}
+  });
 
   window._firebaseReady = true;
   window._db = db;
