@@ -2770,7 +2770,8 @@ function exportCSV(){
 function saveLocal() {
   const data = {
     TECHS, CENTRES, CHARGES, ASSURANCES, STOCK,
-    BOX_DATA, TEL_DATA, EXTRA_ROWS, COMPTA, PLANNING, CRA_DATA,
+    BOX_DATA, TEL_DATA, EXTRA_ROWS, COMPTA, PLANNING,
+    // ⚠️ CRA_DATA NON SAUVEGARDÉ localement — Firebase est la source de vérité
     TECHNOVAP_MACHINES, WESTFIELD_CONTACTS, WESTFIELD_CONTRATS,
     CARPOLISH_CONTACT, CUSTOM_DOCS,
     prestations: capturePresta()
@@ -2957,17 +2958,16 @@ function showNotif(msg, color='#16A34A') {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// INIT — localStorage d'abord, Firebase ensuite
+// INIT — Firebase prioritaire, localStorage pour affichage immédiat
 // ═══════════════════════════════════════════════════════════════
 async function init() {
-  // Afficher écran de chargement
   const loader = document.createElement('div');
   loader.id = 'dw-loader';
   loader.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.95);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;';
   loader.innerHTML = '<div style="font-size:36px;">💧</div><div style="font-size:15px;font-weight:700;color:#2563EB;">Chargement Dreamwash...</div>';
   document.body.appendChild(loader);
 
-  // 1. Charger depuis localStorage d'abord (immédiat)
+  // 1. Charger localStorage pour affichage immédiat (SAUF CRA — Firebase prioritaire)
   const local = loadLocal();
   if (local) {
     if (local.TECHS?.length) TECHS.splice(0, TECHS.length, ...local.TECHS);
@@ -2980,13 +2980,13 @@ async function init() {
     if (local.EXTRA_ROWS?.length) EXTRA_ROWS.splice(0, EXTRA_ROWS.length, ...local.EXTRA_ROWS);
     if (local.COMPTA?.length) local.COMPTA.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); });
     if (local.PLANNING) Object.assign(PLANNING, local.PLANNING);
-    if (local.CRA_DATA) Object.assign(CRA_DATA, local.CRA_DATA);
+    // ⚠️ CRA_DATA — NE PAS charger depuis localStorage (Firebase est la source de vérité)
     if (local.TECHNOVAP_MACHINES?.length) TECHNOVAP_MACHINES.splice(0, TECHNOVAP_MACHINES.length, ...local.TECHNOVAP_MACHINES);
     if (local.WESTFIELD_CONTACTS?.length) WESTFIELD_CONTACTS.splice(0, WESTFIELD_CONTACTS.length, ...local.WESTFIELD_CONTACTS);
     if (local.WESTFIELD_CONTRATS?.length) WESTFIELD_CONTRATS.splice(0, WESTFIELD_CONTRATS.length, ...local.WESTFIELD_CONTRATS);
     if (local.CARPOLISH_CONTACT) Object.assign(CARPOLISH_CONTACT, local.CARPOLISH_CONTACT);
     if (local.CUSTOM_DOCS?.length) CUSTOM_DOCS.splice(0, CUSTOM_DOCS.length, ...local.CUSTOM_DOCS);
-    console.log('✅ Données locales chargées');
+    console.log('✅ Données locales chargées (CRA chargé depuis Firebase)');
   }
 
   // 2. Rendre l'interface immédiatement
@@ -2994,29 +2994,35 @@ async function init() {
   renderCRA(); renderRapport(); renderCompta(); renderCharges();
   renderAssurances(); renderStock(); renderDocs(); renderPresta();
 
-  // Restaurer état CRA
-  try {
-    const craState = JSON.parse(localStorage.getItem('dw_cra_state') || '{}');
-    const circles = document.querySelectorAll('.cra-circle');
-    circles.forEach((el, i) => {
-      if (craState['c'+i] === 1) { el.classList.add('present'); el.textContent = '✓'; }
-    });
-  } catch(e) {}
-
   // Enlever le loader
   loader.remove();
 
-  // ═══ NETTOYAGE FIREBASE AU DÉMARRAGE ════════════════════════
-  // Toujours sauvegarder les 22 bons techniciens au démarrage
+  // 3. Toujours sauvegarder les 22 bons techniciens
   if (window.saveToFirebase) {
     window.saveToFirebase('techs', TECHS);
-    console.log('✅ 22 techniciens sauvegardés dans Firebase');
   }
 
-  // 3. Essayer Firebase en arrière-plan
+  // 4. Charger Firebase — CRA en PRIORITÉ
   if (window.loadFromFirebase) {
     try {
-      const [fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning, fbCraData] = await Promise.all([
+      // Charger CRA en premier et immédiatement
+      const fbCraData = await window.loadFromFirebase('cra_data');
+      if (fbCraData && Object.keys(fbCraData).length > 0) {
+        // Remplacer complètement CRA_DATA par la version Firebase
+        Object.keys(CRA_DATA).forEach(k => delete CRA_DATA[k]);
+        Object.keys(fbCraData).forEach(k => { CRA_DATA[k] = fbCraData[k]; });
+        // Mettre à jour jours techniciens
+        const now = new Date();
+        const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+        TECHS.forEach((t,i) => {
+          if (CRA_DATA[t.nom]) TECHS[i].jours = Object.keys(CRA_DATA[t.nom]).filter(d=>d.endsWith(moisCourant)).length;
+        });
+        renderCRA(); renderRapport(); renderDashboard();
+        console.log('✅ CRA chargé depuis Firebase :', Object.keys(fbCraData).length, 'techniciens');
+      }
+
+      // Charger le reste en parallèle
+      const [fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning] = await Promise.all([
         window.loadFromFirebase('centres'),
         window.loadFromFirebase('charges'),
         window.loadFromFirebase('assurances'),
@@ -3027,13 +3033,8 @@ async function init() {
         window.loadFromFirebase('compta'),
         window.loadFromFirebase('prestations'),
         window.loadFromFirebase('planning'),
-        window.loadFromFirebase('cra_data'),
       ]);
       let updated = false;
-
-      // ═══ TECHNICIENS — TOUJOURS utiliser les 22 du code ═══
-      // Ne jamais charger les techniciens depuis Firebase
-      // (Firebase peut avoir des anciennes données incorrectes)
       console.log('✅ Techniciens : utilisation des 22 techniciens officiels');
       if (fbCentres?.length) { CENTRES.splice(0, CENTRES.length, ...fbCentres); updated = true; }
       if (fbCharges?.length) { CHARGES.splice(0, CHARGES.length, ...fbCharges); updated = true; }
@@ -3044,11 +3045,10 @@ async function init() {
       if (fbExtra?.length) { EXTRA_ROWS.splice(0, EXTRA_ROWS.length, ...fbExtra); updated = true; }
       if (fbCompta?.length) { fbCompta.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); }); updated = true; }
       if (fbPlanning) { Object.assign(PLANNING, fbPlanning); updated = true; }
-      if (fbCraData) { Object.assign(CRA_DATA, fbCraData); updated = true; }
+      // ⚠️ CRA_DATA déjà chargé en priorité au-dessus — ne pas recharger ici
       if (updated) {
         renderDashboard(); renderCentres(); renderTechs(); renderCompta();
         renderCharges(); renderAssurances(); renderStock(); renderPlanning();
-        renderCRA(); renderRapport();
         saveLocal();
         console.log('🔥 Données Firebase chargées ✅');
       }
