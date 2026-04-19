@@ -2795,7 +2795,13 @@ async function init() {
         window.loadFromFirebase('cra_data'),
       ]);
       let updated = false;
-      if (fbTechs?.length) { TECHS.splice(0, TECHS.length, ...fbTechs); updated = true; }
+      // Techniciens — ne charger depuis Firebase que si le nombre est correct (22)
+      if (fbTechs?.length && fbTechs.length <= 22) { TECHS.splice(0, TECHS.length, ...fbTechs); updated = true; }
+      else if (fbTechs?.length > 22) {
+        // Firebase a trop de techniciens — remettre les 22 bons et sauvegarder
+        console.log('⚠️ Firebase avait', fbTechs.length, 'techs — remise à 22');
+        if (window.saveToFirebase) window.saveToFirebase('techs', TECHS);
+      }
       if (fbCentres?.length) { CENTRES.splice(0, CENTRES.length, ...fbCentres); updated = true; }
       if (fbCharges?.length) { CHARGES.splice(0, CHARGES.length, ...fbCharges); updated = true; }
       if (fbAss?.length) { ASSURANCES.splice(0, ASSURANCES.length, ...fbAss); updated = true; }
