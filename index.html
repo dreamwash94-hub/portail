@@ -83,18 +83,20 @@
   const today = new Date();
   const todayStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
 
+  // 1. Écouter les badges en temps réel (badgeuse → portail)
   let _badgeListenerReady = false;
   onSnapshot(collection(db, 'badgeages'), (snap) => {
-    if (!_badgeListenerReady) { _badgeListenerReady = true; return; } // Ignorer le premier chargement
+    if (!_badgeListenerReady) { _badgeListenerReady = true; return; }
     console.log('🔴 Nouveau badge détecté — sync en cours...');
-    // Déclencher sync complète
-    if (typeof syncAllBadgeages === 'function') {
-      syncAllBadgeages();
-      if (typeof refreshBadgeuse === 'function') refreshBadgeuse();
-    }
+    // Attendre 1s que Firebase soit stable puis sync
+    setTimeout(async () => {
+      await syncAllBadgeages();
+      const page = document.querySelector('.page.active');
+      if (page?.id === 'page-badgeuse-view') refreshBadgeuse();
+    }, 1000);
   });
 
-  // 2. Écouter les changements CRA en temps réel (portail → portail)
+  // 2. Écouter les changements CRA en temps réel (tous appareils)
   let _craListenerReady = false;
   onSnapshot(doc(db, 'portail', 'cra_data'), (snap) => {
     if (!_craListenerReady) { _craListenerReady = true; return; }
@@ -102,13 +104,21 @@
     try {
       const newCRA = JSON.parse(snap.data().data);
       if (newCRA && typeof newCRA === 'object') {
-        Object.assign(window._CRA_DATA_REF || {}, newCRA);
+        // Mettre à jour CRA_DATA global
+        Object.keys(newCRA).forEach(nom => { CRA_DATA[nom] = newCRA[nom]; });
+        // Mettre à jour jours techniciens
+        const now = new Date();
+        const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+        TECHS.forEach((t,i) => {
+          if (CRA_DATA[t.nom]) TECHS[i].jours = Object.keys(CRA_DATA[t.nom]).filter(d=>d.endsWith(moisCourant)).length;
+        });
+        saveLocal();
         console.log('🔴 CRA mis à jour depuis un autre appareil');
-        if (typeof renderCRA === 'function') renderCRA();
-        if (typeof renderRapport === 'function') renderRapport();
-        if (typeof renderDashboard === 'function') renderDashboard();
+        renderCRA();
+        renderRapport();
+        renderDashboard();
       }
-    } catch(e) {}
+    } catch(e) { console.log('Erreur listener CRA:', e.message); }
   });
 
   window._firebaseReady = true;
