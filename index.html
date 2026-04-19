@@ -98,20 +98,23 @@
 
   // 2. Écouter les changements CRA en temps réel (tous appareils)
   let _craListenerReady = false;
+  let _lastCRASave = 0; // timestamp de notre dernière sauvegarde
   onSnapshot(doc(db, 'portail', 'cra_data'), (snap) => {
     if (!_craListenerReady) { _craListenerReady = true; return; }
     if (!snap.exists()) return;
+    // Ignorer si c'est nous qui venons de sauvegarder (éviter boucle)
+    const now = Date.now();
+    if (now - _lastCRASave < 3000) return;
     try {
       const newCRA = JSON.parse(snap.data().data);
       if (newCRA && typeof newCRA === 'object') {
-        // Mettre à jour CRA_DATA global
         Object.keys(newCRA).forEach(nom => { CRA_DATA[nom] = newCRA[nom]; });
-        // Mettre à jour jours techniciens
-        const now = new Date();
-        const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+        const nowDate = new Date();
+        const moisCourant = String(nowDate.getMonth()+1).padStart(2,'0') + '/' + nowDate.getFullYear();
         TECHS.forEach((t,i) => {
           if (CRA_DATA[t.nom]) TECHS[i].jours = Object.keys(CRA_DATA[t.nom]).filter(d=>d.endsWith(moisCourant)).length;
         });
+        // Sauvegarder LOCAL seulement (pas Firebase pour éviter boucle)
         saveLocal();
         console.log('🔴 CRA mis à jour depuis un autre appareil');
         renderCRA();
@@ -120,6 +123,9 @@
       }
     } catch(e) { console.log('Erreur listener CRA:', e.message); }
   });
+
+  // Exposer pour marquer nos propres sauvegardes
+  window._markCRASave = () => { _lastCRASave = Date.now(); };
 
   window._firebaseReady = true;
   window._db = db;
@@ -1664,7 +1670,7 @@ async function deleteCRADay(nom, dateStr) {
       const all = await window.getAllBadgeages();
       // On sauvegarde juste le CRA mis à jour
     }
-    if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+    if (window._markCRASave) window._markCRASave(); if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
     saveLocal();
   } catch(e) {}
   // Rafraîchir la modal
@@ -1679,7 +1685,7 @@ async function deleteAllCRADays(nom, centre, mois) {
   if (!CRA_DATA[nom]) return;
   Object.keys(CRA_DATA[nom]).filter(d => d.endsWith(mois) && CRA_DATA[nom][d] === centre)
     .forEach(d => delete CRA_DATA[nom][d]);
-  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  if (window._markCRASave) window._markCRASave(); if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
   saveLocal();
   document.getElementById('m-cra-edit')?.remove();
   renderCRA(); renderRapport();
@@ -1695,7 +1701,7 @@ async function addCRADayFromEdit(nom) {
   const centre = centreInput?.value || 'Aeroville A';
   if (!CRA_DATA[nom]) CRA_DATA[nom] = {};
   CRA_DATA[nom][dateStr] = centre;
-  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  if (window._markCRASave) window._markCRASave(); if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
   saveLocal();
   // Rafraîchir modal
   document.getElementById('m-cra-edit')?.remove();
@@ -2430,7 +2436,7 @@ async function saveBadgeEdit(idx) {
   CRA_DATA[b.nom][b.date] = b.centreBadge;
 
   // 4. Sauvegarder CRA dans Firebase
-  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  if (window._markCRASave) window._markCRASave(); if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
   saveLocal();
 
   document.getElementById('m-badge-edit')?.remove();
@@ -2470,7 +2476,7 @@ async function deleteBadge(idx) {
   }
 
   // 3. Sauvegarder CRA dans Firebase
-  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  if (window._markCRASave) window._markCRASave(); if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
   saveLocal();
 
   // 4. Supprimer du cache local
@@ -2520,8 +2526,9 @@ async function syncAllBadgeages() {
       }
     });
 
-    // Sauvegarder CRA dans Firebase
-    if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+    // Sauvegarder CRA dans Firebase (marquer pour éviter boucle listener)
+    if (window._markCRASave) window._markCRASave();
+    if (window._markCRASave) window._markCRASave(); if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
     saveLocal();
 
     // Re-rendre tout
@@ -3388,7 +3395,7 @@ async function saveCRAManuel() {
   }
 
   // Sauvegarder
-  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  if (window._markCRASave) window._markCRASave(); if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
   saveLocal();
 
   // Mettre à jour l'affichage
@@ -3426,7 +3433,7 @@ async function saveBadgeManuel() {
   CRA_DATA[nom][dateStr] = centre;
 
   // 3. Sauver CRA dans Firebase
-  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  if (window._markCRASave) window._markCRASave(); if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
   saveLocal();
 
   closeModal('m-badge-add');
