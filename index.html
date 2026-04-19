@@ -255,6 +255,46 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
 </style>
 </head>
 <body>
+
+<!-- ═══ ÉCRAN DE CONNEXION ═══════════════════════════════════════ -->
+<div id="login-screen" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0F172A 0%,#1E293B 50%,#0F172A 100%);display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;">
+  <div style="width:100%;max-width:400px;padding:20px;">
+    <div style="text-align:center;margin-bottom:40px;">
+      <div style="width:70px;height:70px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;box-shadow:0 8px 32px rgba(37,99,235,0.4);">💧</div>
+      <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Dreamwash</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-top:4px;">Portail de gestion</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;">
+      <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:20px;">🔒 Accès sécurisé</div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Mot de passe</label>
+        <input id="login-pwd" type="password" placeholder="••••••" style="width:100%;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:12px;padding:14px 16px;color:#fff;font-size:20px;font-family:'Inter',sans-serif;outline:none;letter-spacing:6px;box-sizing:border-box;" onkeydown="if(event.key==='Enter')checkLogin()" oninput="document.getElementById('login-error').style.display='none'">
+      </div>
+      <div id="login-error" style="display:none;background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);border-radius:10px;padding:10px 14px;font-size:13px;color:#FCA5A5;margin-bottom:14px;">❌ Mot de passe incorrect</div>
+      <button onclick="checkLogin()" style="width:100%;padding:16px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(37,99,235,0.4);">Se connecter →</button>
+    </div>
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:rgba(255,255,255,0.2);">Dreamwash © 2026 — Accès réservé</div>
+  </div>
+</div>
+<script>
+const DW_PASSWORD = "931314";
+function checkLogin() {
+  const pwd = document.getElementById('login-pwd').value;
+  if (pwd === DW_PASSWORD) {
+    localStorage.setItem('dw_auth', btoa(DW_PASSWORD + '_' + new Date().toDateString()));
+    document.getElementById('login-screen').style.display = 'none';
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-pwd').value = '';
+    document.getElementById('login-pwd').focus();
+  }
+}
+const auth = localStorage.getItem('dw_auth');
+const expected = btoa(DW_PASSWORD + '_' + new Date().toDateString());
+if (auth === expected) document.getElementById('login-screen').style.display = 'none';
+document.getElementById('login-pwd').focus();
+</script>
+
 <div class="app">
 <nav class="sidebar">
   <div class="logo">
@@ -302,6 +342,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="topbar-right">
       <div class="tdate" id="topbar-date"></div>
       <button onclick="saveAll()" style="background:#16A34A;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">💾 Sauvegarder</button>
+      <button onclick="logout()" style="background:#EF4444;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🚪 Déconnexion</button>
       <div class="nb-btn" onclick="toggleNotif()" style="position:relative;">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         <div class="nb-dot"></div>
@@ -636,7 +677,10 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <!-- BADGEUSE VIEW -->
     <div class="page" id="page-badgeuse-view">
       <div class="rh"><div><div class="sec-title">Badgeuse — Vue temps réel</div><div class="sec-sub">Présences enregistrées depuis les tablettes</div></div>
-        <button class="btn btn-p btn-sm" onclick="refreshBadgeuse()">🔄 Actualiser</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" style="background:#16A34A;color:#fff;border:none;" onclick="openModal('m-badge-add')">+ Ajouter badge</button>
+          <button class="btn btn-p btn-sm" onclick="refreshBadgeuse()">🔄 Actualiser</button>
+        </div>
       </div>
       <div class="kpi-g" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
         <div class="kpi"><div class="kpi-i">✅</div><div class="kpi-v" style="color:var(--accent2);" id="bdg-presents">0</div><div class="kpi-l">Présents aujourd'hui</div></div>
@@ -645,7 +689,7 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
       </div>
       <div class="tbl">
         <table><thead><tr>
-          <th>Technicien</th><th>Centre badgé</th><th>Centre habituel</th><th>Heure</th><th>Date</th><th>Statut</th>
+          <th>Technicien</th><th>Centre badgé</th><th>Centre habituel</th><th>Heure</th><th>Date</th><th>Statut</th><th>Actions</th>
         </tr></thead><tbody id="bdg-tbody"></tbody></table>
       </div>
       <div style="margin-top:16px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);">
@@ -743,6 +787,33 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
     <div class="mac">
       <button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-cra-manuel');pendingCRADates=[];">Annuler</button>
       <button class="btn btn-sm" style="flex:1;justify-content:center;background:#16A34A;color:#fff;border:none;" onclick="saveCRAManuel()">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BADGE MANUEL -->
+<div class="modal-ov" id="m-badge-add" style="display:none;" onclick="if(event.target===this)closeModal('m-badge-add')">
+  <div class="modal" style="max-width:420px;width:95vw;">
+    <div class="modal-t" style="background:#16A34A;color:#fff;border-radius:10px 10px 0 0;margin:-18px -18px 16px -18px;padding:14px 18px;">
+      + Ajouter un badge manuellement <button class="mc" onclick="closeModal('m-badge-add')" style="color:#fff;background:rgba(255,255,255,0.2);">✕</button>
+    </div>
+    <div class="field"><label>Technicien</label>
+      <select id="ba-nom" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;">
+        ${TECHS.map(t=>`<option value="${t.nom}">${t.nom}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>Centre</label>
+      <select id="ba-centre" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;">
+        <option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;" class="field">
+      <div style="flex:1;"><label>Heure</label><input id="ba-time" placeholder="08:00" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);"></div>
+      <div style="flex:1;"><label>Date</label><input id="ba-date" placeholder="JJ/MM/AAAA" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);"></div>
+    </div>
+    <div class="mac">
+      <button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-badge-add')">Annuler</button>
+      <button class="btn btn-sm" style="flex:1;justify-content:center;background:#16A34A;color:#fff;border:none;" onclick="saveBadgeManuel()">✅ Ajouter</button>
     </div>
   </div>
 </div>
@@ -1495,7 +1566,99 @@ function showCRATechDetail(nom, centre, mois) {
   const techCRA = CRA_DATA[nom] || {};
   const jours = Object.keys(techCRA).filter(d => d.endsWith(mois) && techCRA[d] === centre).sort();
   if (!jours.length) return;
-  alert(`${nom} — ${centre}\nJours travaillés (${mois}) :\n${jours.join('\n')}`);
+
+  // Créer modal d'édition
+  let existing = document.getElementById('m-cra-edit');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'm-cra-edit';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--bg2);border-radius:16px;padding:24px;max-width:460px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.3);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:800;">✏️ ${nom} — ${centre}</div>
+        <button onclick="document.getElementById('m-cra-edit').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">✕</button>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Jours travaillés (${mois})</div>
+      <div id="cra-edit-jours" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+        ${jours.map(d => `
+          <div style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:6px 10px;">
+            <span style="font-size:13px;font-weight:600;">📅 ${d}</span>
+            <button onclick="deleteCRADay('${nom}','${d}')" style="background:#FEE2E2;border:none;border-radius:6px;padding:2px 7px;cursor:pointer;color:#DC2626;font-size:12px;font-weight:700;">✕</button>
+          </div>`).join('')}
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:16px;">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;">Ajouter un jour :</div>
+        <div style="display:flex;gap:8px;">
+          <input type="date" id="cra-edit-date" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;background:var(--bg3);font-family:inherit;color:var(--text);">
+          <select id="cra-edit-centre" style="border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;background:var(--bg3);font-family:inherit;color:var(--text);">
+            <option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option>
+          </select>
+          <button onclick="addCRADayFromEdit('${nom}')" style="background:var(--accent);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-weight:700;cursor:pointer;font-size:13px;">+ Ajouter</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button onclick="deleteAllCRADays('${nom}','${centre}','${mois}')" style="flex:1;padding:10px;background:#FEE2E2;border:1px solid #FECACA;border-radius:10px;color:#DC2626;font-weight:700;cursor:pointer;font-size:13px;">🗑️ Supprimer tout</button>
+        <button onclick="document.getElementById('m-cra-edit').remove();renderCRA();renderRapport();" style="flex:1;padding:10px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:13px;">✅ Fermer</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  // Pré-sélectionner le centre
+  const centreEl = document.getElementById('cra-edit-centre');
+  if (centreEl) centreEl.value = centre;
+  // Date du jour par défaut
+  const dateEl = document.getElementById('cra-edit-date');
+  if (dateEl) dateEl.valueAsDate = new Date();
+}
+
+async function deleteCRADay(nom, dateStr) {
+  if (!CRA_DATA[nom]) return;
+  delete CRA_DATA[nom][dateStr];
+  // Supprimer aussi le badge Firebase correspondant
+  try {
+    if (window.getAllBadgeages) {
+      const all = await window.getAllBadgeages();
+      // On sauvegarde juste le CRA mis à jour
+    }
+    if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+    saveLocal();
+  } catch(e) {}
+  // Rafraîchir la modal
+  const modal = document.getElementById('m-cra-edit');
+  if (modal) modal.remove();
+  showCRATechDetail(nom, CRA_DATA[nom] ? Object.values(CRA_DATA[nom])[0] || '' : '', Object.keys(CRA_DATA[nom]||{})[0]?.slice(3) || '');
+  renderCRA(); renderRapport();
+  showNotif(`🗑️ ${dateStr} supprimé pour ${nom}`, '#DC2626');
+}
+
+async function deleteAllCRADays(nom, centre, mois) {
+  if (!CRA_DATA[nom]) return;
+  Object.keys(CRA_DATA[nom]).filter(d => d.endsWith(mois) && CRA_DATA[nom][d] === centre)
+    .forEach(d => delete CRA_DATA[nom][d]);
+  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  saveLocal();
+  document.getElementById('m-cra-edit')?.remove();
+  renderCRA(); renderRapport();
+  showNotif(`🗑️ Toutes les présences supprimées pour ${nom} — ${centre}`, '#DC2626');
+}
+
+async function addCRADayFromEdit(nom) {
+  const dateInput = document.getElementById('cra-edit-date');
+  const centreInput = document.getElementById('cra-edit-centre');
+  if (!dateInput?.value) return;
+  const d = new Date(dateInput.value);
+  const dateStr = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+  const centre = centreInput?.value || 'Aeroville A';
+  if (!CRA_DATA[nom]) CRA_DATA[nom] = {};
+  CRA_DATA[nom][dateStr] = centre;
+  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  saveLocal();
+  // Rafraîchir modal
+  document.getElementById('m-cra-edit')?.remove();
+  showCRATechDetail(nom, centre, String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear());
+  renderCRA(); renderRapport();
+  showNotif(`✅ ${dateStr} ajouté pour ${nom}`, '#16A34A');
 }
 
 let rapportMoisIdx = 3;
@@ -2101,13 +2264,12 @@ function addExtraRow() {
 // ── BADGEUSE VIEW ──────────────────────────────────────────────────────────
 async function refreshBadgeuse() {
   const tb = document.getElementById('bdg-tbody');
-  tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">⏳ Chargement depuis Firebase...</td></tr>';
+  tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">⏳ Chargement depuis Firebase...</td></tr>';
 
   const today = new Date();
   const dateStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
 
   let todayLog = [];
-
   if (window.loadBadgeages) {
     try { todayLog = await window.loadBadgeages(); } catch(e) {}
   }
@@ -2121,17 +2283,20 @@ async function refreshBadgeuse() {
 
   const uniq = [...new Set(todayLog.map(l=>l.nom))];
   const centres = [...new Set(todayLog.map(l=>l.centreBadge))];
-
   document.getElementById('bdg-presents').textContent = uniq.length;
   document.getElementById('bdg-badges').textContent = todayLog.length;
   document.getElementById('bdg-centres').textContent = centres.length;
 
   if (todayLog.length === 0) {
-    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">Aucun badgeage aujourd\'hui</td></tr>';
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">Aucun badgeage aujourd\'hui</td></tr>';
     return;
   }
+
+  // Stocker les badges en mémoire pour édition
+  window._currentBadges = todayLog;
+
   tb.innerHTML = '';
-  todayLog.forEach(l => {
+  todayLog.forEach((l, idx) => {
     const isMobile = l.centreBadge !== l.centreHabituel;
     tb.innerHTML += `<tr>
       <td style="font-weight:700;">${l.nom}</td>
@@ -2139,9 +2304,93 @@ async function refreshBadgeuse() {
       <td style="color:var(--muted);">${l.centreHabituel||l.centreBadge}</td>
       <td style="font-weight:700;color:var(--accent2);">${l.time}</td>
       <td style="color:var(--muted);font-size:12px;">${l.date}</td>
-      <td>${isMobile ? '<span class="badge yl">⚡ Mobile</span>' : '<span class="badge gr">✓ Centre habituel</span>'}</td>
+      <td>${isMobile ? '<span class="badge yl">⚡ Mobile</span>' : '<span class="badge gr">✓ Habituel</span>'}</td>
+      <td style="display:flex;gap:6px;">
+        <button onclick="editBadge(${idx})" style="background:#EFF6FF;border:1px solid #DBEAFE;border-radius:7px;padding:4px 10px;cursor:pointer;color:#2563EB;font-size:12px;font-weight:600;">✏️</button>
+        <button onclick="deleteBadge(${idx})" style="background:#FEE2E2;border:1px solid #FECACA;border-radius:7px;padding:4px 10px;cursor:pointer;color:#DC2626;font-size:12px;font-weight:600;">🗑️</button>
+      </td>
     </tr>`;
   });
+}
+
+function editBadge(idx) {
+  const badge = (window._currentBadges||[])[idx];
+  if (!badge) return;
+  let existing = document.getElementById('m-badge-edit');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'm-badge-edit';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--bg2);border-radius:16px;padding:24px;max-width:420px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.3);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="font-size:16px;font-weight:800;">✏️ Modifier le badge</div>
+        <button onclick="document.getElementById('m-badge-edit').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">✕</button>
+      </div>
+      <div class="field"><label>Technicien</label>
+        <select id="be-nom" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;">
+          ${TECHS.map(t=>`<option value="${t.nom}" ${t.nom===badge.nom?'selected':''}>${t.nom}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Centre badgé</label>
+        <select id="be-centre" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;">
+          <option ${badge.centreBadge==='Aeroville A'?'selected':''}>Aeroville A</option>
+          <option ${badge.centreBadge==='Aeroville B'?'selected':''}>Aeroville B</option>
+          <option ${badge.centreBadge==='Lafayette Rouge'?'selected':''}>Lafayette Rouge</option>
+          <option ${badge.centreBadge==='Lafayette Vert'?'selected':''}>Lafayette Vert</option>
+          <option ${badge.centreBadge==='Cité des Sciences'?'selected':''}>Cité des Sciences</option>
+          <option ${badge.centreBadge==='Le Parks'?'selected':''}>Le Parks</option>
+          <option ${badge.centreBadge==='Parly2'?'selected':''}>Parly2</option>
+          <option ${badge.centreBadge==='Belleville'?'selected':''}>Belleville</option>
+          <option ${badge.centreBadge==='Suresnes'?'selected':''}>Suresnes</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;" class="field">
+        <div style="flex:1;"><label>Heure</label><input id="be-time" value="${badge.time}" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);" placeholder="HH:MM"></div>
+        <div style="flex:1;"><label>Date</label><input id="be-date" value="${badge.date}" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);" placeholder="JJ/MM/AAAA"></div>
+      </div>
+      <div class="mac">
+        <button class="btn btn-o" style="flex:1;justify-content:center;" onclick="document.getElementById('m-badge-edit').remove()">Annuler</button>
+        <button class="btn btn-p" style="flex:1;justify-content:center;" onclick="saveBadgeEdit(${idx})">✅ Enregistrer</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function saveBadgeEdit(idx) {
+  const badges = window._currentBadges || [];
+  if (!badges[idx]) return;
+  badges[idx].nom = document.getElementById('be-nom').value;
+  badges[idx].centreBadge = document.getElementById('be-centre').value;
+  badges[idx].time = document.getElementById('be-time').value;
+  badges[idx].date = document.getElementById('be-date').value;
+  // Mettre à jour CRA
+  const b = badges[idx];
+  if (!CRA_DATA[b.nom]) CRA_DATA[b.nom] = {};
+  CRA_DATA[b.nom][b.date] = b.centreBadge;
+  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  saveLocal();
+  document.getElementById('m-badge-edit')?.remove();
+  refreshBadgeuse();
+  renderCRA(); renderRapport();
+  showNotif('✅ Badge modifié et synchronisé', '#16A34A');
+}
+
+async function deleteBadge(idx) {
+  const badges = window._currentBadges || [];
+  const b = badges[idx];
+  if (!b) return;
+  if (!confirm(`Supprimer le badge de ${b.nom} (${b.date} ${b.time}) ?`)) return;
+  // Supprimer du CRA
+  if (CRA_DATA[b.nom]?.[b.date]) {
+    delete CRA_DATA[b.nom][b.date];
+    if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+    saveLocal();
+  }
+  badges.splice(idx, 1);
+  refreshBadgeuse();
+  renderCRA(); renderRapport();
+  showNotif(`🗑️ Badge supprimé pour ${b.nom}`, '#DC2626');
 }
 
 // ═══ SYNCHRONISATION BADGEUSE → CRA ═══════════════════════════
@@ -3047,6 +3296,44 @@ async function saveCRAManuel() {
   closeModal('m-cra-manuel');
   pendingCRADates = [];
   showNotif(`✅ ${tech} — ${Object.keys(CRA_DATA[tech]).length} jours enregistrés`, '#16A34A');
+}
+
+// ═══ BADGE MANUEL ════════════════════════════════════════════════
+async function saveBadgeManuel() {
+  const nom = document.getElementById('ba-nom').value;
+  const centre = document.getElementById('ba-centre').value;
+  const time = document.getElementById('ba-time').value || new Date().toTimeString().slice(0,5);
+  const dateRaw = document.getElementById('ba-date').value;
+  const now = new Date();
+  const dateStr = dateRaw || String(now.getDate()).padStart(2,'0') + '/' + String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+  const tech = TECHS.find(t=>t.nom===nom);
+  const entry = {
+    nom, centreBadge: centre,
+    centreHabituel: tech?.centre || centre,
+    color: tech?.color || '#2563EB',
+    time, date: dateStr, timestamp: Date.now()
+  };
+  // Sauver Firebase
+  try {
+    if (window._db && window._firebase) {
+      const {collection, addDoc} = window._firebase;
+      await addDoc(collection(window._db, 'badgeages'), entry);
+    }
+  } catch(e) {}
+  // Mettre à jour CRA
+  if (!CRA_DATA[nom]) CRA_DATA[nom] = {};
+  CRA_DATA[nom][dateStr] = centre;
+  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  saveLocal();
+  closeModal('m-badge-add');
+  refreshBadgeuse(); renderCRA(); renderRapport();
+  showNotif(`✅ Badge ajouté pour ${nom}`, '#16A34A');
+}
+
+// ═══ DÉCONNEXION ═════════════════════════════════════════════════
+function logout() {
+  localStorage.removeItem('dw_auth');
+  location.reload();
 }
 
 // FIN
