@@ -2,7 +2,12 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Dreamwash">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2563EB">
 <title>Dreamwash — Portail de gestion</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script type="module">
@@ -137,6 +142,10 @@
 body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-height:100vh;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
+/* Safe area pour iPhone avec encoche */
+.topbar{padding-top:max(12px, env(safe-area-inset-top));}
+.bottom-nav{padding-bottom:max(6px, env(safe-area-inset-bottom));}
+
 /* ═══ MODE TABLETTE ═══════════════════════════════════════════ */
 .app{display:flex;min-height:100vh;}
 
@@ -171,7 +180,108 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
   .btn{padding:8px 14px;font-size:13px;}
   .btn-sm{padding:7px 12px;font-size:12px;}
   .key{aspect-ratio:1.3;}
-  input,select,textarea{font-size:16px !important;} /* évite zoom iOS/Android */
+  input,select,textarea{font-size:16px !important;}
+}
+
+/* ═══ MOBILE SPÉCIFIQUE (téléphone) ══════════════════════════ */
+@media (max-width: 640px) {
+  /* Header compact */
+  .topbar{padding:8px 12px;gap:8px;}
+  .topbar-title{font-size:14px;font-weight:700;}
+  .tdate{display:none;}
+  #topbar-date{display:none;}
+
+  /* Content padding réduit */
+  .content{padding:12px;padding-bottom:90px;}
+
+  /* Titres de section */
+  .sec-title{font-size:17px;}
+  .sec-sub{font-size:12px;margin-bottom:14px;}
+  .rh{margin-bottom:12px;gap:8px;}
+  .rh .btn{font-size:11px;padding:6px 10px;}
+
+  /* KPIs — 2 par ligne */
+  .kpi-g{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+  .kpi{padding:12px 14px;border-radius:10px;}
+  .kpi-i{font-size:18px;margin-bottom:6px;}
+  .kpi-v{font-size:22px;}
+  .kpi-l{font-size:10px;}
+
+  /* Tableaux — scroll horizontal */
+  .tbl{border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tbl th{padding:8px 10px;font-size:10px;}
+  .tbl td{padding:9px 10px;font-size:12px;}
+
+  /* Boutons plus grands pour les doigts */
+  .btn{min-height:40px;padding:8px 14px;}
+  .btn-sm{min-height:34px;padding:6px 10px;font-size:11px;}
+
+  /* Cards */
+  .card{padding:14px;border-radius:10px;}
+  .cc{padding:12px;}
+
+  /* Modals plein écran sur mobile */
+  .modal-ov{align-items:flex-end !important;}
+  .modal{
+    border-radius:20px 20px 0 0 !important;
+    max-width:100% !important;
+    width:100% !important;
+    max-height:90vh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    margin:0 !important;
+  }
+
+  /* Champs de formulaire */
+  .field{margin-bottom:12px;}
+  .field label{font-size:11px;}
+  input[type="text"],input[type="email"],input[type="date"],input[type="password"],select,textarea{
+    padding:10px 12px !important;
+    font-size:16px !important;
+    border-radius:8px !important;
+  }
+
+  /* Dashboard */
+  #page-dashboard .sec-title{font-size:20px;}
+
+  /* Grille techniciens — 1 colonne */
+  .cg{grid-template-columns:1fr;}
+
+  /* Bottom nav plus grande */
+  .bottom-nav{padding:8px 0 max(8px, env(safe-area-inset-bottom));}
+  .bn-item{padding:6px 8px;font-size:9px;min-width:48px;}
+  .bn-item svg{width:20px;height:20px;}
+
+  /* Bouton hamburger */
+  .hamburger{width:36px;height:36px;}
+
+  /* Topbar droite — cacher certains éléments */
+  .topbar-right .tdate{display:none;}
+
+  /* Sections avec tableau scroll */
+  #page-cra .tbl,
+  #page-rapport .tbl,
+  #page-badgeuse-view .tbl{overflow-x:auto;}
+
+  /* Fiche technicien — 1 colonne */
+  .fg{grid-template-columns:1fr !important;}
+
+  /* Ajustements CRA */
+  #cra-mois-filter{font-size:12px !important;padding:6px 8px !important;}
+  #cra-centre-filter{font-size:12px !important;padding:6px 8px !important;}
+  #cra-statut-filter{font-size:12px !important;padding:6px 8px !important;}
+  #cra-search{font-size:14px !important;}
+
+  /* Logo sidebar */
+  .logo{padding:12px 14px;}
+  .logo-text{font-size:15px;}
+
+  /* Avatar topbar */
+  .avatar{width:32px;height:32px;font-size:12px;}
+  .nb-btn{width:32px;height:32px;}
+
+  /* Notification panel */
+  #np{width:calc(100vw - 24px) !important;right:12px !important;}
 }
 
 /* Bouton hamburger tablette */
