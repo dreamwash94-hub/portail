@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, setDoc, getDoc, doc, collection, getDocs, query, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, setDoc, getDoc, doc, collection, getDocs, query, addDoc, deleteDoc, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyCSZqfL3G-DK0VzNmptblT7F_kgq5R4Oww",
     authDomain: "dreamwash-d4a2c.firebaseapp.com",
@@ -40,19 +40,44 @@
       const dateStr = String(now.getDate()).padStart(2,'0') + '/' + String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
       const snap = await getDocs(query(collection(db, 'badgeages')));
       const data = [];
-      snap.forEach(d => data.push(d.data()));
+      snap.forEach(d => data.push({...d.data(), _id: d.id}));
       return data.filter(l => l.date === dateStr).sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
     } catch(e) { return []; }
   };
 
-  // Exposer getDocs et collection pour syncAllBadgeages
   window.getAllBadgeages = async function() {
     try {
       const snap = await getDocs(collection(db, 'badgeages'));
       const data = [];
-      snap.forEach(d => data.push(d.data()));
+      snap.forEach(d => data.push({...d.data(), _id: d.id}));
       return data;
     } catch(e) { console.log('Erreur getAllBadgeages:', e.message); return []; }
+  };
+
+  // Supprimer un badge par timestamp+nom (identifiant unique)
+  window.deleteBadgeFromFirebase = async function(nom, timestamp) {
+    try {
+      const snap = await getDocs(collection(db, 'badgeages'));
+      const batch = writeBatch(db);
+      let count = 0;
+      snap.forEach(d => {
+        const data = d.data();
+        if (data.nom === nom && data.timestamp === timestamp) {
+          batch.delete(d.ref);
+          count++;
+        }
+      });
+      if (count > 0) await batch.commit();
+      return count > 0;
+    } catch(e) { console.log('Erreur suppression badge:', e.message); return false; }
+  };
+
+  // Ajouter un badge dans Firebase
+  window.addBadgeToFirebase = async function(entry) {
+    try {
+      await addDoc(collection(db, 'badgeages'), entry);
+      return true;
+    } catch(e) { return false; }
   };
 
   window._firebaseReady = true;
@@ -2360,20 +2385,45 @@ function editBadge(idx) {
 async function saveBadgeEdit(idx) {
   const badges = window._currentBadges || [];
   if (!badges[idx]) return;
+  const old = {...badges[idx]};
   badges[idx].nom = document.getElementById('be-nom').value;
   badges[idx].centreBadge = document.getElementById('be-centre').value;
   badges[idx].time = document.getElementById('be-time').value;
   badges[idx].date = document.getElementById('be-date').value;
-  // Mettre à jour CRA
   const b = badges[idx];
+
+  showNotif('🔄 Modification en cours...', '#7C3AED');
+
+  // 1. Supprimer l'ancien badge Firebase
+  if (window.deleteBadgeFromFirebase && old.timestamp) {
+    await window.deleteBadgeFromFirebase(old.nom, old.timestamp);
+  }
+
+  // 2. Ajouter le nouveau badge Firebase
+  b.timestamp = b.timestamp || Date.now();
+  if (window.addBadgeToFirebase) await window.addBadgeToFirebase(b);
+
+  // 3. Mettre à jour CRA_DATA
+  if (old.nom !== b.nom || old.date !== b.date) {
+    // Supprimer l'ancien
+    if (CRA_DATA[old.nom]?.[old.date]) delete CRA_DATA[old.nom][old.date];
+  }
   if (!CRA_DATA[b.nom]) CRA_DATA[b.nom] = {};
   CRA_DATA[b.nom][b.date] = b.centreBadge;
+
+  // 4. Sauvegarder CRA dans Firebase
   if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
   saveLocal();
+
   document.getElementById('m-badge-edit')?.remove();
-  refreshBadgeuse();
-  renderCRA(); renderRapport();
-  showNotif('✅ Badge modifié et synchronisé', '#16A34A');
+
+  // 5. Tout re-rendre
+  await refreshBadgeuse();
+  renderCRA();
+  renderRapport();
+  renderDashboard();
+
+  showNotif('✅ Badge modifié — CRA et Rapport mis à jour', '#16A34A');
 }
 
 async function deleteBadge(idx) {
@@ -2381,40 +2431,67 @@ async function deleteBadge(idx) {
   const b = badges[idx];
   if (!b) return;
   if (!confirm(`Supprimer le badge de ${b.nom} (${b.date} ${b.time}) ?`)) return;
-  // Supprimer du CRA
-  if (CRA_DATA[b.nom]?.[b.date]) {
-    delete CRA_DATA[b.nom][b.date];
-    if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
-    saveLocal();
+
+  showNotif('🔄 Suppression en cours...', '#DC2626');
+
+  // 1. Supprimer de Firebase badgeages
+  if (window.deleteBadgeFromFirebase && b.timestamp) {
+    const ok = await window.deleteBadgeFromFirebase(b.nom, b.timestamp);
+    if (!ok) console.log('⚠️ Badge non trouvé dans Firebase — suppression locale uniquement');
   }
+
+  // 2. Supprimer du CRA_DATA
+  if (CRA_DATA[b.nom]?.[b.date]) {
+    // Vérifier s'il y a d'autres badges ce jour pour ce technicien
+    const autresBadgesCeJour = (window._currentBadges||[]).filter(
+      (x,i) => i !== idx && x.nom === b.nom && x.date === b.date
+    );
+    if (autresBadgesCeJour.length === 0) {
+      delete CRA_DATA[b.nom][b.date];
+    }
+  }
+
+  // 3. Sauvegarder CRA dans Firebase
+  if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+  saveLocal();
+
+  // 4. Supprimer du cache local
   badges.splice(idx, 1);
-  refreshBadgeuse();
-  renderCRA(); renderRapport();
-  showNotif(`🗑️ Badge supprimé pour ${b.nom}`, '#DC2626');
+  window._currentBadges = badges;
+
+  // 5. Tout re-rendre
+  await refreshBadgeuse();
+  renderCRA();
+  renderRapport();
+  renderDashboard();
+
+  showNotif(`🗑️ Badge supprimé — CRA et Rapport mis à jour`, '#DC2626');
 }
 
 // ═══ SYNCHRONISATION BADGEUSE → CRA ═══════════════════════════
 async function syncAllBadgeages() {
-  showNotif('🔄 Synchronisation en cours...', '#7C3AED');
   try {
-    if (!window.getAllBadgeages) {
-      showNotif('⚠️ Firebase non connecté', '#D97706');
-      return;
-    }
+    if (!window.getAllBadgeages) return;
     const allBadges = await window.getAllBadgeages();
+    if (allBadges.length === 0) return;
 
-    if (allBadges.length === 0) {
-      showNotif('ℹ️ Aucun badge trouvé dans Firebase', '#D97706');
-      return;
-    }
-
-    // Construire CRA_DATA depuis tous les badges
-    CRA_DATA = {};
+    // Reconstruire CRA_DATA entièrement depuis Firebase (source de vérité)
+    const newCRA = {};
     allBadges.forEach(b => {
       if (!b.nom || !b.date) return;
-      if (!CRA_DATA[b.nom]) CRA_DATA[b.nom] = {};
-      CRA_DATA[b.nom][b.date] = b.centreBadge || b.centreHabituel || b.centre || '—';
+      if (!newCRA[b.nom]) newCRA[b.nom] = {};
+      newCRA[b.nom][b.date] = b.centreBadge || b.centreHabituel || b.centre || '—';
     });
+
+    // Fusionner avec CRA_DATA existant (garder saisies manuelles)
+    Object.keys(CRA_DATA).forEach(nom => {
+      if (!newCRA[nom]) newCRA[nom] = {};
+      Object.keys(CRA_DATA[nom]).forEach(date => {
+        if (!newCRA[nom][date]) newCRA[nom][date] = CRA_DATA[nom][date];
+      });
+    });
+
+    CRA_DATA = newCRA;
 
     // Mettre à jour jours dans TECHS pour le mois courant
     const now = new Date();
@@ -2425,22 +2502,18 @@ async function syncAllBadgeages() {
       }
     });
 
-    // Sauvegarder
+    // Sauvegarder CRA dans Firebase
     if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
     saveLocal();
 
-    // Tout re-rendre
+    // Re-rendre tout
     renderCRA();
     renderRapport();
-    renderTechs();
     renderDashboard();
 
-    const nbTechs = Object.keys(CRA_DATA).length;
-    const nbBadges = allBadges.length;
-    showNotif(`✅ ${nbBadges} badges — ${nbTechs} techniciens synchronisés`, '#16A34A');
+    console.log('✅ Sync complète :', allBadges.length, 'badges →', Object.keys(CRA_DATA).length, 'techniciens');
   } catch(e) {
-    console.log('Erreur sync CRA:', e.message);
-    showNotif('❌ Erreur synchronisation : ' + e.message, '#DC2626');
+    console.log('Erreur sync:', e.message);
   }
 }
 
@@ -3319,28 +3392,34 @@ async function saveBadgeManuel() {
   const dateRaw = document.getElementById('ba-date').value;
   const now = new Date();
   const dateStr = dateRaw || String(now.getDate()).padStart(2,'0') + '/' + String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
-  const tech = TECHS.find(t=>t.nom===nom);
+  const tech = TECHS.find(t => t.nom === nom);
   const entry = {
     nom, centreBadge: centre,
     centreHabituel: tech?.centre || centre,
     color: tech?.color || '#2563EB',
     time, date: dateStr, timestamp: Date.now()
   };
-  // Sauver Firebase
-  try {
-    if (window._db && window._firebase) {
-      const {collection, addDoc} = window._firebase;
-      await addDoc(collection(window._db, 'badgeages'), entry);
-    }
-  } catch(e) {}
-  // Mettre à jour CRA
+
+  // 1. Sauver dans Firebase badgeages
+  if (window.addBadgeToFirebase) await window.addBadgeToFirebase(entry);
+
+  // 2. Mettre à jour CRA_DATA
   if (!CRA_DATA[nom]) CRA_DATA[nom] = {};
   CRA_DATA[nom][dateStr] = centre;
+
+  // 3. Sauver CRA dans Firebase
   if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
   saveLocal();
+
   closeModal('m-badge-add');
-  refreshBadgeuse(); renderCRA(); renderRapport();
-  showNotif(`✅ Badge ajouté pour ${nom}`, '#16A34A');
+
+  // 4. Tout re-rendre
+  await refreshBadgeuse();
+  renderCRA();
+  renderRapport();
+  renderDashboard();
+
+  showNotif(`✅ Badge ajouté pour ${nom} — CRA et Rapport mis à jour`, '#16A34A');
 }
 
 // ═══ DÉCONNEXION ═════════════════════════════════════════════════
