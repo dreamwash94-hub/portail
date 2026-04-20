@@ -3008,10 +3008,8 @@ async function init() {
       // Charger CRA en premier et immédiatement
       const fbCraData = await window.loadFromFirebase('cra_data');
       if (fbCraData && Object.keys(fbCraData).length > 0) {
-        // Remplacer complètement CRA_DATA par la version Firebase
         Object.keys(CRA_DATA).forEach(k => delete CRA_DATA[k]);
         Object.keys(fbCraData).forEach(k => { CRA_DATA[k] = fbCraData[k]; });
-        // Mettre à jour jours techniciens
         const now = new Date();
         const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
         TECHS.forEach((t,i) => {
@@ -3019,6 +3017,10 @@ async function init() {
         });
         renderCRA(); renderRapport(); renderDashboard();
         console.log('✅ CRA chargé depuis Firebase :', Object.keys(fbCraData).length, 'techniciens');
+      } else {
+        // Firebase CRA vide — reconstruire depuis les badges
+        console.log('⚠️ CRA Firebase vide — reconstruction depuis les badges...');
+        await syncAllBadgeages();
       }
 
       // Charger le reste en parallèle
@@ -3058,7 +3060,7 @@ async function init() {
           if (el) el.value = fbPresta[id];
         });
       }
-      // Sync automatique badgeuse → CRA au chargement (immédiat)
+      // Toujours sync badgeuse → CRA au chargement
       await syncAllBadgeages();
       console.log('🔄 Sync badgeuse → CRA → Rapport effectuée ✅');
     } catch(e) {
