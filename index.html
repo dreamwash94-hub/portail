@@ -608,7 +608,7 @@ document.getElementById('login-pwd').focus();
         <button class="fbtn" onclick="setPF(this,'Belleville')">Belleville</button>
         <button class="fbtn" onclick="setPF(this,'Suresnes')">Suresnes</button>
       </div>
-      <div class="plan-wrap"><table class="plan-table" id="plan-table"><thead><tr><th style="text-align:left;min-width:130px;border-right:2px solid var(--border);">Centre</th><th>Lundi 13</th><th>Mardi 14</th><th class="today-h">Mercredi 15</th><th>Jeudi 16</th><th>Vendredi 17</th></tr></thead><tbody id="plan-tbody"></tbody></table></div>
+      <div class="plan-wrap"><table class="plan-table" id="plan-table"><thead><tr><th style="text-align:left;min-width:130px;border-right:2px solid var(--border);">Centre</th><th>Lundi</th><th>Mardi</th><th>Mercredi</th><th>Jeudi</th><th>Vendredi</th><th style="background:#FEF3C7;">Samedi</th><th style="background:#FEF3C7;">Dimanche</th></tr></thead><tbody id="plan-tbody"></tbody></table></div>
     </div>
 
     <!-- CRA -->
@@ -1008,7 +1008,7 @@ document.getElementById('login-pwd').focus();
     <div class="modal-t">Ajouter un créneau <button class="mc" onclick="closeModal('m-slot')">✕</button></div>
     <div class="field"><label>Centre</label><select id="sl-centre" onchange="updateSlotTechs()"><option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option><option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option><option>Parly2</option><option>Belleville</option><option>Suresnes</option></select></div>
     <div class="field"><label>Technicien</label><select id="sl-tech"></select></div>
-    <div class="field"><label>Jour</label><select id="sl-jour"><option value="0">Lundi 13</option><option value="1">Mardi 14</option><option value="2">Mercredi 15</option><option value="3">Jeudi 16</option><option value="4">Vendredi 17</option><option value="5">Samedi 18</option><option value="6">Dimanche 19</option></select></div>
+    <div class="field"><label>Jour</label><select id="sl-jour"><option value="0">Lundi</option><option value="1">Mardi</option><option value="2">Mercredi</option><option value="3">Jeudi</option><option value="4">Vendredi</option><option value="5">Samedi</option><option value="6">Dimanche</option></select></div>
     <div class="field"><label>Statut</label><select id="sl-statut"><option value="present">Présent ✅</option><option value="absent">Absent ❌</option></select></div>
     <div class="mac"><button class="btn btn-o" style="flex:1;justify-content:center;" onclick="closeModal('m-slot')">Annuler</button><button class="btn btn-p" style="flex:1;justify-content:center;" onclick="addSlot()">Ajouter</button></div>
   </div>
@@ -1199,7 +1199,10 @@ function renderDashboard() {
       <span style="font-size:11px;font-weight:700;min-width:50px;text-align:right;color:var(--accent2);">${c.ca} €</span>
     </div>`;
   });
-  document.getElementById('dash-presences').textContent = TECHS.filter(t=>t.jours>0).length;
+  const today = new Date();
+  const todayStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
+  const presentsAujourdHui = TECHS.filter(t => CRA_DATA[t.nom]?.[todayStr]).length;
+  document.getElementById('dash-presences').textContent = presentsAujourdHui;
   document.getElementById('dash-techs').textContent = TECHS.length;
 }
 
@@ -1483,11 +1486,18 @@ function renderPlanning() {
 
   // Update header for 7 days
   if (thead) {
-    thead.innerHTML = `<th style="text-align:left;min-width:130px;border-right:2px solid var(--border);">Centre</th>
-      <th>Lundi 13</th><th>Mardi 14</th><th class="today-h">Mer. 15</th>
-      <th>Jeudi 16</th><th>Vendredi 17</th>
-      <th style="background:#FEF3C7;">Samedi 18</th>
-      <th style="background:#FEF3C7;">Dimanche 19</th>`;
+    // Calculer les jours de la semaine courante
+    const now = new Date();
+    const dayOfWeek = now.getDay() || 7;
+    const lundi = new Date(now);
+    lundi.setDate(now.getDate() - dayOfWeek + 1);
+    const jours = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+    thead.innerHTML = `<th style="text-align:left;min-width:130px;border-right:2px solid var(--border);">Centre</th>` +
+      jours.map((j,i) => {
+        const isWE = i >= 5;
+        const isToday = new Date(lundi.getTime() + i*86400000).toDateString() === now.toDateString();
+        return `<th ${isWE?'style="background:#FEF3C7;"':''} ${isToday?'class="today-h"':''}>${j}</th>`;
+      }).join('');
   }
 
   const centres = planFilter === 'tous'
