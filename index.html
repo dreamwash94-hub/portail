@@ -88,76 +88,25 @@
   const today = new Date();
   const todayStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
 
-  // 1. Écouter les badges en temps réel (badgeuse → portail)
+  // Écouter les badges en temps réel (badgeuse → portail)
   let _badgeListenerReady = false;
+  let _lastBadgeSync = 0;
   onSnapshot(collection(db, 'badgeages'), (snap) => {
     if (!_badgeListenerReady) { _badgeListenerReady = true; return; }
-    console.log('🔴 Nouveau badge détecté — sync en cours...');
+    const now = Date.now();
+    if (now - _lastBadgeSync < 5000) return; // Éviter trop de syncs
+    _lastBadgeSync = now;
+    console.log('🔔 Nouveau badge détecté — sync...');
     setTimeout(async () => {
-      // Ne sync que si c'est un vrai nouveau badge (pas une suppression)
-      const now = Date.now();
-      if (now - _lastCRASave < 5000) return; // Éviter conflit avec sauvegarde manuelle
       await syncAllBadgeages();
       const page = document.querySelector('.page.active');
       if (page?.id === 'page-badgeuse-view') refreshBadgeuse();
-    }, 2000);
+    }, 1500);
   });
 
-  // 2. Écouter les changements CRA en temps réel (tous appareils)
-  let _craListenerReady = false;
-  let _lastCRASave = 0;
-  let _lastCRATimestamp = 0; // timestamp Firebase de la dernière version connue
-  onSnapshot(doc(db, 'portail', 'cra_data'), (snap) => {
-    if (!_craListenerReady) { 
-      _craListenerReady = true; 
-      // Mémoriser le timestamp initial
-      if (snap.exists()) _lastCRATimestamp = snap.data().updated || 0;
-      return; 
-    }
-    if (!snap.exists()) return;
-    
-    const snapUpdated = snap.data().updated || 0;
-    
-    // Ignorer si c'est nous qui venons de sauvegarder
-    const now = Date.now();
-    if (now - _lastCRASave < 5000) return;
-    
-    // Ignorer si c'est une version plus ancienne que ce qu'on connaît
-    if (snapUpdated <= _lastCRATimestamp) return;
-    
-    _lastCRATimestamp = snapUpdated;
-    
-    try {
-      const newCRA = JSON.parse(snap.data().data);
-      if (newCRA && typeof newCRA === 'object') {
-        const NOMS_VALIDES = new Set(TECHS.map(t => t.nom));
-        // Appliquer uniquement les noms valides
-        Object.keys(newCRA).forEach(nom => {
-          if (NOMS_VALIDES.has(nom)) CRA_DATA[nom] = newCRA[nom];
-        });
-        // Supprimer les anciens noms
-        Object.keys(CRA_DATA).forEach(nom => {
-          if (!NOMS_VALIDES.has(nom)) delete CRA_DATA[nom];
-        });
-        const nowDate = new Date();
-        const moisCourant = String(nowDate.getMonth()+1).padStart(2,'0') + '/' + nowDate.getFullYear();
-        TECHS.forEach((t,i) => {
-          if (CRA_DATA[t.nom]) TECHS[i].jours = Object.keys(CRA_DATA[t.nom]).filter(d=>d.endsWith(moisCourant)).length;
-        });
-        saveLocal();
-        console.log('🔴 CRA mis à jour depuis un autre appareil - timestamp:', snapUpdated);
-        renderCRA();
-        renderRapport();
-        renderDashboard();
-      }
-    } catch(e) { console.log('Erreur listener CRA:', e.message); }
-  });
-
-  // Exposer pour marquer nos propres sauvegardes
-  window._markCRASave = () => { 
-    _lastCRASave = Date.now(); 
-    _lastCRATimestamp = Date.now();
-  };
+  // ⚠️ Listener CRA supprimé — causait une boucle infinie
+  // La sync CRA est gérée uniquement par le listener badges (syncAllBadgeages)
+  window._markCRASave = () => {};
 
   window._firebaseReady = true;
   window._db = db;
