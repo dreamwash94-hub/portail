@@ -129,8 +129,16 @@
     
     try {
       const newCRA = JSON.parse(snap.data().data);
-      if (newCRA && typeof newCRA === 'object' && Object.keys(newCRA).length > 0) {
-        Object.keys(newCRA).forEach(nom => { CRA_DATA[nom] = newCRA[nom]; });
+      if (newCRA && typeof newCRA === 'object') {
+        const NOMS_VALIDES = new Set(TECHS.map(t => t.nom));
+        // Appliquer uniquement les noms valides
+        Object.keys(newCRA).forEach(nom => {
+          if (NOMS_VALIDES.has(nom)) CRA_DATA[nom] = newCRA[nom];
+        });
+        // Supprimer les anciens noms
+        Object.keys(CRA_DATA).forEach(nom => {
+          if (!NOMS_VALIDES.has(nom)) delete CRA_DATA[nom];
+        });
         const nowDate = new Date();
         const moisCourant = String(nowDate.getMonth()+1).padStart(2,'0') + '/' + nowDate.getFullYear();
         TECHS.forEach((t,i) => {
@@ -2628,44 +2636,46 @@ async function syncAllBadgeages() {
     const allBadges = await window.getAllBadgeages();
     if (allBadges.length === 0) return;
 
-    // Reconstruire CRA_DATA entièrement depuis Firebase (source de vérité)
+    // Liste des 22 vrais techniciens uniquement
+    const NOMS_VALIDES = new Set(TECHS.map(t => t.nom));
+
+    // Reconstruire CRA_DATA uniquement avec les vrais techniciens
     const newCRA = {};
     allBadges.forEach(b => {
       if (!b.nom || !b.date) return;
+      if (!NOMS_VALIDES.has(b.nom)) return; // ⚠️ Ignorer anciens noms
       if (!newCRA[b.nom]) newCRA[b.nom] = {};
       newCRA[b.nom][b.date] = b.centreBadge || b.centreHabituel || b.centre || '—';
     });
 
-    // Fusionner avec CRA_DATA existant (garder saisies manuelles)
+    // Fusionner saisies manuelles valides
     Object.keys(CRA_DATA).forEach(nom => {
+      if (!NOMS_VALIDES.has(nom)) return;
       if (!newCRA[nom]) newCRA[nom] = {};
       Object.keys(CRA_DATA[nom]).forEach(date => {
         if (!newCRA[nom][date]) newCRA[nom][date] = CRA_DATA[nom][date];
       });
     });
 
-    CRA_DATA = newCRA;
+    // Remplacer CRA_DATA proprement
+    Object.keys(CRA_DATA).forEach(k => delete CRA_DATA[k]);
+    Object.keys(newCRA).forEach(k => { CRA_DATA[k] = newCRA[k]; });
 
-    // Mettre à jour jours dans TECHS pour le mois courant
+    // Mettre à jour jours techniciens
     const now = new Date();
     const moisCourant = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
     TECHS.forEach((t, i) => {
-      if (CRA_DATA[t.nom]) {
-        TECHS[i].jours = Object.keys(CRA_DATA[t.nom]).filter(d => d.endsWith(moisCourant)).length;
-      }
+      TECHS[i].jours = CRA_DATA[t.nom] ? Object.keys(CRA_DATA[t.nom]).filter(d => d.endsWith(moisCourant)).length : 0;
     });
 
-    // Sauvegarder CRA dans Firebase (marquer pour éviter boucle listener)
+    // Sauvegarder CRA propre dans Firebase
     if (window._markCRASave) window._markCRASave();
-    if (window._markCRASave) window._markCRASave(); if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
+    if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
     saveLocal();
 
-    // Re-rendre tout
-    renderCRA();
-    renderRapport();
-    renderDashboard();
+    renderCRA(); renderRapport(); renderDashboard();
 
-    console.log('✅ Sync complète :', allBadges.length, 'badges →', Object.keys(CRA_DATA).length, 'techniciens');
+    console.log('✅ Sync :', allBadges.length, 'badges →', Object.keys(CRA_DATA).length, 'techniciens valides');
   } catch(e) {
     console.log('Erreur sync:', e.message);
   }
