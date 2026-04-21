@@ -84,19 +84,16 @@
   };
 
   // ═══ LISTENERS TEMPS RÉEL ════════════════════════════════════
-  // 1. Écouter les badges en temps réel (badgeuse → portail)
-  const today = new Date();
-  const todayStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
 
-  // Écouter les badges en temps réel (badgeuse → portail)
+  // 1. Badges (badgeuse → portail)
   let _badgeListenerReady = false;
   let _lastBadgeSync = 0;
   onSnapshot(collection(db, 'badgeages'), (snap) => {
     if (!_badgeListenerReady) { _badgeListenerReady = true; return; }
     const now = Date.now();
-    if (now - _lastBadgeSync < 5000) return; // Éviter trop de syncs
+    if (now - _lastBadgeSync < 5000) return;
     _lastBadgeSync = now;
-    console.log('🔔 Nouveau badge détecté — sync...');
+    console.log('🔔 Nouveau badge — sync...');
     setTimeout(async () => {
       await syncAllBadgeages();
       const page = document.querySelector('.page.active');
@@ -104,8 +101,50 @@
     }, 1500);
   });
 
-  // ⚠️ Listener CRA supprimé — causait une boucle infinie
-  // La sync CRA est gérée uniquement par le listener badges (syncAllBadgeages)
+  // 2. Toutes les données portail (PC → téléphone → tablette)
+  let _portailListenerReady = false;
+  let _lastPortailSave = 0;
+  
+  // Écouter chaque clé importante
+  const keysToWatch = ['techs','centres','charges','assurances','stock','box','tel','extra','planning'];
+  
+  keysToWatch.forEach(key => {
+    let ready = false;
+    onSnapshot(doc(db, 'portail', key), (snap) => {
+      if (!ready) { ready = true; return; }
+      if (!snap.exists()) return;
+      const now = Date.now();
+      if (now - _lastPortailSave < 3000) return; // C'est nous qui venons de sauvegarder
+      try {
+        const data = JSON.parse(snap.data().data);
+        console.log('🔔 Mise à jour reçue :', key);
+        // Appliquer les données reçues
+        if (key === 'techs' && data?.length) {
+          TECHS.splice(0, TECHS.length, ...data);
+          renderTechs(); renderDashboard();
+        } else if (key === 'centres' && data?.length) {
+          CENTRES.splice(0, CENTRES.length, ...data);
+          renderCentres(); renderDashboard();
+        } else if (key === 'charges' && data?.length) {
+          CHARGES.splice(0, CHARGES.length, ...data);
+          renderCharges();
+        } else if (key === 'assurances' && data?.length) {
+          ASSURANCES.splice(0, ASSURANCES.length, ...data);
+          renderAssurances();
+        } else if (key === 'stock' && data?.length) {
+          STOCK.splice(0, STOCK.length, ...data);
+          renderStock();
+        } else if (key === 'planning' && data) {
+          Object.assign(PLANNING, data);
+          renderPlanning();
+        }
+        saveLocal();
+      } catch(e) {}
+    });
+  });
+
+  // Marquer nos propres sauvegardes
+  window._markPortailSave = () => { _lastPortailSave = Date.now(); };
   window._markCRASave = () => {};
 
   window._firebaseReady = true;
@@ -2893,6 +2932,8 @@ async function saveAll() {
   let firebaseOk = false;
   if (window.saveToFirebase) {
     try {
+      // Marquer pour éviter boucle listener
+      if (window._markPortailSave) window._markPortailSave();
       const prestaData = capturePresta();
       await Promise.all([
         window.saveToFirebase('techs', TECHS),
