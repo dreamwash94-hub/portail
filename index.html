@@ -672,7 +672,6 @@ document.getElementById('login-pwd').focus();
           </div>
         </div>
         <div style="display:flex;gap:8px;">
-          <button class="btn btn-sm" style="background:#7C3AED;color:#fff;border:none;" onclick="syncAllBadgeages()">🔄 Sync Badgeuse</button>
           <button class="btn btn-o btn-sm" onclick="exportCSV()">⬇️ CSV</button>
         </div>
       </div>
@@ -957,7 +956,6 @@ document.getElementById('login-pwd').focus();
     </div>
     <div class="field"><label>Technicien</label>
       <select id="ba-nom" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg3);font-family:inherit;">
-        ${TECHS.map(t=>`<option value="${t.nom}">${t.nom}</option>`).join('')}
       </select>
     </div>
     <div class="field"><label>Centre</label>
@@ -2670,7 +2668,8 @@ function go(id){
   document.getElementById('np').style.display='none';
   notifOpen=false;
   if(id==='telephone') renderTelephone();
-  if(id==='badgeuse-view') { refreshBadgeuse(); }
+  if(id==='badgeuse-view') refreshBadgeuse();
+  if(id==='cra') syncAllBadgeages();
   if(id==='technovap') renderTechnovap();
   if(id==='westfield') renderWestfield();
 }
@@ -3425,6 +3424,15 @@ function openModal(id) {
     renderBdcLines();
   }
   if (id==='m-stock') { populateCatalogue(); }
+  if (id==='m-badge-add') {
+    const sel = document.getElementById('ba-nom');
+    if (sel) sel.innerHTML = TECHS.map(t=>`<option value="${t.nom}">${t.nom} — ${t.centre}</option>`).join('');
+    const timeEl = document.getElementById('ba-time');
+    if (timeEl) timeEl.value = new Date().toTimeString().slice(0,5);
+    const dateEl = document.getElementById('ba-date');
+    const now = new Date();
+    if (dateEl) dateEl.value = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+  }
   if (id==='m-cra-manuel') {
     pendingCRADates = [];
     renderPendingDates();
