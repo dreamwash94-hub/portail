@@ -619,7 +619,6 @@ document.getElementById('login-pwd').focus();
           <div style="font-size:12px;color:var(--muted);margin-top:2px;">Synchronisé avec la badgeuse en temps réel</div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-sm" style="background:#7C3AED;color:#fff;border:none;" onclick="syncAllBadgeages()">🔄 Sync Badgeuse</button>
           <button class="btn btn-sm" style="background:#16A34A;color:#fff;border:none;" onclick="openModal('m-cra-manuel')">✏️ Saisie manuelle</button>
           <button class="btn btn-o btn-sm" onclick="copyCRA()">📋 Copier</button>
           <button class="btn btn-p btn-sm" onclick="exportCSV()">📤 CSV</button>
@@ -632,11 +631,6 @@ document.getElementById('login-pwd').focus();
         <div class="kpi"><div class="kpi-i">📅</div><div class="kpi-v" style="color:var(--accent2);" id="cra-kpi-jours">0</div><div class="kpi-l">Jours travaillés (mois)</div></div>
         <div class="kpi"><div class="kpi-i">🏢</div><div class="kpi-v" style="color:var(--accent5);" id="cra-kpi-centres">0</div><div class="kpi-l">Centres couverts</div></div>
         <div class="kpi"><div class="kpi-i">⏱️</div><div class="kpi-v" style="color:var(--accent3);" id="cra-kpi-today">0</div><div class="kpi-l">Présents aujourd'hui</div></div>
-      </div>
-
-      <div style="background:#EFF6FF;border:1px solid #DBEAFE;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
-        <span style="font-size:16px;">💡</span>
-        <div style="font-size:12px;color:#1D4ED8;">Les présences viennent de la <strong>badgeuse</strong> (temps réel) et du <strong>planning</strong>. Cliquez 🔄 Sync pour forcer la mise à jour.</div>
       </div>
 
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
@@ -1664,7 +1658,7 @@ function renderCRA() {
   filtered.forEach(t => {
     const techCRA = CRA_DATA[t.nom] || {};
     const joursMois = Object.keys(techCRA).filter(d => d.endsWith(moisF));
-    const totalJoursTech = joursMois.length || t.jours;
+    const totalJoursTech = joursMois.length;
     const dernier = [...joursMois].sort().reverse()[0] || '—';
     const presentAujourd = techCRA[todayStr] ? `<span class="badge gr">✓ ${techCRA[todayStr].split(' ')[0]}</span>` : '<span style="color:var(--muted);font-size:11px;">—</span>';
 
@@ -2591,28 +2585,47 @@ async function syncAllBadgeages() {
     const allBadges = await window.getAllBadgeages();
     if (allBadges.length === 0) return;
 
-    // Liste des 22 vrais techniciens uniquement
     const NOMS_VALIDES = new Set(TECHS.map(t => t.nom));
 
-    // Reconstruire CRA_DATA uniquement avec les vrais techniciens
-    const newCRA = {};
+    // Charger le CRA actuel depuis Firebase (source de vérité pour les suppressions manuelles)
+    const fbCRA = await window.loadFromFirebase('cra_data');
+
+    // Construire CRA depuis les badges (uniquement vrais techniciens)
+    const craFromBadges = {};
     allBadges.forEach(b => {
-      if (!b.nom || !b.date) return;
-      if (!NOMS_VALIDES.has(b.nom)) return; // ⚠️ Ignorer anciens noms
-      if (!newCRA[b.nom]) newCRA[b.nom] = {};
-      newCRA[b.nom][b.date] = b.centreBadge || b.centreHabituel || b.centre || '—';
+      if (!b.nom || !b.date || !NOMS_VALIDES.has(b.nom)) return;
+      if (!craFromBadges[b.nom]) craFromBadges[b.nom] = {};
+      craFromBadges[b.nom][b.date] = b.centreBadge || b.centreHabituel || '—';
     });
 
-    // Fusionner saisies manuelles valides
-    Object.keys(CRA_DATA).forEach(nom => {
-      if (!NOMS_VALIDES.has(nom)) return;
-      if (!newCRA[nom]) newCRA[nom] = {};
-      Object.keys(CRA_DATA[nom]).forEach(date => {
-        if (!newCRA[nom][date]) newCRA[nom][date] = CRA_DATA[nom][date];
+    // Si Firebase CRA existe, il a priorité (respecte les suppressions manuelles)
+    // On fusionne : badges ajoutent, Firebase CRA supprime
+    const newCRA = {};
+    if (fbCRA && Object.keys(fbCRA).length > 0) {
+      // Utiliser Firebase CRA comme base (respecte les suppressions)
+      Object.keys(fbCRA).forEach(nom => {
+        if (NOMS_VALIDES.has(nom)) newCRA[nom] = {...fbCRA[nom]};
       });
-    });
+      // Ajouter les nouveaux badges non présents dans Firebase CRA
+      Object.keys(craFromBadges).forEach(nom => {
+        if (!newCRA[nom]) newCRA[nom] = {};
+        Object.keys(craFromBadges[nom]).forEach(date => {
+          // N'ajouter que si ce jour n'a pas été supprimé manuellement
+          // (si la date existe dans badges mais pas dans fbCRA = suppression manuelle)
+          if (fbCRA[nom] && fbCRA[nom][date]) {
+            newCRA[nom][date] = craFromBadges[nom][date];
+          } else if (!fbCRA[nom]) {
+            // Nouveau technicien pas encore dans Firebase CRA
+            newCRA[nom][date] = craFromBadges[nom][date];
+          }
+        });
+      });
+    } else {
+      // Pas de Firebase CRA — utiliser les badges
+      Object.assign(newCRA, craFromBadges);
+    }
 
-    // Remplacer CRA_DATA proprement
+    // Remplacer CRA_DATA
     Object.keys(CRA_DATA).forEach(k => delete CRA_DATA[k]);
     Object.keys(newCRA).forEach(k => { CRA_DATA[k] = newCRA[k]; });
 
@@ -2623,14 +2636,13 @@ async function syncAllBadgeages() {
       TECHS[i].jours = CRA_DATA[t.nom] ? Object.keys(CRA_DATA[t.nom]).filter(d => d.endsWith(moisCourant)).length : 0;
     });
 
-    // Sauvegarder CRA propre dans Firebase
+    // Sauvegarder
     if (window._markCRASave) window._markCRASave();
     if (window.saveToFirebase) await window.saveToFirebase('cra_data', CRA_DATA);
     saveLocal();
 
     renderCRA(); renderRapport(); renderDashboard();
-
-    console.log('✅ Sync :', allBadges.length, 'badges →', Object.keys(CRA_DATA).length, 'techniciens valides');
+    console.log('✅ Sync :', allBadges.length, 'badges →', Object.keys(CRA_DATA).length, 'techniciens');
   } catch(e) {
     console.log('Erreur sync:', e.message);
   }
