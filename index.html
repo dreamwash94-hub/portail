@@ -1684,9 +1684,7 @@ function renderCRA() {
       row += `<td style="text-align:center;padding:6px;border-bottom:1px solid var(--border);">
         ${joursIci > 0
           ? `<span style="background:#DCFCE7;color:#15803D;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;" onclick="showCRATechDetail('${t.nom}','${cn}','${moisF}')">✓ ${joursIci}j</span>`
-          : (t.centre === cn && totalJoursTech > 0 && joursMois.length === 0)
-            ? `<span style="background:#DBEAFE;color:#1D4ED8;border-radius:20px;padding:3px 8px;font-size:11px;">${totalJoursTech}j</span>`
-            : `<span style="color:var(--light);font-size:11px;">—</span>`
+          : `<span style="color:var(--light);font-size:11px;">—</span>`
         }
       </td>`;
     });
