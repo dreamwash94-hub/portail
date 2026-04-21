@@ -102,23 +102,19 @@
   });
 
   // 2. Toutes les données portail (PC → téléphone → tablette)
-  let _portailListenerReady = false;
   let _lastPortailSave = 0;
-  
-  // Écouter chaque clé importante
   const keysToWatch = ['techs','centres','charges','assurances','stock','box','tel','extra','planning'];
   
   keysToWatch.forEach(key => {
     let ready = false;
     onSnapshot(doc(db, 'portail', key), (snap) => {
-      if (!ready) { ready = true; return; }
+      if (!ready) { ready = true; return; } // Ignorer le premier chargement
       if (!snap.exists()) return;
       const now = Date.now();
-      if (now - _lastPortailSave < 3000) return; // C'est nous qui venons de sauvegarder
+      if (now - _lastPortailSave < 5000) return; // C'est nous qui venons de sauvegarder
       try {
         const data = JSON.parse(snap.data().data);
         console.log('🔔 Mise à jour reçue :', key);
-        // Appliquer les données reçues
         if (key === 'techs' && data?.length) {
           TECHS.splice(0, TECHS.length, ...data);
           renderTechs(); renderDashboard();
@@ -138,7 +134,7 @@
           Object.assign(PLANNING, data);
           renderPlanning();
         }
-        saveLocal();
+        // ⚠️ Pas de saveLocal ici — évite boucle
       } catch(e) {}
     });
   });
@@ -3014,10 +3010,8 @@ async function init() {
   // Enlever le loader
   loader.remove();
 
-  // 3. Toujours sauvegarder les 22 bons techniciens
-  if (window.saveToFirebase) {
-    window.saveToFirebase('techs', TECHS);
-  }
+  // ⚠️ NE PAS sauvegarder dans Firebase au démarrage
+  // Chaque appareil qui s'ouvre ne doit PAS écraser les données des autres
 
   // 4. Charger Firebase — CRA en PRIORITÉ
   if (window.loadFromFirebase) {
@@ -3085,8 +3079,8 @@ async function init() {
     }
   }
 
-  // Auto-sauvegarde toutes les 60 secondes
-  setInterval(() => saveAll(), 60000);
+  // Auto-sauvegarde locale toutes les 60 secondes (pas Firebase)
+  setInterval(() => saveLocal(), 60000);
 }
 
 init();
