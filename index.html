@@ -2925,27 +2925,9 @@ async function init() {
   loader.innerHTML = '<div style="font-size:36px;">💧</div><div style="font-size:15px;font-weight:700;color:#2563EB;">Chargement Dreamwash...</div>';
   document.body.appendChild(loader);
 
-  // 1. Charger localStorage pour affichage immédiat (SAUF CRA — Firebase prioritaire)
-  const local = loadLocal();
-  if (local) {
-    if (local.TECHS?.length) TECHS.splice(0, TECHS.length, ...local.TECHS);
-    if (local.CENTRES?.length) CENTRES.splice(0, CENTRES.length, ...local.CENTRES);
-    if (local.CHARGES?.length) CHARGES.splice(0, CHARGES.length, ...local.CHARGES);
-    if (local.ASSURANCES?.length) ASSURANCES.splice(0, ASSURANCES.length, ...local.ASSURANCES);
-    if (local.STOCK?.length) STOCK.splice(0, STOCK.length, ...local.STOCK);
-    if (local.BOX_DATA?.length) BOX_DATA.splice(0, BOX_DATA.length, ...local.BOX_DATA);
-    if (local.TEL_DATA?.length) TEL_DATA.splice(0, TEL_DATA.length, ...local.TEL_DATA);
-    if (local.EXTRA_ROWS?.length) EXTRA_ROWS.splice(0, EXTRA_ROWS.length, ...local.EXTRA_ROWS);
-    if (local.COMPTA?.length) local.COMPTA.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); });
-    if (local.PLANNING) Object.assign(PLANNING, local.PLANNING);
-    // ⚠️ CRA_DATA — NE PAS charger depuis localStorage (Firebase est la source de vérité)
-    if (local.TECHNOVAP_MACHINES?.length) TECHNOVAP_MACHINES.splice(0, TECHNOVAP_MACHINES.length, ...local.TECHNOVAP_MACHINES);
-    if (local.WESTFIELD_CONTACTS?.length) WESTFIELD_CONTACTS.splice(0, WESTFIELD_CONTACTS.length, ...local.WESTFIELD_CONTACTS);
-    if (local.WESTFIELD_CONTRATS?.length) WESTFIELD_CONTRATS.splice(0, WESTFIELD_CONTRATS.length, ...local.WESTFIELD_CONTRATS);
-    if (local.CARPOLISH_CONTACT) Object.assign(CARPOLISH_CONTACT, local.CARPOLISH_CONTACT);
-    if (local.CUSTOM_DOCS?.length) CUSTOM_DOCS.splice(0, CUSTOM_DOCS.length, ...local.CUSTOM_DOCS);
-    console.log('✅ Données locales chargées (CRA chargé depuis Firebase)');
-  }
+  // ⚠️ localStorage ignoré au démarrage — Firebase est la source de vérité
+  // Les données locales peuvent être obsolètes sur d'autres appareils
+  console.log('✅ Chargement depuis Firebase...');
 
   // 2. Rendre l'interface immédiatement
   renderDashboard(); renderCentres(); renderTechs(); renderPlanning();
@@ -2980,7 +2962,8 @@ async function init() {
       }
 
       // Charger le reste en parallèle
-      const [fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning] = await Promise.all([
+      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning] = await Promise.all([
+        window.loadFromFirebase('techs'),
         window.loadFromFirebase('centres'),
         window.loadFromFirebase('charges'),
         window.loadFromFirebase('assurances'),
@@ -2993,7 +2976,8 @@ async function init() {
         window.loadFromFirebase('planning'),
       ]);
       let updated = false;
-      console.log('✅ Techniciens : utilisation des 22 techniciens officiels');
+      // Charger techniciens depuis Firebase (inclut les modifications)
+      if (fbTechs?.length) { TECHS.splice(0, TECHS.length, ...fbTechs); updated = true; console.log('✅ Techniciens chargés depuis Firebase:', fbTechs.length); }
       if (fbCentres?.length) { CENTRES.splice(0, CENTRES.length, ...fbCentres); updated = true; }
       if (fbCharges?.length) { CHARGES.splice(0, CHARGES.length, ...fbCharges); updated = true; }
       if (fbAss?.length) { ASSURANCES.splice(0, ASSURANCES.length, ...fbAss); updated = true; }
