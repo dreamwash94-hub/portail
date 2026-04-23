@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, setDoc, getDoc, doc, collection, getDocs, query, addDoc, deleteDoc, where, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, setDoc, getDoc, doc, collection, getDocs, query, addDoc, deleteDoc, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyCSZqfL3G-DK0VzNmptblT7F_kgq5R4Oww",
     authDomain: "dreamwash-d4a2c.firebaseapp.com",
@@ -83,66 +83,11 @@
     } catch(e) { return false; }
   };
 
-  // ═══ LISTENERS TEMPS RÉEL ════════════════════════════════════
-
-  // 1. Badges (badgeuse → portail)
-  let _badgeListenerReady = false;
-  let _lastBadgeSync = 0;
-  onSnapshot(collection(db, 'badgeages'), (snap) => {
-    if (!_badgeListenerReady) { _badgeListenerReady = true; return; }
-    const now = Date.now();
-    if (now - _lastBadgeSync < 5000) return;
-    _lastBadgeSync = now;
-    console.log('🔔 Nouveau badge — sync...');
-    setTimeout(async () => {
-      await syncAllBadgeages();
-      const page = document.querySelector('.page.active');
-      if (page?.id === 'page-badgeuse-view') refreshBadgeuse();
-    }, 1500);
-  });
-
-  // 2. Toutes les données portail (PC → téléphone → tablette)
-  let _lastPortailSave = 0;
-  const keysToWatch = ['techs','centres','charges','assurances','stock','box','tel','extra','planning'];
-  
-  keysToWatch.forEach(key => {
-    let ready = false;
-    onSnapshot(doc(db, 'portail', key), (snap) => {
-      if (!ready) { ready = true; return; } // Ignorer le premier chargement
-      if (!snap.exists()) return;
-      const now = Date.now();
-      if (now - _lastPortailSave < 5000) return; // C'est nous qui venons de sauvegarder
-      try {
-        const data = JSON.parse(snap.data().data);
-        console.log('🔔 Mise à jour reçue :', key);
-        if (key === 'techs' && data?.length) {
-          TECHS.splice(0, TECHS.length, ...data);
-          renderTechs(); renderDashboard();
-        } else if (key === 'centres' && data?.length) {
-          CENTRES.splice(0, CENTRES.length, ...data);
-          renderCentres(); renderDashboard();
-        } else if (key === 'charges' && data?.length) {
-          CHARGES.splice(0, CHARGES.length, ...data);
-          renderCharges();
-        } else if (key === 'assurances' && data?.length) {
-          ASSURANCES.splice(0, ASSURANCES.length, ...data);
-          renderAssurances();
-        } else if (key === 'stock' && data?.length) {
-          STOCK.splice(0, STOCK.length, ...data);
-          renderStock();
-        } else if (key === 'planning' && data) {
-          Object.assign(PLANNING, data);
-          renderPlanning();
-        }
-        // ⚠️ Pas de saveLocal ici — évite boucle
-      } catch(e) {}
-    });
-  });
-
-  // Marquer nos propres sauvegardes
-  window._markPortailSave = () => { _lastPortailSave = Date.now(); };
+  // ═══ PAS DE LISTENERS ════════════════════════════════════════
+  // Les données sont chargées UNE SEULE FOIS au démarrage
+  // Sauvegarde UNIQUEMENT sur clic 💾
+  window._markPortailSave = () => {};
   window._markCRASave = () => {};
-
   window._firebaseReady = true;
   window._db = db;
   console.log('🔥 Firebase connecté ✅');
@@ -3073,13 +3018,14 @@ async function init() {
       }
       // Toujours sync badgeuse → CRA au chargement
       await syncAllBadgeages();
-      console.log('🔄 Sync badgeuse → CRA → Rapport effectuée ✅');
+      renderCRA(); renderRapport(); renderDashboard();
+      console.log('🔄 Sync badgeuse → CRA → Rapport ✅');
     } catch(e) {
       console.log('Firebase load error:', e.message);
     }
   }
 
-  // Auto-sauvegarde locale toutes les 60 secondes (pas Firebase)
+  // Auto-sauvegarde locale toutes les 60 secondes (pas Firebase — évite les écrasements)
   setInterval(() => saveLocal(), 60000);
 }
 
