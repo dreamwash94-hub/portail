@@ -1047,74 +1047,19 @@ const CENTRES = [
   {id:8,nom:"Suresnes",tel:"01 78 90 12 34",wifi:"Sures_DW",wifiPwd:"SRS2024#",boites:["SR-5678","SR-9012","SR-3456","SR-7890"],loyer:800,techs:["Rachid"],ca:350,lavages:6,color:"#BE185D"},
 ];
 
-let TECHS = [
-  {nom:"Sunam Uddin", prenom:"Sunam", nom_famille:"Uddin", numero:"00002", poste:"Carrossier Automobile Laveur", email:"mdsunammdsunam12@gmail.com", code:"1001", centre:"Aeroville A", contrat:"CDI", debut:"01/01/2026", fin:"", tel:"", jours:0, adresse:"À compléter", color:"#2563EB"},
-  {nom:"Abdeldjalil Boucedra", prenom:"Abdeldjalil", nom_famille:"Boucedra", numero:"00003", poste:"Responsable logistique", email:"boucedra.abdeldjalil2023@gmail.com", code:"1002", centre:"Aeroville A", contrat:"CDI", debut:"23/07/2024", fin:"", tel:"", jours:0, color:"#7C3AED"},
-  {nom:"Mohammed El Amin Kechiouch", prenom:"Mohammed El Amin", nom_famille:"Kechiouch", numero:"00005", poste:"Laveur Automobile", email:"Kechiouchmohammedelamine@gmail.com", code:"1003", centre:"Aeroville A", contrat:"CDD", debut:"14/01/2025", fin:"14/07/2026", tel:"", jours:0, color:"#DC2626"},
-  {nom:"Khalid Faris", prenom:"Khalid", nom_famille:"Faris", numero:"00008", poste:"Laveur Automobile", email:"fareskhaled319@gmail.com", code:"1004", centre:"Aeroville A", contrat:"CDI", debut:"09/02/2025", fin:"", tel:"", jours:0, color:"#16A34A"},
-  {nom:"Ayoub Belaissaoui", prenom:"Ayoub", nom_famille:"Belaissaoui", numero:"00010", poste:"Laveur Automobile", email:"ayoubbalaissaoui154@gmail.com", code:"1005", centre:"Aeroville A", contrat:"CDI", debut:"01/03/2025", fin:"", tel:"", jours:0, color:"#0891B2"},
-  {nom:"Siraj Uddin", prenom:"Siraj", nom_famille:"Uddin", numero:"00011", poste:"Laveur Automobile", email:"sirajuddin99235@gmail.com", code:"1006", centre:"Aeroville A", contrat:"CDI", debut:"01/03/2025", fin:"", tel:"", jours:0, color:"#D97706"},
-  {nom:"Chabane Messaoudene", prenom:"Chabane", nom_famille:"Messaoudene", numero:"00017", poste:"Laveur Automobile", email:"messaoudenenafaa0@gmail.com", code:"1007", centre:"Aeroville A", contrat:"CDD", debut:"26/05/2025", fin:"26/06/2026", tel:"", jours:0, color:"#9333EA"},
-  {nom:"Sodrul Islam Sepul", prenom:"Sodrul Islam", nom_famille:"Sepul", numero:"00021", poste:"Laveur Automobile", email:"sepulahmed1989@gmail.com", code:"1008", centre:"Aeroville A", contrat:"CDI", debut:"01/06/2025", fin:"", tel:"", jours:0, color:"#EA580C"},
-  {nom:"Khyal Baz Ahmadzai", prenom:"Khyal Baz", nom_famille:"Ahmadzai", numero:"00022", poste:"Laveur Automobile", email:"khyalbaz5658@gmail.com", code:"1009", centre:"Aeroville A", contrat:"CDI", debut:"01/08/2025", fin:"", tel:"", jours:0, color:"#BE185D"},
-  {nom:"Redwane Leulmi", prenom:"Redwane", nom_famille:"Leulmi", numero:"00023", poste:"Laveur Automobile", email:"Mouradleulmi6@gmail.com", code:"1010", centre:"Aeroville A", contrat:"CDI", debut:"01/08/2025", fin:"", tel:"", jours:0, color:"#2563EB"},
-  {nom:"Mourad Bendjeddou", prenom:"Mourad", nom_famille:"Bendjeddou", numero:"00024", poste:"Laveur Automobile", email:"mourad.bendjeddou81@gmail.com", code:"1011", centre:"Aeroville A", contrat:"CDI", debut:"01/12/2025", fin:"", tel:"", jours:0, color:"#7C3AED"},
-  {nom:"Nahidul Islam Shakil", prenom:"Nahidul Islam", nom_famille:"Shakil", numero:"00027", poste:"Laveur Automobile", email:"shakiluddin943@gmail.com", code:"1012", centre:"Aeroville A", contrat:"CDI", debut:"01/12/2025", fin:"", tel:"", jours:0, color:"#DC2626"},
-  {nom:"Iqbal Hussain", prenom:"Iqbal", nom_famille:"Hussain", numero:"00028", poste:"Laveur Automobile", email:"Forhad75511@gmail.com", code:"1013", centre:"Aeroville A", contrat:"CDI", debut:"02/01/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#16A34A"},
-  {nom:"Hakima Faris", prenom:"Hakima", nom_famille:"Faris", numero:"00029", poste:"Assistante Administrative", email:"emf767028@gmail.com", code:"1014", centre:"Aeroville A", contrat:"CDI", debut:"20/12/2025", fin:"", tel:"", jours:0, color:"#0891B2"},
-  {nom:"Hanif Kotoal", prenom:"Hanif", nom_famille:"Kotoal", numero:"00030", poste:"Laveur Automobile", email:"", code:"1015", centre:"Aeroville A", contrat:"CDI", debut:"20/03/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#D97706"},
-  {nom:"Sujon Miah", prenom:"Sujon", nom_famille:"Miah", numero:"00031", poste:"Laveur Automobile", email:"", code:"1016", centre:"Aeroville A", contrat:"CDI", debut:"20/03/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#9333EA"},
-  {nom:"Shahriar Islam Shawon", prenom:"Shahriar Islam", nom_famille:"Shawon", numero:"00032", poste:"Laveur Automobile", email:"", code:"1017", centre:"Aeroville A", contrat:"CDI", debut:"20/03/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#EA580C"},
-  {nom:"Tarik Yousfi", prenom:"Tarik", nom_famille:"Yousfi", numero:"00033", poste:"Responsable de Projet", email:"", code:"1018", centre:"Aeroville A", contrat:"CDI", debut:"02/03/2026", fin:"", tel:"", jours:0, color:"#BE185D"},
-  {nom:"Mackan Camara", prenom:"Mackan", nom_famille:"Camara", numero:"00034", poste:"Laveur Automobile", email:"camaramackan2@gmail.com", code:"1019", centre:"Aeroville A", contrat:"CDI", debut:"12/02/2026", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#2563EB"},
-  {nom:"Faris Meziane Mohamed", prenom:"Mohamed", nom_famille:"Faris Meziane", numero:"", poste:"Laveur Automobile", email:"emf767028@gmail.com", code:"1020", centre:"Aeroville A", contrat:"CDI", debut:"", fin:"", tel:"", jours:0, color:"#7C3AED"},
-  {nom:"Iqbal Naqash", prenom:"Iqbal", nom_famille:"Naqash", numero:"", poste:"Laveur Automobile", email:"naqashiqbal311@gmail.com", code:"1021", centre:"Aeroville A", contrat:"CDI", debut:"", fin:"", tel:"", jours:0, color:"#DC2626"},
-  {nom:"Ahmadul Hassan", prenom:"Ahmadul", nom_famille:"Hassan", numero:"", poste:"Laveur Automobile", email:"", code:"1022", centre:"Aeroville A", contrat:"CDI", debut:"", fin:"", tel:"", adresse:"À compléter", jours:0, color:"#16A34A"},
+let TECHS = [];
 ];
 
-let PLANNING = {
-  "Aeroville A":[[{nom:"Sadoul",statut:"absent"},{nom:"Khyal",statut:"present"}],[{nom:"Sadoul",statut:"absent"},{nom:"Siraj",statut:"absent"}],[{nom:"Sadoul",statut:"absent"}],[{nom:"Sadoul",statut:"absent"}],[{nom:"Khyal",statut:"present"},{nom:"Siraj",statut:"absent"}]],
-  "Aeroville B":[[{nom:"Saiful Islam",statut:"absent"},{nom:"Mehdi",statut:"absent"}],[{nom:"Ilyas",statut:"present"}],[{nom:"Saiful Islam",statut:"absent"},{nom:"Mehdi",statut:"absent"}],[{nom:"Saiful Islam",statut:"absent"}],[{nom:"Ilyas",statut:"present"}]],
-  "Lafayette Rouge":[[{nom:"Khalid",statut:"absent"},{nom:"Mourad",statut:"absent"}],[{nom:"Khalid",statut:"absent"},{nom:"Rayan",statut:"absent"}],[{nom:"Abdeldjalil",statut:"present"}],[{nom:"Abdeldjalil",statut:"present"},{nom:"Karim",statut:"present"}],[{nom:"Abdeldjalil",statut:"present"}]],
-  "Lafayette Vert":[[{nom:"Ayoub J.",statut:"absent"},{nom:"Youssef",statut:"present"}],[{nom:"Ali",statut:"absent"},{nom:"Nordine",statut:"present"}],[{nom:"Youssef",statut:"present"}],[{nom:"Ayoub J.",statut:"present"}],[{nom:"Nordine",statut:"present"}]],
-  "Cité des Sciences":[[{nom:"Ahmed",statut:"absent"},{nom:"Omar",statut:"absent"}],[{nom:"Ahmed",statut:"absent"}],[{nom:"Ahmed",statut:"present"},{nom:"Jawad",statut:"absent"}],[{nom:"Omar",statut:"absent"}],[{nom:"Ahmed",statut:"absent"}]],
-  "Le Parks":[[{nom:"Adrien",statut:"absent"},{nom:"Nasser",statut:"absent"}],[{nom:"Adrien",statut:"absent"}],[],[{nom:"Zakaria",statut:"absent"}],[{nom:"Adrien",statut:"absent"},{nom:"Nasser",statut:"present"}]],
-  "Parly2":[[{nom:"Abdesamad",statut:"absent"},{nom:"Bilal",statut:"absent"}],[{nom:"Amine_parly2",statut:"absent"}],[{nom:"Tarik",statut:"present"},{nom:"Issam",statut:"absent"}],[{nom:"Abdesamad",statut:"absent"}],[{nom:"Bilal",statut:"present"},{nom:"Tarik",statut:"absent"}]],
-  "Belleville":[[{nom:"Nabil",statut:"absent"},{nom:"Amine",statut:"absent"}],[{nom:"Nabil",statut:"present"},{nom:"Soufiane",statut:"absent"}],[{nom:"Redouane",statut:"absent"}],[{nom:"Nabil",statut:"present"},{nom:"Amine",statut:"absent"}],[{nom:"Soufiane",statut:"present"}]],
-  "Suresnes":[[{nom:"Rachid",statut:"absent"},{nom:"Hamza",statut:"absent"}],[{nom:"Marwan",statut:"absent"}],[{nom:"Rachid",statut:"present"}],[{nom:"Hamza",statut:"absent"}],[{nom:"Rachid",statut:"absent"},{nom:"Marwan",statut:"present"}]],
-};
+let PLANNING = {"Aeroville A":[[],[],[],[],[],[],[]],"Aeroville B":[[],[],[],[],[],[],[]],"Lafayette Rouge":[[],[],[],[],[],[],[]],"Lafayette Vert":[[],[],[],[],[],[],[]],"Cité des Sciences":[[],[],[],[],[],[],[]],"Le Parks":[[],[],[],[],[],[],[]],"Parly2":[[],[],[],[],[],[],[]],"Belleville":[[],[],[],[],[],[],[]],"Suresnes":[[],[],[],[],[],[],[]]};
 
 // CRA_DATA : { "Sadoul": { "17/04/2026": "Aeroville A", "16/04/2026": "Aeroville A" }, ... }
 let CRA_DATA = {};
 
-let CHARGES = [
-  {n:"Loyers centres (×9)",m:10650,e:"01/05/2026",s:"paid",c:"🏠"},
-  {n:"Salaires techniciens",m:8200,e:"28/04/2026",s:"paid",c:"👷"},
-  {n:"URSSAF",m:1200,e:"15/05/2026",s:"due",c:"🏛️"},
-  {n:"Assurance multirisque",m:890,e:"01/06/2026",s:"paid",c:"🛡️"},
-  {n:"Téléphones (×9)",m:420,e:"05/05/2026",s:"paid",c:"📱"},
-  {n:"Box Internet (×9)",m:350,e:"05/05/2026",s:"due",c:"📶"},
-  {n:"Maintenance Technovap",m:280,e:"20/05/2026",s:"paid",c:"🔧"},
-  {n:"Tenues techniciens",m:150,e:"—",s:"paid",c:"👕"},
-  {n:"Frais BNP",m:95,e:"01/05/2026",s:"paid",c:"🏦"},
-  {n:"Google Drive",m:25,e:"01/05/2026",s:"paid",c:"☁️"},
-];
+let CHARGES = [];
 
-let ASSURANCES = [
-  {nom:"Assurance multirisque professionnelle",assureur:"AXA",montant:890,expiration:"01/06/2026",centres:"Tous les centres",jours:47,couleur:"#16A34A"},
-  {nom:"Assurance véhicules utilitaires",assureur:"Allianz",montant:1200,expiration:"14/05/2026",centres:"Tous les centres",jours:29,couleur:"#D97706"},
-  {nom:"Assurance responsabilité civile",assureur:"Groupama",montant:650,expiration:"01/09/2026",centres:"Tous les centres",jours:139,couleur:"#16A34A"},
-  {nom:"Assurance matériel Technovap",assureur:"Maif Pro",montant:480,expiration:"01/03/2027",centres:"9 centres",jours:320,couleur:"#16A34A"},
-];
+let ASSURANCES = [];
 
-let STOCK = [
-  {date:"15/04/2026",centre:"Aeroville A",produit:"Shampoing carrosserie",qte:10,pu:8.50,statut:"livré"},
-  {date:"12/04/2026",centre:"Lafayette Rouge",produit:"Microfibre 40×40",qte:50,pu:2.20,statut:"livré"},
-  {date:"10/04/2026",centre:"Parly2",produit:"Produit vitres",qte:6,pu:12,statut:"livré"},
-  {date:"08/04/2026",centre:"Belleville",produit:"Spray plastiques",qte:8,pu:9,statut:"livré"},
-  {date:"05/04/2026",centre:"Aeroville B",produit:"Gants latex",qte:4,pu:15,statut:"livré"},
-  {date:"01/04/2026",centre:"Suresnes",produit:"Désodorisant",qte:12,pu:5,statut:"livré"},
-];
+let STOCK = [];
 
 const COMPTA = [
   {centre:"Aeroville A",ca:5200,loyer:1400,salaires:800,produits:120,evol:"+15%",badge:"gr"},
@@ -2205,23 +2150,9 @@ function renderPresta() {
 const TITLES={dashboard:"Dashboard",centres:"Centres",fiche:"Fiche Centre",techniciens:"Gestion des techniciens","fiche-tech":"Fiche Technicien",planning:"Planning",cra:"CRA",rapport:"Rapport mensuel",stock:"Stock & Produits",comptabilite:"Comptabilité",charges:"Charges fixes",assurances:"Assurances",prestations:"Prestations",documents:"Documents",telephone:"📱 Téléphone & Box Internet","badgeuse-view":"Badgeuse — Temps réel",technovap:"♨️ Technovap — Machines à vapeur",westfield:"🏬 Westfield / Indigo"};
 
 // ── TELEPHONE DATA ─────────────────────────────────────────────────────────
-let BOX_DATA = [
-  {centre:"Aeroville A", operateur:"Orange", ligne:"01 23 45 67 89", wifi:"DreamA2024!", renouvellement:"06/2025", mensuel:"39 €", identifiant:"", mdp:"", lien:"https://espace-client.orange.fr"},
-  {centre:"Aeroville B", operateur:"Orange", ligne:"01 23 45 67 90", wifi:"DreamB2024!", renouvellement:"06/2025", mensuel:"39 €", identifiant:"", mdp:"", lien:"https://espace-client.orange.fr"},
-  {centre:"Lafayette Rouge", operateur:"SFR", ligne:"01 34 56 78 90", wifi:"Rouge2024#", renouvellement:"09/2025", mensuel:"35 €", identifiant:"", mdp:"", lien:"https://espace-client.sfr.fr"},
-  {centre:"Lafayette Vert", operateur:"SFR", ligne:"01 34 56 78 91", wifi:"Vert2024#", renouvellement:"09/2025", mensuel:"35 €", identifiant:"", mdp:"", lien:"https://espace-client.sfr.fr"},
-  {centre:"Cité des Sciences", operateur:"Bouygues", ligne:"01 45 67 89 01", wifi:"CDS2024$", renouvellement:"03/2026", mensuel:"32 €", identifiant:"", mdp:"", lien:"https://www.bouyguestelecom.fr/mon-compte"},
-  {centre:"Le Parks", operateur:"Free", ligne:"01 56 78 90 12", wifi:"Parks2024@", renouvellement:"12/2025", mensuel:"30 €", identifiant:"", mdp:"", lien:"https://subscribe.free.fr/login"},
-  {centre:"Parly2", operateur:"Orange", ligne:"01 56 78 90 13", wifi:"Parly2024@", renouvellement:"06/2026", mensuel:"39 €", identifiant:"", mdp:"", lien:"https://espace-client.orange.fr"},
-  {centre:"Belleville", operateur:"Bouygues", ligne:"01 67 89 01 23", wifi:"Bell2024!", renouvellement:"01/2026", mensuel:"32 €", identifiant:"", mdp:"", lien:"https://www.bouyguestelecom.fr/mon-compte"},
-  {centre:"Suresnes", operateur:"Free", ligne:"01 78 90 12 34", wifi:"SRS2024#", renouvellement:"04/2026", mensuel:"30 €", identifiant:"", mdp:"", lien:"https://subscribe.free.fr/login"},
-];
+let BOX_DATA = [];
 
-let TEL_DATA = [
-  {nom:"Manager Aeroville", numero:"06 10 00 00 01", operateur:"Orange", forfait:"20Go", renouvellement:"12/2025", mensuel:"25 €"},
-  {nom:"Manager Haussmann", numero:"06 10 00 00 02", operateur:"SFR", forfait:"50Go", renouvellement:"06/2026", mensuel:"30 €"},
-  {nom:"Manager Général", numero:"06 10 00 00 03", operateur:"Bouygues", forfait:"Illimité", renouvellement:"09/2026", mensuel:"45 €"},
-];
+let TEL_DATA = [];
 
 let EXTRA_ROWS = [];
 
@@ -2271,40 +2202,15 @@ const CARPOLISH_PRODUITS = [
 ];
 
 // ═══ FOURNISSEUR CARPOLISH ═════════════════════════════════════
-let CARPOLISH_CONTACT = {
-  nom: "Carpolish",
-  tel: "0650539591",
-  email: "lavageauto_benso@yahoo.fr",
-  whatsapp: "0650539591",
-  commercial: "À compléter",
-  site: "https://www.carpolish.fr"
-};
+let CARPOLISH_CONTACT = {nom:"",tel:"",email:"",whatsapp:"",commercial:"",site:""};
 
 // ═══ TECHNOVAP DATA ════════════════════════════════════════════
-let TECHNOVAP_MACHINES = [
-  {id:"TV-001", centre:"Aeroville A", modele:"Technovap Pro", serie:"TV2023-001", achat:"01/2023", dernierEntretien:"15/03/2026", prochainEntretien:"15/09/2026", statut:"ok", notes:""},
-  {id:"TV-002", centre:"Aeroville B", modele:"Technovap Pro", serie:"TV2023-002", achat:"01/2023", dernierEntretien:"10/03/2026", prochainEntretien:"10/09/2026", statut:"ok", notes:""},
-  {id:"TV-003", centre:"Lafayette Rouge", modele:"Technovap Pro", serie:"TV2023-003", achat:"03/2023", dernierEntretien:"20/02/2026", prochainEntretien:"20/08/2026", statut:"attention", notes:"Détartrage requis"},
-  {id:"TV-004", centre:"Lafayette Vert", modele:"Technovap Pro", serie:"TV2023-004", achat:"03/2023", dernierEntretien:"05/03/2026", prochainEntretien:"05/09/2026", statut:"ok", notes:""},
-  {id:"TV-005", centre:"Cité des Sciences", modele:"Technovap Elite", serie:"TVO2024-001", achat:"06/2024", dernierEntretien:"01/04/2026", prochainEntretien:"01/10/2026", statut:"ok", notes:""},
-  {id:"TV-006", centre:"Le Parks", modele:"Technovap Pro", serie:"TVO2023-005", achat:"03/2023", dernierEntretien:"12/01/2026", prochainEntretien:"12/07/2026", statut:"urgent", notes:"Panne résistance — À réparer"},
-  {id:"TV-007", centre:"Parly2", modele:"Technovap Elite", serie:"TVO2024-002", achat:"06/2024", dernierEntretien:"18/03/2026", prochainEntretien:"18/09/2026", statut:"ok", notes:""},
-  {id:"TV-008", centre:"Belleville", modele:"Technovap Pro", serie:"TVO2023-006", achat:"03/2023", dernierEntretien:"22/02/2026", prochainEntretien:"22/08/2026", statut:"ok", notes:""},
-  {id:"TV-009", centre:"Suresnes", modele:"Technovap Pro", serie:"TVO2023-007", achat:"03/2023", dernierEntretien:"08/03/2026", prochainEntretien:"08/09/2026", statut:"ok", notes:""},
-];
+let TECHNOVAP_MACHINES = [];
 
 // ═══ WESTFIELD / INDIGO DATA ═══════════════════════════════════
-let WESTFIELD_CONTACTS = [
-  {nom:"Responsable Aeroville", poste:"Directeur centre", tel:"À compléter", email:"À compléter", centre:"Aeroville A / B"},
-  {nom:"Responsable Lafayette", poste:"Directeur centre", tel:"À compléter", email:"À compléter", centre:"Lafayette Rouge / Vert"},
-];
+let WESTFIELD_CONTACTS = [];
 
-let WESTFIELD_CONTRATS = [
-  {centre:"Aeroville A", bailleur:"Westfield", loyer:1200, debut:"01/01/2023", fin:"31/12/2025", renouvellement:"En cours", notes:""},
-  {centre:"Aeroville B", bailleur:"Westfield", loyer:1100, debut:"01/01/2023", fin:"31/12/2025", renouvellement:"En cours", notes:""},
-  {centre:"Lafayette Rouge", bailleur:"Indigo", loyer:950, debut:"01/03/2023", fin:"28/02/2026", renouvellement:"À renouveler", notes:""},
-  {centre:"Lafayette Vert", bailleur:"Indigo", loyer:900, debut:"01/03/2023", fin:"28/02/2026", renouvellement:"À renouveler", notes:""},
-];
+let WESTFIELD_CONTRATS = [];
 
 let WESTFIELD_DOCS = [];
 
@@ -2962,7 +2868,7 @@ async function init() {
       }
 
       // Charger le reste en parallèle
-      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning] = await Promise.all([
+      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning, fbTechnovap, fbWestCont, fbWestContr, fbCarpolish] = await Promise.all([
         window.loadFromFirebase('techs'),
         window.loadFromFirebase('centres'),
         window.loadFromFirebase('charges'),
@@ -2974,10 +2880,13 @@ async function init() {
         window.loadFromFirebase('compta'),
         window.loadFromFirebase('prestations'),
         window.loadFromFirebase('planning'),
+        window.loadFromFirebase('technovap'),
+        window.loadFromFirebase('westfield_contacts'),
+        window.loadFromFirebase('westfield_contrats'),
+        window.loadFromFirebase('carpolish_contact'),
       ]);
       let updated = false;
-      // Charger techniciens depuis Firebase (inclut les modifications)
-      if (fbTechs?.length) { TECHS.splice(0, TECHS.length, ...fbTechs); updated = true; console.log('✅ Techniciens chargés depuis Firebase:', fbTechs.length); }
+      if (fbTechs?.length) { TECHS.splice(0, TECHS.length, ...fbTechs); updated = true; console.log('✅ Techniciens:', fbTechs.length); }
       if (fbCentres?.length) { CENTRES.splice(0, CENTRES.length, ...fbCentres); updated = true; }
       if (fbCharges?.length) { CHARGES.splice(0, CHARGES.length, ...fbCharges); updated = true; }
       if (fbAss?.length) { ASSURANCES.splice(0, ASSURANCES.length, ...fbAss); updated = true; }
@@ -2987,6 +2896,10 @@ async function init() {
       if (fbExtra?.length) { EXTRA_ROWS.splice(0, EXTRA_ROWS.length, ...fbExtra); updated = true; }
       if (fbCompta?.length) { fbCompta.forEach((r,i) => { if(COMPTA[i]) Object.assign(COMPTA[i], r); }); updated = true; }
       if (fbPlanning) { Object.assign(PLANNING, fbPlanning); updated = true; }
+      if (fbTechnovap?.length) { TECHNOVAP_MACHINES.splice(0, TECHNOVAP_MACHINES.length, ...fbTechnovap); updated = true; }
+      if (fbWestCont?.length) { WESTFIELD_CONTACTS.splice(0, WESTFIELD_CONTACTS.length, ...fbWestCont); updated = true; }
+      if (fbWestContr?.length) { WESTFIELD_CONTRATS.splice(0, WESTFIELD_CONTRATS.length, ...fbWestContr); updated = true; }
+      if (fbCarpolish?.nom) { Object.assign(CARPOLISH_CONTACT, fbCarpolish); updated = true; }
       // ⚠️ CRA_DATA déjà chargé en priorité au-dessus — ne pas recharger ici
       if (updated) {
         renderDashboard(); renderCentres(); renderTechs(); renderCompta();
