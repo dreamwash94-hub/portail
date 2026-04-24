@@ -1,4 +1,4 @@
-// Dreamwash — Authentication
+
 const DW_PASSWORD = "931314";
 function checkLogin() {
   const pwd = document.getElementById('login-pwd').value;
