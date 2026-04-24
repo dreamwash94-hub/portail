@@ -78,4 +78,3 @@
   window._firebaseReady = true;
   window._db = db;
   console.log('🔥 Firebase connecté ✅');
-</script>
