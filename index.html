@@ -2923,15 +2923,14 @@ async function init() {
   setInterval(() => saveLocal(), 60000);
 }
 
-// Attendre Firebase puis lancer init
-function waitForFirebaseAndInit() {
-  if (window._firebaseReady) {
+// Lancer init dès que Firebase est prêt
+(function waitAndInit() {
+  if (window._firebaseReady && window.loadFromFirebase) {
     init();
   } else {
-    setTimeout(waitForFirebaseAndInit, 100);
+    setTimeout(waitAndInit, 200);
   }
-}
-waitForFirebaseAndInit();
+})();
 
 // ═══ TECHNOVAP ════════════════════════════════════════════════
 function renderTechnovap() {
