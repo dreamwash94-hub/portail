@@ -15,4 +15,3 @@ const auth = localStorage.getItem('dw_auth');
 const expected = btoa(DW_PASSWORD + '_' + new Date().toDateString());
 if (auth === expected) document.getElementById('login-screen').style.display = 'none';
 document.getElementById('login-pwd').focus();
-</script>
