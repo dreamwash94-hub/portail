@@ -2923,7 +2923,15 @@ async function init() {
   setInterval(() => saveLocal(), 60000);
 }
 
-init();
+// Attendre Firebase puis lancer init
+function waitForFirebaseAndInit() {
+  if (window._firebaseReady) {
+    init();
+  } else {
+    setTimeout(waitForFirebaseAndInit, 100);
+  }
+}
+waitForFirebaseAndInit();
 
 // ═══ TECHNOVAP ════════════════════════════════════════════════
 function renderTechnovap() {
