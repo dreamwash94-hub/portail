@@ -1492,6 +1492,11 @@ async function syncAllBadgeages() {
     saveLocal();
 
     renderCRA(); renderRapport(); renderDashboard();
+    // Forcer l'affichage si on est sur la page CRA
+    const activePage = document.querySelector('.page.active');
+    if (activePage?.id === 'page-cra') renderCRA();
+    if (activePage?.id === 'page-rapport') renderRapport();
+    showNotif('✅ CRA synchronisé — ' + Object.keys(CRA_DATA).length + ' techniciens', '#16A34A');
     console.log('✅ Sync :', allBadges.length, 'badges →', Object.keys(CRA_DATA).length, 'techniciens');
   } catch(e) {
     console.log('Erreur sync:', e.message);
