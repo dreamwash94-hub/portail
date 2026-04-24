@@ -1448,32 +1448,23 @@ async function syncAllBadgeages() {
       craFromBadges[b.nom][b.date] = b.centreBadge || b.centreHabituel || '—';
     });
 
-    // Si Firebase CRA existe, il a priorité (respecte les suppressions manuelles)
-    // On fusionne : badges ajoutent, Firebase CRA supprime
+    // Fusionner Firebase CRA + tous les badges
     const newCRA = {};
-    if (fbCRA && Object.keys(fbCRA).length > 0) {
-      // Utiliser Firebase CRA comme base (respecte les suppressions)
+
+    // 1. Partir de Firebase CRA (inclut saisies manuelles)
+    if (fbCRA) {
       Object.keys(fbCRA).forEach(nom => {
         if (NOMS_VALIDES.has(nom)) newCRA[nom] = {...fbCRA[nom]};
       });
-      // Ajouter les nouveaux badges non présents dans Firebase CRA
-      Object.keys(craFromBadges).forEach(nom => {
-        if (!newCRA[nom]) newCRA[nom] = {};
-        Object.keys(craFromBadges[nom]).forEach(date => {
-          // N'ajouter que si ce jour n'a pas été supprimé manuellement
-          // (si la date existe dans badges mais pas dans fbCRA = suppression manuelle)
-          if (fbCRA[nom] && fbCRA[nom][date]) {
-            newCRA[nom][date] = craFromBadges[nom][date];
-          } else if (!fbCRA[nom]) {
-            // Nouveau technicien pas encore dans Firebase CRA
-            newCRA[nom][date] = craFromBadges[nom][date];
-          }
-        });
-      });
-    } else {
-      // Pas de Firebase CRA — utiliser les badges
-      Object.assign(newCRA, craFromBadges);
     }
+
+    // 2. Ajouter TOUS les badges sans exception
+    Object.keys(craFromBadges).forEach(nom => {
+      if (!newCRA[nom]) newCRA[nom] = {};
+      Object.keys(craFromBadges[nom]).forEach(date => {
+        newCRA[nom][date] = craFromBadges[nom][date];
+      });
+    });
 
     // Remplacer CRA_DATA
     Object.keys(CRA_DATA).forEach(k => delete CRA_DATA[k]);
