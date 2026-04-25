@@ -1286,19 +1286,25 @@ async function refreshBadgeuse() {
   window._currentBadges = todayLog;
 
   tb.innerHTML = '';
+  // Grouper par technicien pour afficher arrivée et départ sur une ligne
+  const grouped = {};
   todayLog.forEach((l, idx) => {
+    if (!grouped[l.nom]) grouped[l.nom] = { arrivee: null, depart: null, entry: l, idx };
+    if (l.type === 'depart') { grouped[l.nom].depart = l; }
+    else { grouped[l.nom].arrivee = l; grouped[l.nom].entry = l; grouped[l.nom].idx = idx; }
+  });
+  Object.values(grouped).forEach(({ arrivee, depart, entry, idx }) => {
+    const l = entry;
     const isMobile = l.centreBadge !== l.centreHabituel;
-    const isDepart = l.type === 'depart';
-    const typeBadge = isDepart
-      ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;background:#FEE2E2;color:#DC2626;font-size:12px;font-weight:600;">🔴 Départ</span>'
-      : '<span style="display:inline-block;padding:2px 10px;border-radius:20px;background:#DCFCE7;color:#16A34A;font-size:12px;font-weight:600;">🟢 Arrivée</span>';
+    const heureArrivee = arrivee ? `<span style="font-weight:700;color:#16A34A;">${arrivee.time}</span>` : '<span style="color:var(--muted);">—</span>';
+    const heureDepart = depart ? `<span style="font-weight:700;color:#DC2626;">${depart.time}</span>` : '<span style="color:var(--muted);">—</span>';
     tb.innerHTML += `<tr>
       <td style="font-weight:700;">${l.nom}</td>
       <td style="font-weight:600;color:var(--accent);">${l.centreBadge}</td>
       <td style="color:var(--muted);">${l.centreHabituel||l.centreBadge}</td>
-      <td style="font-weight:700;color:var(--accent2);">${l.time}</td>
+      <td>${heureArrivee}</td>
+      <td>${heureDepart}</td>
       <td style="color:var(--muted);font-size:12px;">${l.date}</td>
-      <td>${typeBadge}</td>
       <td>${isMobile ? '<span class="badge yl">⚡ Mobile</span>' : '<span class="badge gr">✓ Habituel</span>'}</td>
       <td style="display:flex;gap:6px;">
         <button onclick="editBadge(${idx})" style="background:#EFF6FF;border:1px solid #DBEAFE;border-radius:7px;padding:4px 10px;cursor:pointer;color:#2563EB;font-size:12px;font-weight:600;">✏️</button>
