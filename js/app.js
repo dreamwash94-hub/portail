@@ -133,7 +133,7 @@ function showFiche(i) {
       <div class="card">
         <div class="card-t">🔒 Codes d'accès <span style="font-weight:400;font-size:10px;">(cliquer pour révéler)</span></div>
         <div class="fr"><span class="fk">Réseau WiFi</span><input id="cwifi-${i}" value="${c.wifi}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="CENTRES[${i}].wifi=this.value;"></div>
-        <div class="fr"><span class="fk">Mot de passe WiFi</span><span class="secret" onclick="toggleSec(this)" data-v="${c.wifiPwd}">${'●'.repeat(c.wifiPwd.length)}</span></div>
+        <div class="fr"><span class="fk">Mot de passe WiFi</span><span class="secret" onclick="toggleSec(this)" data-v="${c.wifiPwd||''}">${'●'.repeat((c.wifiPwd||'').length||6)}</span></div>
         <div class="fr"><span class="fk">🔑 Boîte à clés 1</span><input id="cb1-${i}" value="${c.boites[0]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[0]=this.value;"></div>
         <div class="fr"><span class="fk">🔑 Boîte à clés 2</span><input id="cb2-${i}" value="${c.boites[1]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[1]=this.value;"></div>
         <div class="fr"><span class="fk">🔑 Boîte à clés 3</span><input id="cb3-${i}" value="${c.boites[2]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[2]=this.value;"></div>
@@ -1191,7 +1191,7 @@ function renderTelephone() {
       <td><input id="bc-${i}" value="${b.centre}" style="font-weight:700;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:120px;" onchange="BOX_DATA[${i}].centre=this.value;"></td>
       <td><input id="bo-${i}" value="${b.operateur}" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:13px;font-family:inherit;width:90px;" onchange="BOX_DATA[${i}].operateur=this.value;"></td>
       <td><input id="bl-${i}" value="${b.ligne}" style="font-family:monospace;border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:12px;width:110px;" onchange="BOX_DATA[${i}].ligne=this.value;"></td>
-      <td><span class="secret" onclick="toggleSec(this)" data-v="${b.wifi}">${'●'.repeat(Math.max(b.wifi.length,1))}</span></td>
+      <td><span class="secret" onclick="toggleSec(this)" data-v="${b.wifi||''}">${'●'.repeat(Math.max((b.wifi||'').length,1))}</span></td>
       <td><input id="bid-${i}" value="${b.identifiant}" placeholder="identifiant" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:12px;font-family:inherit;width:110px;" onchange="BOX_DATA[${i}].identifiant=this.value;"></td>
       <td><span class="secret" onclick="toggleSec(this)" data-v="${b.mdp||'●●●●●●●●'}">${'●'.repeat(Math.max(b.mdp?.length||8,4))}</span>
         <input id="bmp-${i}" value="${b.mdp}" placeholder="mot de passe" type="password" style="border:1px solid var(--border);background:var(--bg3);border-radius:5px;padding:3px 8px;font-size:12px;font-family:inherit;width:110px;" onchange="BOX_DATA[${i}].mdp=this.value;"></td>
