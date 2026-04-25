@@ -109,6 +109,10 @@ function renderCentres() {
 
 function showFiche(i) {
   const c = CENTRES[i];
+  if (!c.boites) c.boites = ['','','',''];
+  if (!c.wifi) c.wifi = '';
+  if (!c.wifiPwd) c.wifiPwd = '';
+  if (!c.tel) c.tel = '';
   document.getElementById('fiche-c').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
       <div style="width:46px;height:46px;border-radius:12px;background:${c.color};display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;">💧</div>
