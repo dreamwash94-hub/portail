@@ -34,12 +34,17 @@
   tb.innerHTML = '';
   todayLog.forEach((l, idx) => {
     const isMobile = l.centreBadge !== l.centreHabituel;
+    const isDepart = l.type === 'depart';
+    const typeBadge = isDepart
+      ? '<span class="badge" style="background:#FEE2E2;color:#DC2626;border:1px solid #FECACA;">🔴 Départ</span>'
+      : '<span class="badge" style="background:#DCFCE7;color:#16A34A;border:1px solid #BBF7D0;">🟢 Arrivée</span>';
     tb.innerHTML += `<tr>
       <td style="font-weight:700;">${l.nom}</td>
       <td style="font-weight:600;color:var(--accent);">${l.centreBadge}</td>
       <td style="color:var(--muted);">${l.centreHabituel||l.centreBadge}</td>
       <td style="font-weight:700;color:var(--accent2);">${l.time}</td>
       <td style="color:var(--muted);font-size:12px;">${l.date}</td>
+      <td>${typeBadge}</td>
       <td>${isMobile ? '<span class="badge yl">⚡ Mobile</span>' : '<span class="badge gr">✓ Habituel</span>'}</td>
       <td style="display:flex;gap:6px;">
         <button onclick="editBadge(${idx})" style="background:#EFF6FF;border:1px solid #DBEAFE;border-radius:7px;padding:4px 10px;cursor:pointer;color:#2563EB;font-size:12px;font-weight:600;">✏️</button>
