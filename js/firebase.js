@@ -70,6 +70,16 @@
     } catch(e) { return false; }
   };
 
+  window.loadCaisses = async function(dateStr) {
+    try {
+      const snap = await getDocs(collection(db, 'caisses'));
+      const data = [];
+      snap.forEach(d => data.push({...d.data(), _id: d.id}));
+      if (dateStr) return data.filter(e => e.date === dateStr).sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
+      return data;
+    } catch(e) { console.log('Erreur loadCaisses:', e.message); return []; }
+  };
+
   // ═══ PAS DE LISTENERS ════════════════════════════════════════
   // Les données sont chargées UNE SEULE FOIS au démarrage
   // Sauvegarde UNIQUEMENT sur clic 💾
