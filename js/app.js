@@ -109,6 +109,10 @@ function renderCentres() {
 
 function showFiche(i) {
   const c = CENTRES[i];
+  if (!c.boites) c.boites = ['','','',''];
+  if (!c.wifi) c.wifi = '';
+  if (!c.wifiPwd) c.wifiPwd = '';
+  if (!c.tel) c.tel = '';
   document.getElementById('fiche-c').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
       <div style="width:46px;height:46px;border-radius:12px;background:${c.color};display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;">💧</div>
@@ -132,7 +136,7 @@ function showFiche(i) {
       <div class="card">
         <div class="card-t">🔒 Codes d'accès <span style="font-weight:400;font-size:10px;">(cliquer pour révéler)</span></div>
         <div class="fr"><span class="fk">Réseau WiFi</span><input id="cwifi-${i}" value="${c.wifi}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="CENTRES[${i}].wifi=this.value;"></div>
-        <div class="fr"><span class="fk">Mot de passe WiFi</span><span class="secret" onclick="toggleSec(this)" data-v="${c.wifiPwd}">${'●'.repeat(c.wifiPwd.length)}</span></div>
+        <div class="fr"><span class="fk">Mot de passe WiFi</span><span class="secret" onclick="toggleSec(this)" data-v="${c.wifiPwd||''}">${'●'.repeat((c.wifiPwd||'').length||6)}</span></div>
         <div class="fr"><span class="fk">🔑 Boîte à clés 1</span><input id="cb1-${i}" value="${c.boites[0]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[0]=this.value;"></div>
         <div class="fr"><span class="fk">🔑 Boîte à clés 2</span><input id="cb2-${i}" value="${c.boites[1]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[1]=this.value;"></div>
         <div class="fr"><span class="fk">🔑 Boîte à clés 3</span><input id="cb3-${i}" value="${c.boites[2]}" style="font-family:monospace;font-size:12px;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 8px;width:100px;" onchange="CENTRES[${i}].boites[2]=this.value;"></div>
