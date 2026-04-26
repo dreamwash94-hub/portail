@@ -425,8 +425,24 @@
           <button class="btn btn-p btn-sm" onclick="refreshBadgeuse()">🔄 Actualiser</button>
         </div>
       </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <label style="font-size:12px;font-weight:600;color:var(--muted);">📅 Date</label>
+          <input type="date" id="bdg-filter-date" style="border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;background:var(--bg3);font-family:inherit;color:var(--text);" onchange="refreshBadgeuse()">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <label style="font-size:12px;font-weight:600;color:var(--muted);">🏢 Centre</label>
+          <select id="bdg-filter-centre" style="border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;background:var(--bg3);font-family:inherit;color:var(--text);" onchange="refreshBadgeuse()">
+            <option value="">Tous les centres</option>
+            <option>Aeroville A</option><option>Aeroville B</option><option>Lafayette Rouge</option>
+            <option>Lafayette Vert</option><option>Cité des Sciences</option><option>Le Parks</option>
+            <option>Parly2</option><option>Belleville</option><option>Suresnes</option>
+          </select>
+        </div>
+        <button class="btn btn-sm btn-o" onclick="document.getElementById('bdg-filter-date').value='';document.getElementById('bdg-filter-centre').value='';refreshBadgeuse();">✕ Réinitialiser</button>
+      </div>
       <div class="kpi-g" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
-        <div class="kpi"><div class="kpi-i">✅</div><div class="kpi-v" style="color:var(--accent2);" id="bdg-presents">0</div><div class="kpi-l">Présents aujourd'hui</div></div>
+        <div class="kpi"><div class="kpi-i">✅</div><div class="kpi-v" style="color:var(--accent2);" id="bdg-presents">0</div><div class="kpi-l">Présents</div></div>
         <div class="kpi"><div class="kpi-i">📋</div><div class="kpi-v" style="color:var(--accent);" id="bdg-badges">0</div><div class="kpi-l">Badges total</div></div>
         <div class="kpi"><div class="kpi-i">🏢</div><div class="kpi-v" style="color:var(--accent5);" id="bdg-centres">0</div><div class="kpi-l">Centres actifs</div></div>
       </div>
