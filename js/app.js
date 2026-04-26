@@ -1253,22 +1253,30 @@ function addExtraRow() {
 // ── BADGEUSE VIEW ──────────────────────────────────────────────────────────
 async function refreshBadgeuse() {
   const tb = document.getElementById('bdg-tbody');
-  tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">⏳ Chargement depuis Firebase...</td></tr>';
+  tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px;">⏳ Chargement depuis Firebase...</td></tr>';
 
   const today = new Date();
-  const dateStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
+  const todayStr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
+
+  // Lire les filtres
+  const filterDateRaw = document.getElementById('bdg-filter-date')?.value;
+  const filterCentre = document.getElementById('bdg-filter-centre')?.value || '';
+  let filterDate = todayStr;
+  if (filterDateRaw) {
+    const d = new Date(filterDateRaw);
+    filterDate = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+  }
 
   let todayLog = [];
-  if (window.loadBadgeages) {
-    try { todayLog = await window.loadBadgeages(); } catch(e) {}
+  if (window.getAllBadgeages) {
+    try { const all = await window.getAllBadgeages(); todayLog = all.filter(l => l.date === filterDate); } catch(e) {}
   }
   if (todayLog.length === 0) {
     const log = JSON.parse(localStorage.getItem('dw_log') || '[]');
-    todayLog = log.filter(l => l.date === dateStr);
+    todayLog = log.filter(l => l.date === filterDate);
   }
 
-  // La sync CRA est gérée par syncAllBadgeages() — pas par refreshBadgeuse
-  // syncBadgeagesToCRA(todayLog); // supprimé
+  if (filterCentre) todayLog = todayLog.filter(l => l.centreBadge === filterCentre);
 
   const uniq = [...new Set(todayLog.map(l=>l.nom))];
   const centres = [...new Set(todayLog.map(l=>l.centreBadge))];
@@ -1277,7 +1285,7 @@ async function refreshBadgeuse() {
   document.getElementById('bdg-centres').textContent = centres.length;
 
   if (todayLog.length === 0) {
-    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">Aucun badgeage aujourd\'hui</td></tr>';
+    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px;">Aucun badgeage pour cette sélection</td></tr>';
     return;
   }
 
