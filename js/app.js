@@ -1545,7 +1545,6 @@ function go(id){
   if(id==='cra') syncAllBadgeages();
   if(id==='technovap') renderTechnovap();
   if(id==='westfield') renderWestfield();
-  if(id==='caisse') renderCaisse();
 }
 function toggleSec(el){const v=el.dataset.v;el.textContent=el.textContent.includes('●')?v:'●'.repeat(v.length);el.style.color=el.textContent.includes('●')?'':'var(--accent)';}
 function setFbtn(b){document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}
