@@ -1116,7 +1116,7 @@ function renderPresta() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // NAV & UTILS
 // ═══════════════════════════════════════════════════════════════════════════════
-const TITLES={dashboard:"Dashboard",centres:"Centres",fiche:"Fiche Centre",techniciens:"Gestion des techniciens","fiche-tech":"Fiche Technicien",planning:"Planning",cra:"CRA",rapport:"Rapport mensuel",stock:"Stock & Produits",comptabilite:"Comptabilité",charges:"Charges fixes",assurances:"Assurances",prestations:"Prestations",caisse:"🏧 Caisse Enregistreuse",documents:"Documents",telephone:"📱 Téléphone & Box Internet","badgeuse-view":"Badgeuse — Temps réel",technovap:"♨️ Technovap — Machines à vapeur",westfield:"🏬 Westfield / Indigo"};
+const TITLES={dashboard:"Dashboard",centres:"Centres",fiche:"Fiche Centre",techniciens:"Gestion des techniciens","fiche-tech":"Fiche Technicien",planning:"Planning",cra:"CRA",rapport:"Rapport mensuel",stock:"Stock & Produits",comptabilite:"Comptabilité",charges:"Charges fixes",assurances:"Assurances",prestations:"Prestations",caisse:"🏧 Caisse Enregistreuse","caisse-enregistreuse":"💳 Ventes & Factures",documents:"Documents",telephone:"📱 Téléphone & Box Internet","badgeuse-view":"Badgeuse — Temps réel",technovap:"♨️ Technovap — Machines à vapeur",westfield:"🏬 Westfield / Indigo"};
 
 // ── TELEPHONE DATA ─────────────────────────────────────────────────────────
 let BOX_DATA = [];
@@ -1553,6 +1553,7 @@ function go(id){
   if(id==='cra') syncAllBadgeages();
   if(id==='technovap') renderTechnovap();
   if(id==='westfield') renderWestfield();
+  if(id==='caisse-enregistreuse') refreshCaisseEnregistreuse();
 }
 function toggleSec(el){const v=el.dataset.v;el.textContent=el.textContent.includes('●')?v:'●'.repeat(v.length);el.style.color=el.textContent.includes('●')?'':'var(--accent)';}
 function setFbtn(b){document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}

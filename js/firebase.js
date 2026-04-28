@@ -80,6 +80,41 @@
     } catch(e) { console.log('Erreur loadCaisses:', e.message); return []; }
   };
 
+  window.loadVentes = async function(days) {
+    try {
+      const snap = await getDocs(collection(db, 'ventes'));
+      const data = [];
+      snap.forEach(d => data.push({...d.data(), _id: d.id}));
+      if (days) {
+        const cutoff = Date.now() - days * 86400000;
+        return data.filter(v => new Date(v.dateISO).getTime() >= cutoff);
+      }
+      return data;
+    } catch(e) { console.log('Erreur loadVentes:', e.message); return []; }
+  };
+
+  window.loadFactures = async function(days) {
+    try {
+      const snap = await getDocs(collection(db, 'factures'));
+      const data = [];
+      snap.forEach(d => data.push({...d.data(), _id: d.id}));
+      if (days) {
+        const cutoff = Date.now() - days * 86400000;
+        return data.filter(f => new Date(f.dateISO).getTime() >= cutoff);
+      }
+      return data;
+    } catch(e) { console.log('Erreur loadFactures:', e.message); return []; }
+  };
+
+  window.loadClients = async function() {
+    try {
+      const snap = await getDocs(collection(db, 'clients'));
+      const data = [];
+      snap.forEach(d => data.push({...d.data(), _id: d.id}));
+      return data;
+    } catch(e) { console.log('Erreur loadClients:', e.message); return []; }
+  };
+
   // ═══ PAS DE LISTENERS ════════════════════════════════════════
   // Les données sont chargées UNE SEULE FOIS au démarrage
   // Sauvegarde UNIQUEMENT sur clic 💾
