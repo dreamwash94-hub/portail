@@ -83,7 +83,7 @@ function renderCaisse() {
       nom: e.nom, centre: e.centre, color: e.color||'#60A5FA',
       rouge: [], vert: []
     };
-    const decl = { time: e.time||'--:--', date: e.date||'', montant: e.montant, timestamp: e.timestamp||0 };
+    const decl = { time: e.time||'--:--', date: e.date||'', montant: e.montant, timestamp: e.timestamp||0, _id: e._id||'' };
     if (e.couleur === 'vert') byTech[e.nom].vert.push(decl);
     else byTech[e.nom].rouge.push(decl);
   });
@@ -109,7 +109,10 @@ function renderCaisse() {
       background:${isVert?'rgba(22,163,74,0.08)':'rgba(220,38,38,0.08)'};
       border-radius:6px;border:1px solid ${isVert?'rgba(22,163,74,0.2)':'rgba(220,38,38,0.2)'};">
       <span style="font-size:11px;color:${isVert?'#15803D':'#DC2626'};font-weight:600;">${isVert?'🟢':'🔴'} ${label}</span>
-      <span style="font-size:13px;font-weight:700;color:${isVert?'#14532D':'#991B1B'};">${formatMontant(d.montant)}</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:13px;font-weight:700;color:${isVert?'#14532D':'#991B1B'};">${formatMontant(d.montant)}</span>
+        ${d._id ? `<button onclick="deleteCaisseDecl('${d._id}')" style="background:#FEE2E2;border:1px solid #FECACA;color:#DC2626;border-radius:5px;padding:2px 7px;font-size:11px;cursor:pointer;">🗑️</button>` : ''}
+      </div>
     </div>`;
   }
 
@@ -283,3 +286,9 @@ window.fromInputDate_caisse = function(iStr) {
   const [y,m,d] = iStr.split('-');
   return `${d}/${m}/${y}`;
 };
+
+async function deleteCaisseDecl(id) {
+  if (!confirm('Supprimer cette déclaration ?')) return;
+  if (window.deleteCaisseEntry) await window.deleteCaisseEntry(id);
+  await window.refreshCaisse();
+}
