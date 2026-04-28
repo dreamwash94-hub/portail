@@ -70,6 +70,13 @@
     } catch(e) { return false; }
   };
 
+  window.deleteCaisseEntry = async function(id) {
+    try {
+      await deleteDoc(doc(db, 'caisses', id));
+      return true;
+    } catch(e) { console.log('Erreur deleteCaisseEntry:', e.message); return false; }
+  };
+
   window.loadCaisses = async function(dateStr) {
     try {
       const snap = await getDocs(collection(db, 'caisses'));
