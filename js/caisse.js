@@ -6,6 +6,8 @@ let caisseDateFilter = '';
 let caisseCentreFilter = 'tous';
 let caisseData = [];
 let caisseAllowedTechs = [];
+let caisseViewMode = 'jour'; // 'jour' ou 'mois'
+let caisseMonthFilter = ''; // format MM/YYYY
 
 const CAISSE_DEFAULT_TECHS = [
   'Abdeldjalil Boucedra',
@@ -41,13 +43,23 @@ window.refreshCaisse = async function() {
   if (!container) return;
 
   if (!caisseDateFilter) caisseDateFilter = getTodayStr();
+  if (!caisseMonthFilter) {
+    const now = new Date();
+    caisseMonthFilter = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+  }
 
   container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--muted);">⏳ Chargement…</div>`;
 
   await loadCaisseAllowedTechs();
 
   try {
-    caisseData = window.loadCaisses ? await window.loadCaisses(caisseDateFilter) : [];
+    if (caisseViewMode === 'mois') {
+      const all = window.loadCaisses ? await window.loadCaisses() : [];
+      const [mm, yyyy] = caisseMonthFilter.split('/');
+      caisseData = all.filter(e => e.date && e.date.endsWith(mm + '/' + yyyy));
+    } else {
+      caisseData = window.loadCaisses ? await window.loadCaisses(caisseDateFilter) : [];
+    }
   } catch(e) { caisseData = []; }
 
   renderCaisse();
@@ -71,7 +83,7 @@ function renderCaisse() {
       nom: e.nom, centre: e.centre, color: e.color||'#60A5FA',
       rouge: [], vert: []
     };
-    const decl = { time: e.time||'--:--', montant: e.montant };
+    const decl = { time: e.time||'--:--', date: e.date||'', montant: e.montant, timestamp: e.timestamp||0 };
     if (e.couleur === 'vert') byTech[e.nom].vert.push(decl);
     else byTech[e.nom].rouge.push(decl);
   });
@@ -90,10 +102,13 @@ function renderCaisse() {
 
   function declRow(d, couleur) {
     const isVert = couleur === 'vert';
+    const label = caisseViewMode === 'mois' && d.date
+      ? `${d.date.substring(0,5)} ${d.time}`
+      : d.time;
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 10px;
       background:${isVert?'rgba(22,163,74,0.08)':'rgba(220,38,38,0.08)'};
       border-radius:6px;border:1px solid ${isVert?'rgba(22,163,74,0.2)':'rgba(220,38,38,0.2)'};">
-      <span style="font-size:11px;color:${isVert?'#15803D':'#DC2626'};font-weight:600;">${isVert?'🟢':'🔴'} ${d.time}</span>
+      <span style="font-size:11px;color:${isVert?'#15803D':'#DC2626'};font-weight:600;">${isVert?'🟢':'🔴'} ${label}</span>
       <span style="font-size:13px;font-weight:700;color:${isVert?'#14532D':'#991B1B'};">${formatMontant(d.montant)}</span>
     </div>`;
   }
@@ -122,27 +137,43 @@ function renderCaisse() {
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;">
-        ${t.rouge.map(d=>declRow(d,'rouge')).join('')}
-        ${t.vert.map(d=>declRow(d,'vert')).join('')}
+        ${[...t.rouge.map(d=>({...d,couleur:'rouge'})),...t.vert.map(d=>({...d,couleur:'vert'}))]
+          .sort((a,b)=>a.timestamp-b.timestamp)
+          .map(d=>declRow(d,d.couleur)).join('')}
       </div>
     </div>`;
   }
 
   // Techs autorisés qui n'ont pas encore déclaré aujourd'hui
-  const techsAutorisesNonDeclares = isToday
+  const techsAutorisesNonDeclares = isToday && caisseViewMode === 'jour'
     ? caisseAllowedTechs.filter(nom => !byTech[nom])
     : [];
+
+  const [monthMM, monthYYYY] = caisseMonthFilter.split('/');
+  const monthInputVal = monthYYYY && monthMM ? `${monthYYYY}-${monthMM}` : '';
+  const periodLabel = caisseViewMode === 'mois'
+    ? `Mois ${caisseMonthFilter}`
+    : (isToday ? "Aujourd'hui" : caisseDateFilter);
 
   container.innerHTML = `
     <div class="rh">
       <div>
         <div class="sec-title">Fermeture de caisse</div>
-        <div class="sec-sub">${isToday?"Aujourd'hui":caisseDateFilter} — ${declaredTechs.length} déclaration${declaredTechs.length>1?'s':''}</div>
+        <div class="sec-sub">${periodLabel} — ${declaredTechs.length} déclaration${declaredTechs.length>1?'s':''}</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input type="date" id="caisse-date-input" value="${toInputDate(caisseDateFilter)}"
-          style="border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;background:var(--bg3);font-family:inherit;cursor:pointer;"
-          onchange="caisseDateFilter=fromInputDate_caisse(this.value);refreshCaisse()">
+        <div style="display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:12px;font-weight:600;">
+          <button onclick="caisseViewMode='jour';renderCaisse();" style="padding:6px 12px;border:none;cursor:pointer;background:${caisseViewMode==='jour'?'var(--accent)':'var(--bg3)'};color:${caisseViewMode==='jour'?'#fff':'var(--text)'};">📅 Jour</button>
+          <button onclick="caisseViewMode='mois';refreshCaisse();" style="padding:6px 12px;border:none;cursor:pointer;background:${caisseViewMode==='mois'?'var(--accent)':'var(--bg3)'};color:${caisseViewMode==='mois'?'#fff':'var(--text)'};">📆 Mois</button>
+        </div>
+        ${caisseViewMode === 'jour'
+          ? `<input type="date" id="caisse-date-input" value="${toInputDate(caisseDateFilter)}"
+              style="border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;background:var(--bg3);font-family:inherit;cursor:pointer;"
+              onchange="caisseDateFilter=fromInputDate_caisse(this.value);refreshCaisse()">`
+          : `<input type="month" id="caisse-month-input" value="${monthInputVal}"
+              style="border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;background:var(--bg3);font-family:inherit;cursor:pointer;"
+              onchange="const [y,m]=this.value.split('-');caisseMonthFilter=m+'/'+y;refreshCaisse();">`
+        }
         <button class="btn btn-sm btn-o" onclick="toggleCaisseConfig()">⚙️ Techniciens</button>
         <button class="btn btn-p btn-sm" onclick="refreshCaisse()">🔄 Actualiser</button>
       </div>
