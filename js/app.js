@@ -24,6 +24,7 @@ let CRA_DATA = {};
 let CHARGES = [];
 let ASSURANCES = [];
 let STOCK = [];
+let CAISSE_VENTES = [];
 
 const COMPTA = [
   {centre:"Aeroville A",ca:0,loyer:0,salaires:0,produits:0,evol:"",badge:"yl"},
@@ -1115,7 +1116,7 @@ function renderPresta() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // NAV & UTILS
 // ═══════════════════════════════════════════════════════════════════════════════
-const TITLES={dashboard:"Dashboard",centres:"Centres",fiche:"Fiche Centre",techniciens:"Gestion des techniciens","fiche-tech":"Fiche Technicien",planning:"Planning",cra:"CRA",rapport:"Rapport mensuel",stock:"Stock & Produits",comptabilite:"Comptabilité",charges:"Charges fixes",assurances:"Assurances",prestations:"Prestations",documents:"Documents",telephone:"📱 Téléphone & Box Internet","badgeuse-view":"Badgeuse — Temps réel",technovap:"♨️ Technovap — Machines à vapeur",westfield:"🏬 Westfield / Indigo",caisse:"💵 Fermeture de caisse"};
+const TITLES={dashboard:"Dashboard",centres:"Centres",fiche:"Fiche Centre",techniciens:"Gestion des techniciens","fiche-tech":"Fiche Technicien",planning:"Planning",cra:"CRA",rapport:"Rapport mensuel",stock:"Stock & Produits",comptabilite:"Comptabilité",charges:"Charges fixes",assurances:"Assurances",prestations:"Prestations",caisse:"🏧 Caisse Enregistreuse","caisse-enregistreuse":"💳 Ventes & Factures",documents:"Documents",telephone:"📱 Téléphone & Box Internet","badgeuse-view":"Badgeuse — Temps réel",technovap:"♨️ Technovap — Machines à vapeur",westfield:"🏬 Westfield / Indigo"};
 
 // ── TELEPHONE DATA ─────────────────────────────────────────────────────────
 let BOX_DATA = [];
@@ -1552,6 +1553,7 @@ function go(id){
   if(id==='cra') syncAllBadgeages();
   if(id==='technovap') renderTechnovap();
   if(id==='westfield') renderWestfield();
+  if(id==='caisse-enregistreuse') refreshCaisseEnregistreuse();
 }
 function toggleSec(el){const v=el.dataset.v;el.textContent=el.textContent.includes('●')?v:'●'.repeat(v.length);el.style.color=el.textContent.includes('●')?'':'var(--accent)';}
 function setFbtn(b){document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');}
@@ -1619,7 +1621,7 @@ function saveLocal() {
     BOX_DATA, TEL_DATA, EXTRA_ROWS, COMPTA, PLANNING,
     // ⚠️ CRA_DATA NON SAUVEGARDÉ localement — Firebase est la source de vérité
     TECHNOVAP_MACHINES, WESTFIELD_CONTACTS, WESTFIELD_CONTRATS,
-    CARPOLISH_CONTACT, CUSTOM_DOCS,
+    CARPOLISH_CONTACT, CUSTOM_DOCS, CAISSE_VENTES,
     prestations: capturePresta()
   };
   try {
@@ -1783,6 +1785,7 @@ async function saveAll() {
         window.saveToFirebase('westfield_contacts', WESTFIELD_CONTACTS),
         window.saveToFirebase('westfield_contrats', WESTFIELD_CONTRATS),
         window.saveToFirebase('carpolish_contact', CARPOLISH_CONTACT),
+        window.saveToFirebase('caisse_ventes', CAISSE_VENTES),
       ]);
       firebaseOk = true;
     } catch(e) {
@@ -1852,7 +1855,7 @@ async function init() {
       }
 
       // Charger le reste en parallèle
-      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning, fbTechnovap, fbWestCont, fbWestContr, fbCarpolish] = await Promise.all([
+      const [fbTechs, fbCentres, fbCharges, fbAss, fbStock, fbBox, fbTel, fbExtra, fbCompta, fbPresta, fbPlanning, fbTechnovap, fbWestCont, fbWestContr, fbCarpolish, fbCaisseVentes] = await Promise.all([
         window.loadFromFirebase('techs'),
         window.loadFromFirebase('centres'),
         window.loadFromFirebase('charges'),
@@ -1868,6 +1871,7 @@ async function init() {
         window.loadFromFirebase('westfield_contacts'),
         window.loadFromFirebase('westfield_contrats'),
         window.loadFromFirebase('carpolish_contact'),
+        window.loadFromFirebase('caisse_ventes'),
       ]);
       let updated = false;
       if (fbTechs?.length) { TECHS.splice(0, TECHS.length, ...fbTechs); updated = true; console.log('✅ Techniciens:', fbTechs.length); }
@@ -1884,6 +1888,7 @@ async function init() {
       if (fbWestCont?.length) { WESTFIELD_CONTACTS.splice(0, WESTFIELD_CONTACTS.length, ...fbWestCont); updated = true; }
       if (fbWestContr?.length) { WESTFIELD_CONTRATS.splice(0, WESTFIELD_CONTRATS.length, ...fbWestContr); updated = true; }
       if (fbCarpolish?.nom) { Object.assign(CARPOLISH_CONTACT, fbCarpolish); updated = true; }
+      if (fbCaisseVentes?.length) { CAISSE_VENTES.splice(0, CAISSE_VENTES.length, ...fbCaisseVentes); updated = true; }
       // ⚠️ CRA_DATA déjà chargé en priorité au-dessus — ne pas recharger ici
       if (updated) {
         renderDashboard(); renderCentres(); renderTechs(); renderCompta();
