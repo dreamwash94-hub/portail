@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const CE_CENTRES = ['Belleville','Aeroville A','Aeroville B','Lafayette Rouge','Lafayette Vert','Malakoff','Suresnes'];
-const CE_APP_URL = 'https://dw-caisse-enregistreuse.vercel.app';
+const CE_APP_URL = 'https://dw-caisse-enregistreuse-tk1x.vercel.app';
 const CE_MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
 let _ceVentes = [];
