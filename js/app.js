@@ -63,7 +63,7 @@ let planFilter = 'tous';
 const CRA_DATES = ['Lun 13 Avr.','Mar 14 Avr.','Mer 15 Avr.','Jeu 16 Avr.','Ven 17 Avr.'];
 const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 let craDay = 2;
-let rapportMois = 3; // index avril
+let rapportMois = new Date().getMonth();
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // RENDER FUNCTIONS
@@ -690,7 +690,7 @@ async function addCRADayFromEdit(nom) {
   showNotif(`✅ ${dateStr} ajouté pour ${nom}`, '#16A34A');
 }
 
-let rapportMoisIdx = 3;
+let rapportMoisIdx = new Date().getMonth();
 const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
 function renderRapport() {
