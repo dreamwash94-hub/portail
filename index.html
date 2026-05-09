@@ -232,11 +232,22 @@
           <option value="present">Avec présences</option>
           <option value="absent">Sans présences</option>
         </select>
-        <select id="cra-mois-filter" onchange="renderCRA()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;">
-          <option value="04/2026">Avril 2026</option>
-          <option value="03/2026">Mars 2026</option>
-          <option value="05/2026">Mai 2026</option>
-        </select>
+        <select id="cra-mois-filter" onchange="renderCRA()" style="border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;background:var(--bg2);font-family:inherit;color:var(--text);cursor:pointer;"></select>
+        <script>
+        (function(){
+          const MOIS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+          const sel=document.getElementById('cra-mois-filter');
+          const now=new Date();
+          for(let i=0;i<6;i++){
+            const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+            const val=String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+            const opt=document.createElement('option');
+            opt.value=val; opt.textContent=MOIS[d.getMonth()]+' '+d.getFullYear();
+            if(i===0) opt.selected=true;
+            sel.appendChild(opt);
+          }
+        })();
+        </script>
         <span style="font-size:12px;color:var(--muted);">Affiché : <strong id="cra-count">0</strong> techniciens</span>
       </div>
       <div class="tbl" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:900px;"><thead><tr id="cra-thead"></tr></thead><tbody id="cra-tbody"></tbody></table></div>
