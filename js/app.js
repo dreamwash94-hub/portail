@@ -306,22 +306,63 @@ function showFicheTech(i) {
         <div style="margin-top:10px;"><button class="btn btn-o btn-sm" onclick="openUrl('https://drive.google.com')">📎 Ajouter document</button></div>
       </div>
       <div class="card" style="grid-column:1/-1;">
-        <div class="card-t">📋 CRA détaillé — Avril 2026</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
-          ${[1,2,3,4].map(s => {
-            const days = ['Lun','Mar','Mer','Jeu','Ven'];
-            return `<div style="background:var(--bg3);border-radius:8px;padding:12px;">
-              <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;">Semaine ${s}</div>
+        ${(()=>{
+          const now = new Date();
+          const moisNoms = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+          const moisStr = String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
+          const moisLabel = moisNoms[now.getMonth()] + ' ' + now.getFullYear();
+          const techCRA = CRA_DATA[t.nom] || {};
+          const joursPresent = Object.keys(techCRA).filter(d => d.endsWith(moisStr));
+          const totalMois = joursPresent.length;
+
+          // Construire calendrier semaine par semaine
+          const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+          const lastDay = new Date(now.getFullYear(), now.getMonth()+1, 0);
+          // Grouper par semaine (lun-ven)
+          const weeks = [];
+          let week = [];
+          // Trouver le lundi de la première semaine
+          let cur = new Date(firstDay);
+          const dayOfWeek = cur.getDay(); // 0=dim
+          cur.setDate(cur.getDate() - ((dayOfWeek === 0 ? 7 : dayOfWeek) - 1));
+          while (cur <= lastDay) {
+            week = [];
+            for (let d = 0; d < 5; d++) {
+              const dd = new Date(cur);
+              dd.setDate(cur.getDate() + d);
+              const dateStr = String(dd.getDate()).padStart(2,'0') + '/' + String(dd.getMonth()+1).padStart(2,'0') + '/' + dd.getFullYear();
+              const inMonth = dd.getMonth() === now.getMonth();
+              const present = inMonth && joursPresent.includes(dateStr);
+              const centre = present ? techCRA[dateStr] : '';
+              week.push({ day: dd.getDate(), dateStr, inMonth, present, centre });
+            }
+            weeks.push(week);
+            cur.setDate(cur.getDate() + 7);
+          }
+
+          const jnoms = ['Lun','Mar','Mer','Jeu','Ven'];
+          return `<div class="card-t">📋 CRA — ${moisLabel}</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">
+            ${weeks.map((wk,wi) => `<div style="background:var(--bg3);border-radius:8px;padding:12px;">
+              <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;">Semaine ${wi+1}</div>
               <div style="display:flex;gap:4px;justify-content:center;">
-                ${days.map(d=>`<div style="text-align:center;">
-                  <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">${d}</div>
-                  <div class="cra-circle" style="margin:0 auto;" onclick="this.classList.toggle('present');this.textContent=this.classList.contains('present')?'✓':'';"></div>
+                ${wk.map((d,di)=>`<div style="text-align:center;">
+                  <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">${jnoms[di]}</div>
+                  <div title="${d.present?d.centre:''}" style="width:28px;height:28px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;
+                    background:${!d.inMonth?'transparent':d.present?'#16A34A':'var(--bg2)'};
+                    color:${d.present?'#fff':d.inMonth?'var(--muted)':'transparent'};
+                    border:${d.inMonth?'1.5px solid '+(d.present?'#16A34A':'var(--border)'):'none'};">
+                    ${d.inMonth?d.day:''}
+                  </div>
                 </div>`).join('')}
               </div>
-            </div>`;
-          }).join('')}
-        </div>
-        <div class="fr" style="border-top:2px solid var(--border);margin-top:12px;"><span class="fk" style="font-weight:700;">Total mois</span><span class="fv" style="color:var(--accent2);font-size:16px;font-weight:800;">${totH} jours</span></div>
+            </div>`).join('')}
+          </div>
+          <div class="fr" style="border-top:2px solid var(--border);margin-top:12px;">
+            <span class="fk" style="font-weight:700;">Total mois</span>
+            <span class="fv" style="color:var(--accent2);font-size:16px;font-weight:800;">${totalMois} jours</span>
+          </div>`;
+        })()}
       </div>
       <div class="card" style="grid-column:1/-1;">
         <div class="card-t">📄 Documents RH</div>
