@@ -315,43 +315,40 @@ function showFicheTech(i) {
           const joursPresent = Object.keys(techCRA).filter(d => d.endsWith(moisStr));
           const totalMois = joursPresent.length;
 
-          // Construire calendrier semaine par semaine
+          // Construire calendrier semaine par semaine (lun → dim)
           const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
           const lastDay = new Date(now.getFullYear(), now.getMonth()+1, 0);
-          // Grouper par semaine (lun-ven)
           const weeks = [];
-          let week = [];
-          // Trouver le lundi de la première semaine
           let cur = new Date(firstDay);
-          const dayOfWeek = cur.getDay(); // 0=dim
+          const dayOfWeek = cur.getDay();
           cur.setDate(cur.getDate() - ((dayOfWeek === 0 ? 7 : dayOfWeek) - 1));
           while (cur <= lastDay) {
-            week = [];
-            for (let d = 0; d < 5; d++) {
+            const week = [];
+            for (let d = 0; d < 7; d++) {
               const dd = new Date(cur);
               dd.setDate(cur.getDate() + d);
               const dateStr = String(dd.getDate()).padStart(2,'0') + '/' + String(dd.getMonth()+1).padStart(2,'0') + '/' + dd.getFullYear();
               const inMonth = dd.getMonth() === now.getMonth();
               const present = inMonth && joursPresent.includes(dateStr);
-              const centre = present ? techCRA[dateStr] : '';
-              week.push({ day: dd.getDate(), dateStr, inMonth, present, centre });
+              const isWE = d >= 5;
+              week.push({ day: dd.getDate(), dateStr, inMonth, present, isWE, centre: present ? techCRA[dateStr] : '' });
             }
             weeks.push(week);
             cur.setDate(cur.getDate() + 7);
           }
 
-          const jnoms = ['Lun','Mar','Mer','Jeu','Ven'];
+          const jnoms = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
           return `<div class="card-t">📋 CRA — ${moisLabel}</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">
-            ${weeks.map((wk,wi) => `<div style="background:var(--bg3);border-radius:8px;padding:12px;">
-              <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;">Semaine ${wi+1}</div>
-              <div style="display:flex;gap:4px;justify-content:center;">
-                ${wk.map((d,di)=>`<div style="text-align:center;">
-                  <div style="font-size:9px;color:var(--muted);margin-bottom:3px;">${jnoms[di]}</div>
-                  <div title="${d.present?d.centre:''}" style="width:28px;height:28px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;
-                    background:${!d.inMonth?'transparent':d.present?'#16A34A':'var(--bg2)'};
-                    color:${d.present?'#fff':d.inMonth?'var(--muted)':'transparent'};
-                    border:${d.inMonth?'1.5px solid '+(d.present?'#16A34A':'var(--border)'):'none'};">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${weeks.map((wk,wi) => `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px;">
+              <div style="font-size:10px;font-weight:700;color:var(--muted);margin-bottom:8px;">Semaine ${wi+1}</div>
+              <div style="display:flex;gap:6px;">
+                ${wk.map((d,di)=>`<div style="text-align:center;flex:1;">
+                  <div style="font-size:9px;color:${d.isWE?'#F97316':'var(--muted)'};font-weight:600;margin-bottom:3px;">${jnoms[di]}</div>
+                  <div title="${d.present?d.centre:''}" style="width:32px;height:32px;border-radius:8px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:700;
+                    background:${!d.inMonth?'transparent':d.present?'#16A34A':d.isWE?'rgba(249,115,22,0.08)':'var(--bg2)'};
+                    color:${d.present?'#fff':d.inMonth?d.isWE?'#F97316':'var(--muted)':'transparent'};
+                    border:${d.inMonth?'1.5px solid '+(d.present?'#16A34A':d.isWE?'rgba(249,115,22,0.3)':'var(--border)'):'none'};">
                     ${d.inMonth?d.day:''}
                   </div>
                 </div>`).join('')}
