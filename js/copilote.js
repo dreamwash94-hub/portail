@@ -98,20 +98,80 @@ ACTIONS DISPONIBLES :
 6. Ajouter une charge fixe :
 ⚡ACTION:{"type":"ADD_CHARGE","nom":"Nom charge","montant":500,"cat":"Loyer"}
 
+7. Exporter un fichier CSV (badgeuse, CRA, ou liste techniciens) :
+⚡ACTION:{"type":"EXPORT_CSV","source":"badgeuse","mois":"05/2026"}
+⚡ACTION:{"type":"EXPORT_CSV","source":"cra","mois":"05/2026"}
+⚡ACTION:{"type":"EXPORT_CSV","source":"techs"}
+(mois format MM/AAAA — optionnel pour badgeuse/cra, si absent = tout)
+
 Tu peux enchaîner plusieurs actions dans une seule réponse.
 
 ═══ RÈGLES ═══
-- Quand l'utilisateur demande une modification → exécute-la avec ⚡ACTION, ne dis pas "allez dans l'onglet..."
+- Quand l'utilisateur demande une modification → exécute-la avec ⚡ACTION, ne dis jamais "je ne peux pas".
+- Pour TOUT export (CSV, rapport, liste) → utilise ⚡ACTION avec EXPORT_CSV.
 - Confirme ce que tu fais en une ligne, puis mets l'action.
 - Réponds en 2-4 lignes max sauf demande de texte long (mail, réponse Google...).
 - Ne mets jamais d'explication inutile.
 - Pour les mails et réponses Google : formate clairement avec "Objet :" et "Corps :" ou guillemets.`;
 }
 
-// ── Exécution des actions ──────────────────────────────────────
-function _coExecAction(action) {
+// ── Helpers CSV ────────────────────────────────────────────────
+function _coDownloadCSV(filename, rows) {
+  const bom = '\uFEFF'; // UTF-8 BOM pour Excel
+  const csv = bom + rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(';')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Exécution des actions (async) ─────────────────────────────
+async function _coExecAction(action) {
   try {
     switch (action.type) {
+
+      case 'EXPORT_CSV': {
+        const src = action.source || 'techs';
+        const mois = action.mois || null; // "MM/AAAA"
+
+        if (src === 'techs') {
+          const techs = typeof TECHS !== 'undefined' ? TECHS : [];
+          const rows = [['Nom','Centre','Contrat','Téléphone']];
+          techs.forEach(t => rows.push([t.nom, t.centre||'', t.contrat||'', t.tel||'']));
+          _coDownloadCSV('dreamwash_techniciens.csv', rows);
+          return `✅ CSV techniciens téléchargé (${techs.length} lignes)`;
+        }
+
+        if (src === 'cra') {
+          const craData = typeof CRA_DATA !== 'undefined' ? CRA_DATA : {};
+          const rows = [['Technicien','Date','Centre']];
+          Object.entries(craData).forEach(([nom, dates]) => {
+            Object.entries(dates).forEach(([date, centre]) => {
+              if (!mois || date.slice(3) === mois) rows.push([nom, date, centre]);
+            });
+          });
+          const fname = `dreamwash_cra${mois ? '_' + mois.replace('/','_') : ''}.csv`;
+          _coDownloadCSV(fname, rows);
+          return `✅ CSV CRA téléchargé (${rows.length - 1} entrées${mois ? ' · ' + mois : ''})`;
+        }
+
+        if (src === 'badgeuse') {
+          const loader = typeof getAllBadgeages === 'function' ? getAllBadgeages :
+                         (typeof window.getAllBadgeages === 'function' ? window.getAllBadgeages : null);
+          if (!loader) return '❌ Fonction getAllBadgeages non disponible';
+          const data = await loader();
+          const rows = [['Nom','Type','Date','Heure','Centre','Timestamp']];
+          const filtered = mois ? data.filter(b => b.date && b.date.slice(3) === mois) : data;
+          filtered.sort((a,b) => (a.timestamp||0) - (b.timestamp||0))
+            .forEach(b => rows.push([b.nom||'', b.type||'', b.date||'', b.heure||'', b.centre||'', b.timestamp||'']));
+          const fname = `dreamwash_badgeuse${mois ? '_' + mois.replace('/','_') : ''}.csv`;
+          _coDownloadCSV(fname, rows);
+          return `✅ CSV badgeuse téléchargé (${rows.length - 1} pointages${mois ? ' · ' + mois : ''})`;
+        }
+
+        return `❌ Source inconnue : ${src}. Utilise "badgeuse", "cra" ou "techs"`;
+      }
 
       case 'ADD_TECH': {
         if (!action.nom) return '❌ Nom manquant';
@@ -187,23 +247,28 @@ function _coExecAction(action) {
   }
 }
 
-// ── Traitement de la réponse IA ────────────────────────────────
-function _coProcessReply(raw) {
+// ── Traitement de la réponse IA (async pour CSV/badgeuse) ──────
+async function _coProcessReply(raw) {
   const actionResults = [];
-  // Extrait et exécute toutes les ⚡ACTION:{...}
-  const cleaned = raw.replace(/⚡ACTION:\{[^}]+\}/g, (match) => {
+  const actionMatches = [];
+
+  // Collecte tous les blocs ⚡ACTION:{...} (JSON peut contenir des virgules)
+  let cleaned = raw.replace(/⚡ACTION:\{[\s\S]*?\}(?=\s|$)/g, (match) => {
+    actionMatches.push(match);
+    return '';
+  }).trim();
+
+  for (const match of actionMatches) {
     try {
       const json = match.replace('⚡ACTION:', '');
       const action = JSON.parse(json);
-      const result = _coExecAction(action);
+      const result = await _coExecAction(action);
       actionResults.push(result);
     } catch (e) {
       actionResults.push(`❌ Action invalide : ${e.message}`);
     }
-    return ''; // retire le bloc de la réponse texte
-  }).trim();
+  }
 
-  // Texte affiché = réponse nettoyée + résultats des actions
   let display = cleaned;
   if (actionResults.length) {
     display += (cleaned ? '\n\n' : '') + actionResults.join('\n');
@@ -393,7 +458,7 @@ window.coSend = async function() {
 
     const data = await res.json();
     const raw = data.reply || data.error || 'Erreur inattendue.';
-    const display = _coProcessReply(raw);
+    const display = await _coProcessReply(raw);
     _coHistory.push({ role: 'assistant', content: display });
   } catch (e) {
     _coHistory.push({ role: 'assistant', content: `❌ Erreur : ${e.message}` });
