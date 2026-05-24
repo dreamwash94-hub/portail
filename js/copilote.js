@@ -1,166 +1,217 @@
 // ═══════════════════════════════════════════════════════════════
-// COPILOTE IA — Powered by Google Gemini
+// COPILOTE IA — Accès complet au portail + actions en temps réel
 // ═══════════════════════════════════════════════════════════════
 
 let _coHistory = [];
 let _coInitialized = false;
 
+// ── Contexte complet du portail ────────────────────────────────
 function buildCopiloteContext() {
-  const centresInfo = (typeof CENTRES !== 'undefined' ? CENTRES : [])
-    .map(c => `  • ${c.nom}: loyer ${c.loyer}€/mois, techs: ${(c.techs||[]).join(', ')}`)
-    .join('\n');
-
-  const techsList = (typeof TECHS !== 'undefined' ? TECHS : [])
-    .map(t => `${t.nom}${t.centre ? ' ('+t.centre+')' : ''}`)
-    .join(', ');
-
   const today = new Date();
   const dateStr = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+  const jours = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 
-  return `Tu es le Copilote IA de Dreamwash, une entreprise française de lavage automobile écologique sans eau.
-Tu t'appelles "Copilote Dreamwash". Tu parles TOUJOURS en français. Tu es direct, efficace et pratique.
+  const techs = typeof TECHS !== 'undefined' ? TECHS : [];
+  const centres = typeof CENTRES !== 'undefined' ? CENTRES : [];
+  const planning = typeof PLANNING !== 'undefined' ? PLANNING : {};
+  const craData = typeof CRA_DATA !== 'undefined' ? CRA_DATA : {};
+  const charges = typeof CHARGES !== 'undefined' ? CHARGES : [];
+  const stock = typeof STOCK !== 'undefined' ? STOCK : [];
+
+  const centresInfo = centres.map(c =>
+    `  • ${c.nom}: loyer ${c.loyer}€/mois, techs: ${(c.techs||[]).join(', ')}`
+  ).join('\n');
+
+  const techsInfo = techs.map(t =>
+    `  • ${t.nom} | centre: ${t.centre||'—'} | contrat: ${t.contrat||'—'} | tél: ${t.tel||'—'}`
+  ).join('\n');
+
+  // Planning résumé
+  const planningInfo = Object.entries(planning).map(([centre, days]) => {
+    const lignes = days.map((techs, i) => {
+      const noms = (techs||[]).filter(t=>t.statut==='present').map(t=>t.nom);
+      return noms.length ? `    ${jours[i]}: ${noms.join(', ')}` : '';
+    }).filter(Boolean);
+    return lignes.length ? `  ${centre}:\n${lignes.join('\n')}` : '';
+  }).filter(Boolean).join('\n');
+
+  // CRA résumé (mois en cours)
+  const moisActuel = `${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+  const craInfo = Object.entries(craData).map(([nom, dates]) => {
+    const datesduMois = Object.entries(dates)
+      .filter(([d]) => d.endsWith(moisActuel.replace('/', '/')))
+      .map(([d, centre]) => `${d}→${centre}`);
+    return datesduMois.length ? `  • ${nom}: ${datesduMois.join(', ')}` : '';
+  }).filter(Boolean).join('\n');
+
+  const chargesInfo = charges.map(c => `  • ${c.nom}: ${c.montant}€ (${c.cat||'—'})`).join('\n');
+  const stockInfo = stock.slice(-5).map(s => `  • ${s.produit||s.nom}: qté ${s.qte}, centre ${s.centre}`).join('\n');
+
+  return `Tu es le Copilote IA de Dreamwash, une entreprise de lavage automobile écologique sans eau.
+Tu t'appelles "Copilote Dreamwash". Tu parles TOUJOURS en français. Tu es direct et efficace.
 Date du jour : ${dateStr}
 
-DONNÉES DU PORTAIL :
-Centres (${(typeof CENTRES !== 'undefined' ? CENTRES : []).length}) :
-${centresInfo || '  Aucun centre'}
-Techniciens (${(typeof TECHS !== 'undefined' ? TECHS : []).length}) :
-${techsList || 'Aucun technicien'}
+═══ DONNÉES PORTAIL EN TEMPS RÉEL ═══
+
+CENTRES (${centres.length}) :
+${centresInfo || '  Aucun'}
+
+TECHNICIENS (${techs.length}) :
+${techsInfo || '  Aucun'}
+
+PLANNING SEMAINE EN COURS :
+${planningInfo || '  Aucune donnée'}
+
+CRA MOIS EN COURS (${moisActuel}) :
+${craInfo || '  Aucune donnée'}
+
+CHARGES FIXES :
+${chargesInfo || '  Aucune'}
+
+STOCK (5 dernières commandes) :
+${stockInfo || '  Aucune'}
 
 SOCIÉTÉ : Dreamwash · 54 av. Henri Barbusse, Drancy 93700 · 07 82 48 43 00 · reservation@dreamwash.fr · SIRET 977 739 242
 
-NAVIGATION DU PORTAIL (explique comment accéder aux fonctions) :
-- Ajouter/modifier un technicien → onglet "Techniciens" → bouton "+ Ajouter"
-- Modifier le planning → onglet "Planning" → clic sur une case
-- Voir/modifier le CRA → onglet "CRA" → choisir le mois
-- Fermeture de caisse → onglet "Caisse"
-- Ventes & factures → onglet "Caisse Enreg."
-- Badgeuse (pointage) → onglet "Badgeuse"
-- Stock produits → onglet "Stock & Produits"
-- Charges fixes → onglet "Charges fixes"
+═══ TES CAPACITÉS D'ACTION ═══
 
-TES CAPACITÉS :
-1. GUIDE PORTAIL → explique comment faire une action dans le portail (navigation, où cliquer)
-2. AVIS GOOGLE → rédige une réponse professionnelle prête à copier-coller entre guillemets
-3. MAIL / WHATSAPP → rédige le message complet avec "Objet :" et "Corps :" pour les mails
-4. ANALYSE → résumé de l'équipe, des centres, des performances
-5. CRA / PLANNING → analyse et conseils sur l'organisation
-6. RÉDACTION → annonces, affiches, contenu commercial
+Tu peux MODIFIER le portail en incluant des actions dans ta réponse avec ce format exact :
+⚡ACTION:{"type":"NOM_ACTION", ...données}
 
-RÈGLES ABSOLUES :
-- Réponds TOUJOURS en 3-5 lignes max sauf si on te demande un texte long.
-- Ne dis JAMAIS "je ne peux pas modifier le portail" — dis plutôt "pour faire ça, va dans [onglet X] et clique [bouton Y]".
-- Si quelqu'un veut ajouter un technicien → explique où le faire dans le portail.
-- Sois direct et opérationnel. Pas de blabla.
-- Formate les mails et réponses Google clairement pour copier-coller.`;
+ACTIONS DISPONIBLES :
+
+1. Ajouter un technicien :
+⚡ACTION:{"type":"ADD_TECH","nom":"Prénom Nom","centre":"Belleville","contrat":"CDI","tel":"06 00 00 00 00"}
+
+2. Ajouter une journée au CRA d'un technicien :
+⚡ACTION:{"type":"ADD_CRA","tech":"Nom Tech","date":"JJ/MM/AAAA","centre":"Belleville"}
+
+3. Supprimer une journée du CRA :
+⚡ACTION:{"type":"REMOVE_CRA","tech":"Nom Tech","date":"JJ/MM/AAAA"}
+
+4. Ajouter un technicien au planning un jour donné (0=Lundi ... 6=Dimanche) :
+⚡ACTION:{"type":"ADD_PLANNING","centre":"Belleville","tech":"Nom Tech","jour":0,"statut":"present"}
+
+5. Retirer un technicien du planning un jour donné :
+⚡ACTION:{"type":"REMOVE_PLANNING","centre":"Belleville","tech":"Nom Tech","jour":0}
+
+6. Ajouter une charge fixe :
+⚡ACTION:{"type":"ADD_CHARGE","nom":"Nom charge","montant":500,"cat":"Loyer"}
+
+Tu peux enchaîner plusieurs actions dans une seule réponse.
+
+═══ RÈGLES ═══
+- Quand l'utilisateur demande une modification → exécute-la avec ⚡ACTION, ne dis pas "allez dans l'onglet..."
+- Confirme ce que tu fais en une ligne, puis mets l'action.
+- Réponds en 2-4 lignes max sauf demande de texte long (mail, réponse Google...).
+- Ne mets jamais d'explication inutile.
+- Pour les mails et réponses Google : formate clairement avec "Objet :" et "Corps :" ou guillemets.`;
 }
 
-function initCopilote() {
-  if (_coInitialized) return;
-  _coInitialized = true;
-  _renderCopiloteShell();
-}
+// ── Exécution des actions ──────────────────────────────────────
+function _coExecAction(action) {
+  try {
+    switch (action.type) {
 
-function _renderCopiloteShell() {
-  const el = document.getElementById('page-copilote');
-  if (!el) return;
+      case 'ADD_TECH': {
+        if (!action.nom) return '❌ Nom manquant';
+        const centre = action.centre || '';
+        if (!TECHS.find(t => t.nom.toLowerCase() === action.nom.toLowerCase())) {
+          TECHS.push({ nom: action.nom, centre, contrat: action.contrat||'CDI', tel: action.tel||'', jours: 0, color: '#2563EB' });
+          if (typeof renderTechs === 'function') renderTechs();
+          if (typeof renderDashboard === 'function') renderDashboard();
+          if (typeof saveAll === 'function') saveAll();
+          return `✅ **${action.nom}** ajouté${centre ? ' au centre ' + centre : ''}`;
+        }
+        return `ℹ️ ${action.nom} existe déjà`;
+      }
 
-  el.innerHTML = `
-<style>
-@keyframes coFadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-@keyframes coBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
-@keyframes coPulse  { 0%,100%{opacity:1} 50%{opacity:.4} }
-#co-wrap { display:flex; height:calc(100vh - 115px); font-family:'Inter',sans-serif; border-radius:14px; overflow:hidden; border:1px solid #E2E8F0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
-#co-sidebar { width:200px; background:#0F172A; display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto; }
-#co-chat   { flex:1; display:flex; flex-direction:column; overflow:hidden; background:#F8FAFC; }
-#co-messages { flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:12px; }
-#co-messages::-webkit-scrollbar { width:3px; }
-#co-messages::-webkit-scrollbar-thumb { background:#CBD5E1; border-radius:3px; }
-</style>
+      case 'ADD_CRA': {
+        if (!action.tech || !action.date || !action.centre) return '❌ Données CRA incomplètes (tech, date, centre requis)';
+        if (!CRA_DATA[action.tech]) CRA_DATA[action.tech] = {};
+        CRA_DATA[action.tech][action.date] = action.centre;
+        if (typeof saveAll === 'function') saveAll();
+        return `✅ CRA mis à jour : **${action.tech}** — ${action.date} @ ${action.centre}`;
+      }
 
-<div id="co-wrap">
+      case 'REMOVE_CRA': {
+        if (!action.tech || !action.date) return '❌ tech et date requis';
+        if (CRA_DATA[action.tech]) {
+          delete CRA_DATA[action.tech][action.date];
+          if (typeof saveAll === 'function') saveAll();
+          return `✅ Journée ${action.date} supprimée du CRA de **${action.tech}**`;
+        }
+        return `ℹ️ Aucune entrée trouvée pour ${action.tech}`;
+      }
 
-  <!-- Sidebar raccourcis -->
-  <div id="co-sidebar">
-    <div style="padding:14px 10px 6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);">Actions rapides</div>
-    ${[
-      {i:'⭐', l:'Répondre avis Google', t:'Réponds à cet avis Google : '},
-      {i:'📧', l:'Rédiger un mail',      t:'Rédige un mail pour '},
-      {i:'📊', l:'Résumé portail',       t:'Donne-moi un résumé complet du portail Dreamwash'},
-      {i:'📋', l:'CRA du mois',          t:'Génère le CRA du mois en cours'},
-      {i:'💡', l:'Conseils',             t:'Quels conseils pour optimiser Dreamwash ?'},
-      {i:'📣', l:'Message WhatsApp',     t:'Rédige un message WhatsApp pour les techniciens : '},
-    ].map(b => `
-      <button onclick="coQuick(${JSON.stringify(b.t)})" style="
-        display:flex;align-items:center;gap:8px;padding:8px 8px;margin:1px 5px;
-        border-radius:7px;border:none;background:transparent;color:rgba(255,255,255,.6);
-        font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;text-align:left;
-        width:calc(100% - 10px);"
-        onmouseover="this.style.background='rgba(255,255,255,.08)';this.style.color='#fff'"
-        onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,.6)'">
-        <span style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;
-          font-size:12px;background:rgba(255,255,255,.07);flex-shrink:0;">${b.i}</span>
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.l}</span>
-      </button>`).join('')}
+      case 'ADD_PLANNING': {
+        if (!action.centre || !action.tech || action.jour === undefined) return '❌ centre, tech et jour requis';
+        if (!PLANNING[action.centre]) return `❌ Centre "${action.centre}" introuvable`;
+        const day = PLANNING[action.centre][action.jour];
+        if (!day.find(t => t.nom === action.tech)) {
+          day.push({ nom: action.tech, statut: action.statut || 'present' });
+          if (typeof renderPlan === 'function') renderPlan();
+          if (typeof saveAll === 'function') saveAll();
+          const joursNoms = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+          return `✅ **${action.tech}** ajouté au planning de ${action.centre} le ${joursNoms[action.jour]}`;
+        }
+        return `ℹ️ ${action.tech} est déjà dans le planning ce jour-là`;
+      }
 
-    <div style="margin-top:auto;padding:12px;border-top:1px solid rgba(255,255,255,.08);">
-      <div style="display:flex;align-items:center;gap:7px;font-size:10px;color:rgba(255,255,255,.4);">
-        <div style="width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 5px #10b981;animation:coPulse 2s infinite;flex-shrink:0;"></div>
-        Gemini 1.5 Flash · actif
-      </div>
-    </div>
-  </div>
+      case 'REMOVE_PLANNING': {
+        if (!action.centre || !action.tech || action.jour === undefined) return '❌ centre, tech et jour requis';
+        if (!PLANNING[action.centre]) return `❌ Centre "${action.centre}" introuvable`;
+        const before = PLANNING[action.centre][action.jour].length;
+        PLANNING[action.centre][action.jour] = PLANNING[action.centre][action.jour].filter(t => t.nom !== action.tech);
+        if (PLANNING[action.centre][action.jour].length < before) {
+          if (typeof renderPlan === 'function') renderPlan();
+          if (typeof saveAll === 'function') saveAll();
+          return `✅ **${action.tech}** retiré du planning de ${action.centre}`;
+        }
+        return `ℹ️ ${action.tech} non trouvé dans ce planning`;
+      }
 
-  <!-- Zone chat -->
-  <div id="co-chat">
+      case 'ADD_CHARGE': {
+        if (!action.nom || !action.montant) return '❌ nom et montant requis';
+        CHARGES.push({ nom: action.nom, montant: Number(action.montant), cat: action.cat || 'Autre', ech: action.ech || '' });
+        if (typeof renderCharges === 'function') renderCharges();
+        if (typeof saveAll === 'function') saveAll();
+        return `✅ Charge **${action.nom}** (${action.montant}€) ajoutée`;
+      }
 
-    <!-- Header -->
-    <div style="background:#fff;border-bottom:1px solid #E2E8F0;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-      <div>
-        <div style="font-weight:800;font-size:14px;color:#0F172A;">💧 Copilote Dreamwash</div>
-        <div style="font-size:11px;color:#64748B;">Parlez-moi, je gère votre portail</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <span style="padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;background:#D1FAE5;color:#065F46;">● En ligne</span>
-        <button onclick="_coHistory=[];_coRenderMessages()" title="Effacer la conversation"
-          style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;background:#F1F5F9;color:#64748B;border:none;cursor:pointer;">🗑</button>
-      </div>
-    </div>
-
-    <!-- Messages -->
-    <div id="co-messages"></div>
-
-    <!-- Input -->
-    <div style="background:#fff;border-top:1px solid #E2E8F0;padding:12px 16px;flex-shrink:0;">
-      <div style="display:flex;align-items:flex-end;gap:8px;background:#F1F5F9;border:1.5px solid #E2E8F0;border-radius:11px;padding:9px 12px;">
-        <textarea id="co-input" rows="1"
-          placeholder="Parlez-moi… ex: Réponds à cet avis 1 étoile, rédige un mail client…"
-          style="flex:1;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:#0F172A;resize:none;outline:none;max-height:90px;min-height:18px;line-height:1.5;"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();coSend()}"
-          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-        <button id="co-send-btn" onclick="coSend()"
-          style="width:34px;height:34px;background:#2563EB;border:none;border-radius:8px;cursor:pointer;color:#fff;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">➤</button>
-      </div>
-      <div style="font-size:10px;color:#94A3B8;text-align:center;margin-top:5px;">Entrée pour envoyer · Shift+Entrée pour saut de ligne</div>
-    </div>
-  </div>
-
-</div>`;
-
-  _coRenderMessages();
-
-  // Message de bienvenue
-  if (_coHistory.length === 0) {
-    const nbCentres = typeof CENTRES !== 'undefined' ? CENTRES.length : '?';
-    const nbTechs   = typeof TECHS   !== 'undefined' ? TECHS.length   : '?';
-    const welcome = `Bonjour ! Je suis votre **Copilote Dreamwash** 💧\n\nJe connais votre portail en temps réel :\n• **${nbCentres} centres** actifs · **${nbTechs} techniciens** dans l'équipe\n\nQuelques exemples :\n• *"Réponds à cet avis 1 étoile : le lavage était décevant…"*\n• *"Rédige un mail de relance pour un client Belleville"*\n• *"Donne-moi un résumé de l'équipe"*\n• *"Quels conseils pour optimiser Aeroville A ?"*\n\nQu'est-ce que je peux faire pour vous ?`;
-    _coHistory.push({ role: 'assistant', content: welcome });
-    _coRenderMessages();
+      default:
+        return `⚠️ Action inconnue : ${action.type}`;
+    }
+  } catch (e) {
+    return `❌ Erreur action ${action.type} : ${e.message}`;
   }
-
-  setTimeout(() => { const i = document.getElementById('co-input'); if (i) i.focus(); }, 100);
 }
 
+// ── Traitement de la réponse IA ────────────────────────────────
+function _coProcessReply(raw) {
+  const actionResults = [];
+  // Extrait et exécute toutes les ⚡ACTION:{...}
+  const cleaned = raw.replace(/⚡ACTION:\{[^}]+\}/g, (match) => {
+    try {
+      const json = match.replace('⚡ACTION:', '');
+      const action = JSON.parse(json);
+      const result = _coExecAction(action);
+      actionResults.push(result);
+    } catch (e) {
+      actionResults.push(`❌ Action invalide : ${e.message}`);
+    }
+    return ''; // retire le bloc de la réponse texte
+  }).trim();
+
+  // Texte affiché = réponse nettoyée + résultats des actions
+  let display = cleaned;
+  if (actionResults.length) {
+    display += (cleaned ? '\n\n' : '') + actionResults.join('\n');
+  }
+  return display || raw;
+}
+
+// ── Rendu des messages ─────────────────────────────────────────
 function _coRenderMessages() {
   const container = document.getElementById('co-messages');
   if (!container) return;
@@ -184,8 +235,8 @@ function _coRenderMessages() {
       .replace(/\n/g, '<br>');
 
     let actions = '';
-    if (!isUser && msg.content.length > 80) {
-      actions = `<div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap;">
+    if (!isUser && msg.content.length > 60) {
+      actions = `<div style="margin-top:9px;">
         <button onclick="coCopyBubble(this)" style="padding:4px 11px;border-radius:6px;border:1.5px solid #E2E8F0;background:#fff;font-size:10px;font-weight:600;cursor:pointer;color:#64748B;">📋 Copier</button>
       </div>`;
     }
@@ -199,23 +250,106 @@ function _coRenderMessages() {
   container.scrollTop = container.scrollHeight;
 }
 
-function _coAddTyping() {
-  const c = document.getElementById('co-messages');
-  if (!c) return;
-  const div = document.createElement('div');
-  div.id = 'co-typing';
-  div.style.cssText = 'display:flex;gap:9px;animation:coFadeUp .2s ease;';
-  div.innerHTML = `
-    <div style="width:30px;height:30px;border-radius:8px;background:#2563EB;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">💧</div>
-    <div style="padding:13px 15px;border-radius:13px;border-top-left-radius:3px;background:#fff;border:1px solid #E2E8F0;">
-      <div style="display:flex;gap:5px;align-items:center;">
-        ${[0,.2,.4].map(d=>`<span style="width:6px;height:6px;background:#94A3B8;border-radius:50%;animation:coBounce 1.2s infinite ${d}s;display:inline-block;"></span>`).join('')}
+// ── Shell UI ────────────────────────────────────────────────────
+function _renderCopiloteShell() {
+  const el = document.getElementById('page-copilote');
+  if (!el) return;
+
+  el.innerHTML = `
+<style>
+@keyframes coFadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+@keyframes coBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+@keyframes coPulse  { 0%,100%{opacity:1} 50%{opacity:.4} }
+#co-wrap { display:flex; height:calc(100vh - 115px); font-family:'Inter',sans-serif; border-radius:14px; overflow:hidden; border:1px solid #E2E8F0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+#co-sidebar { width:195px; background:#0F172A; display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto; }
+#co-chat   { flex:1; display:flex; flex-direction:column; overflow:hidden; background:#F8FAFC; }
+#co-messages { flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:12px; }
+#co-messages::-webkit-scrollbar { width:3px; }
+#co-messages::-webkit-scrollbar-thumb { background:#CBD5E1; border-radius:3px; }
+</style>
+
+<div id="co-wrap">
+  <div id="co-sidebar">
+    <div style="padding:14px 10px 6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);">Actions rapides</div>
+    ${[
+      {i:'👷', l:'Ajouter un technicien', t:'Ajoute le technicien '},
+      {i:'📋', l:'Mettre à jour le CRA',  t:'Ajoute au CRA : le technicien '},
+      {i:'📅', l:'Modifier le planning',   t:'Ajoute au planning : '},
+      {i:'⭐', l:'Répondre avis Google',   t:'Réponds à cet avis Google : '},
+      {i:'📧', l:'Rédiger un mail',        t:'Rédige un mail pour '},
+      {i:'📊', l:'Résumé portail',         t:'Donne-moi un résumé complet du portail Dreamwash'},
+      {i:'💡', l:'Conseils',               t:'Quels conseils pour optimiser Dreamwash ?'},
+    ].map(b => `
+      <button onclick="coQuick(${JSON.stringify(b.t)})" style="
+        display:flex;align-items:center;gap:8px;padding:8px;margin:1px 5px;
+        border-radius:7px;border:none;background:transparent;color:rgba(255,255,255,.6);
+        font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;text-align:left;
+        width:calc(100% - 10px);"
+        onmouseover="this.style.background='rgba(255,255,255,.08)';this.style.color='#fff'"
+        onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,.6)'">
+        <span style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+          font-size:12px;background:rgba(255,255,255,.07);flex-shrink:0;">${b.i}</span>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.l}</span>
+      </button>`).join('')}
+    <div style="margin-top:auto;padding:12px;border-top:1px solid rgba(255,255,255,.08);">
+      <div style="display:flex;align-items:center;gap:7px;font-size:10px;color:rgba(255,255,255,.4);">
+        <div style="width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 5px #10b981;animation:coPulse 2s infinite;flex-shrink:0;"></div>
+        Gemini · accès portail complet
       </div>
-    </div>`;
-  c.appendChild(div);
-  c.scrollTop = c.scrollHeight;
+    </div>
+  </div>
+
+  <div id="co-chat">
+    <div style="background:#fff;border-bottom:1px solid #E2E8F0;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div>
+        <div style="font-weight:800;font-size:14px;color:#0F172A;">💧 Copilote Dreamwash</div>
+        <div style="font-size:11px;color:#64748B;">Lecture + modifications en temps réel</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;background:#D1FAE5;color:#065F46;">● En ligne</span>
+        <button onclick="_coHistory=[];_coRenderMessages()" title="Effacer"
+          style="padding:4px 10px;border-radius:8px;font-size:11px;background:#F1F5F9;color:#64748B;border:none;cursor:pointer;">🗑</button>
+      </div>
+    </div>
+
+    <div id="co-messages"></div>
+
+    <div style="background:#fff;border-top:1px solid #E2E8F0;padding:12px 16px;flex-shrink:0;">
+      <div style="display:flex;align-items:flex-end;gap:8px;background:#F1F5F9;border:1.5px solid #E2E8F0;border-radius:11px;padding:9px 12px;">
+        <textarea id="co-input" rows="1"
+          placeholder="Ex: Ajoute le technicien Karim au centre Belleville en CDI, ou: Réponds à cet avis 1 étoile…"
+          style="flex:1;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:#0F172A;resize:none;outline:none;max-height:90px;min-height:18px;line-height:1.5;"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();coSend()}"
+          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <button id="co-send-btn" onclick="coSend()"
+          style="width:34px;height:34px;background:#2563EB;border:none;border-radius:8px;cursor:pointer;color:#fff;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">➤</button>
+      </div>
+      <div style="font-size:10px;color:#94A3B8;text-align:center;margin-top:5px;">Entrée pour envoyer · Shift+Entrée pour saut de ligne</div>
+    </div>
+  </div>
+</div>`;
+
+  _coRenderMessages();
+
+  if (_coHistory.length === 0) {
+    const nb = typeof TECHS !== 'undefined' ? TECHS.length : '?';
+    const nc = typeof CENTRES !== 'undefined' ? CENTRES.length : '?';
+    const welcome = `Bonjour ! Je suis votre **Copilote Dreamwash** 💧\n\nJ'ai accès en temps réel à tout votre portail (**${nc} centres**, **${nb} techniciens**) et je peux faire des modifications directement.\n\nExemples :\n• *"Ajoute le technicien Karim Benali au centre Belleville en CDI"*\n• *"Ajoute au CRA : Ahmed a travaillé le 20/05/2026 à Aeroville A"*\n• *"Ajoute Ahmed au planning de lundi à Aeroville A"*\n• *"Réponds à cet avis 1 étoile : …"*\n\nQue voulez-vous faire ?`;
+    _coHistory.push({ role: 'assistant', content: welcome });
+    _coRenderMessages();
+  }
+
+  setTimeout(() => { const i = document.getElementById('co-input'); if (i) i.focus(); }, 100);
 }
 
+// ── Init ────────────────────────────────────────────────────────
+function initCopilote() {
+  if (_coInitialized) return;
+  _coInitialized = true;
+  _renderCopiloteShell();
+}
+
+// ── Send ────────────────────────────────────────────────────────
 window.coSend = async function() {
   const input = document.getElementById('co-input');
   if (!input) return;
@@ -230,10 +364,23 @@ window.coSend = async function() {
 
   const btn = document.getElementById('co-send-btn');
   if (btn) btn.disabled = true;
-  _coAddTyping();
+
+  // Typing indicator
+  const c = document.getElementById('co-messages');
+  if (c) {
+    const typing = document.createElement('div');
+    typing.id = 'co-typing';
+    typing.style.cssText = 'display:flex;gap:9px;animation:coFadeUp .2s ease;';
+    typing.innerHTML = `
+      <div style="width:30px;height:30px;border-radius:8px;background:#2563EB;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">💧</div>
+      <div style="padding:13px 15px;border-radius:13px;border-top-left-radius:3px;background:#fff;border:1px solid #E2E8F0;">
+        <div style="display:flex;gap:5px;">${[0,.2,.4].map(d=>`<span style="width:6px;height:6px;background:#94A3B8;border-radius:50%;animation:coBounce 1.2s infinite ${d}s;display:inline-block;"></span>`).join('')}</div>
+      </div>`;
+    c.appendChild(typing);
+    c.scrollTop = c.scrollHeight;
+  }
 
   try {
-    // Send only real exchanges (skip the welcome message for API context, it's handled by systemContext)
     const apiMessages = _coHistory
       .filter((m, i) => !(i === 0 && m.role === 'assistant'))
       .map(m => ({ role: m.role, content: m.content }));
@@ -245,9 +392,11 @@ window.coSend = async function() {
     });
 
     const data = await res.json();
-    _coHistory.push({ role: 'assistant', content: data.reply || data.error || "Erreur inattendue." });
+    const raw = data.reply || data.error || 'Erreur inattendue.';
+    const display = _coProcessReply(raw);
+    _coHistory.push({ role: 'assistant', content: display });
   } catch (e) {
-    _coHistory.push({ role: 'assistant', content: `❌ Erreur de connexion : ${e.message}` });
+    _coHistory.push({ role: 'assistant', content: `❌ Erreur : ${e.message}` });
   }
 
   const typing = document.getElementById('co-typing');
