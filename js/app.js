@@ -131,8 +131,9 @@ function showFiche(i) {
         <div class="fr"><span class="fk">Téléphone</span><input id="ctel-${i}" value="${c.tel}" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:160px;" onchange="CENTRES[${i}].tel=this.value;"></div>
         <div class="fr"><span class="fk">Loyer mensuel</span><input id="cloyer-${i}" value="${c.loyer}" type="number" style="font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--bg3);border-radius:6px;padding:4px 10px;font-family:inherit;width:100px;color:var(--accent4);" onchange="CENTRES[${i}].loyer=parseFloat(this.value)||0;"> €</div>
         <div class="fr"><span class="fk">Techniciens affectés</span><span class="fv">${TECHS.filter(t=>t.centre===c.nom&&(t.statut||'actif')==='actif').map(t=>t.nom).join(', ')||'Aucun'}</span></div>
-        <div class="fr"><span class="fk">CA aujourd'hui</span><span class="fv" style="color:var(--accent2);font-size:16px;font-weight:800;">${c.ca} €</span></div>
-        <div class="fr"><span class="fk">Lavages du jour</span><span class="fv">${c.lavages}</span></div>
+        <div id="fiche-ca-${i}" style="margin-top:10px;">
+          <div style="color:var(--muted);font-size:12px;padding:8px 0;">⏳ Chargement des ventes…</div>
+        </div>
       </div>
       <div class="card">
         <div class="card-t">🔒 Codes d'accès <span style="font-weight:400;font-size:10px;">(cliquer pour révéler)</span></div>
@@ -145,6 +146,53 @@ function showFiche(i) {
       </div>
     </div>`;
   go('fiche');
+  _loadFicheCA(i);
+}
+
+async function _loadFicheCA(i) {
+  const el = document.getElementById('fiche-ca-' + i);
+  if (!el) return;
+  const centreNom = CENTRES[i].nom;
+
+  try {
+    const ventes = window.loadVentes ? await window.loadVentes() : [];
+    const cv = ventes.filter(v => v.centre === centreNom);
+
+    const today = new Date();
+    const todayStr = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+    const moisStr = `${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+
+    const ca    = (arr) => arr.reduce((s,v) => s + (v.totalTTC||0), 0);
+    const fmt   = (n) => n.toFixed(2).replace('.', ',') + ' €';
+
+    const all      = cv;
+    const todayV   = cv.filter(v => v.date === todayStr);
+    const moisV    = cv.filter(v => v.date && v.date.slice(3) === moisStr);
+    const especes  = all.filter(v => v.paiement === 'especes').reduce((s,v) => s+(v.totalTTC||0), 0);
+    const carte    = all.filter(v => v.paiement === 'carte').reduce((s,v)   => s+(v.totalTTC||0), 0);
+    const tva      = all.reduce((s,v) => s+(v.tva||0), 0);
+
+    const kpis = [
+      { label: `CA ${moisStr}`,      val: fmt(ca(moisV)),  color: '#F73FA4' },
+      { label: "CA Aujourd'hui",     val: fmt(ca(todayV)), color: '#29B5E8' },
+      { label: 'Espèces',            val: fmt(especes),    color: '#10b981' },
+      { label: 'Carte',              val: fmt(carte),      color: '#3b82f6' },
+      { label: 'TVA collectée',      val: fmt(tva),        color: '#f59e0b' },
+      { label: 'Nb ventes (total)',  val: all.length,      color: '#1565C0' },
+    ];
+
+    el.innerHTML = `
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px;letter-spacing:.05em;">💳 Caisse Enregistreuse</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${kpis.map(k => `
+          <div style="background:var(--bg3);border-radius:8px;padding:9px 12px;border-left:3px solid ${k.color};">
+            <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:3px;">${k.label}</div>
+            <div style="font-size:15px;font-weight:900;color:${k.color};">${k.val}</div>
+          </div>`).join('')}
+      </div>`;
+  } catch(e) {
+    if (el) el.innerHTML = `<div style="color:var(--muted);font-size:12px;padding:8px 0;">⚠️ Données ventes non disponibles</div>`;
+  }
 }
 
 function saveCentre(i) {
