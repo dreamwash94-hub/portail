@@ -121,7 +121,11 @@ ACTIONS DISPONIBLES :
 12. Modifier les infos d'un centre :
 ⚡ACTION:{"type":"UPDATE_CENTRE","nom":"Belleville","loyer":950,"tel":"01 67 89 01 23"}
 
-13. Exporter CSV :
+13. Envoyer un email (vrai envoi automatique) :
+⚡ACTION:{"type":"SEND_EMAIL","to":"client@email.com","subject":"Objet du mail","body":"Corps du mail complet ici"}
+(from par défaut = reservation@dreamwash.fr)
+
+14. Exporter CSV :
 ⚡ACTION:{"type":"EXPORT_CSV","source":"badgeuse","mois":"05/2026"}
 ⚡ACTION:{"type":"EXPORT_CSV","source":"cra","mois":"05/2026"}
 ⚡ACTION:{"type":"EXPORT_CSV","source":"techs"}
@@ -155,6 +159,18 @@ function _coDownloadCSV(filename, rows) {
 async function _coExecAction(action) {
   try {
     switch (action.type) {
+
+      case 'SEND_EMAIL': {
+        if (!action.to || !action.subject || !action.body) return '❌ to, subject et body requis';
+        const r = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: action.to, subject: action.subject, body: action.body, from: action.from })
+        });
+        const data = await r.json();
+        if (data.success) return `✅ Mail envoyé à **${action.to}** — "${action.subject}"`;
+        return `❌ Erreur envoi mail : ${data.error}`;
+      }
 
       case 'EXPORT_CSV': {
         const src = action.source || 'techs';
