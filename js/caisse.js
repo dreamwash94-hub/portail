@@ -205,12 +205,8 @@ function renderCaisse() {
     <div class="kpi-g" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
       <div class="kpi">
         <div class="kpi-i" style="background:#F3F4F6;font-size:20px;">💰</div>
-        <div style="display:flex;gap:8px;justify-content:center;align-items:baseline;flex-wrap:wrap;">
-          <span style="color:#DC2626;font-weight:700;font-size:clamp(12px,1.8vw,18px);">${formatMontant(totalRouge)}</span>
-          <span style="color:#9CA3AF;font-size:12px;">|</span>
-          <span style="color:#15803D;font-weight:700;font-size:clamp(12px,1.8vw,18px);">${formatMontant(totalVert)}</span>
-        </div>
-        <div class="kpi-l">Rouge / Vert</div>
+        <div class="kpi-v">${formatMontant(totalRouge + totalVert)}</div>
+        <div class="kpi-l">Total Caisse</div>
       </div>
       <div class="kpi">
         <div class="kpi-i" style="background:#FEE2E2;font-size:20px;">🔴</div>
