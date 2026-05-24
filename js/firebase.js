@@ -70,6 +70,20 @@
     } catch(e) { return false; }
   };
 
+  window.addCaisseEntry = async function(entry) {
+    try {
+      await addDoc(collection(db, 'caisses'), entry);
+      return true;
+    } catch(e) { console.log('Erreur addCaisseEntry:', e.message); return false; }
+  };
+
+  window.addVenteEntry = async function(entry) {
+    try {
+      await addDoc(collection(db, 'ventes'), entry);
+      return true;
+    } catch(e) { console.log('Erreur addVenteEntry:', e.message); return false; }
+  };
+
   window.deleteCaisseEntry = async function(id) {
     try {
       await deleteDoc(doc(db, 'caisses', id));

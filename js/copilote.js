@@ -98,21 +98,46 @@ ACTIONS DISPONIBLES :
 6. Ajouter une charge fixe :
 ⚡ACTION:{"type":"ADD_CHARGE","nom":"Nom charge","montant":500,"cat":"Loyer"}
 
-7. Exporter un fichier CSV (badgeuse, CRA, ou liste techniciens) :
+7. Ajouter/supprimer un pointage badgeuse :
+⚡ACTION:{"type":"ADD_BADGE","nom":"Nom Tech","type_badge":"arrivee","heure":"08:30","date":"JJ/MM/AAAA","centre":"Belleville"}
+⚡ACTION:{"type":"DELETE_BADGE","nom":"Nom Tech","timestamp":1234567890}
+
+8. Ajouter/supprimer une déclaration caisse (fermeture) :
+⚡ACTION:{"type":"ADD_CAISSE","nom":"Nom Tech","montant":250.50,"couleur":"vert","centre":"Belleville","date":"JJ/MM/AAAA","heure":"18:00"}
+(couleur = "vert" pour fond de caisse, "rouge" pour recette)
+⚡ACTION:{"type":"DELETE_CAISSE","id":"firebase_doc_id"}
+
+9. Modifier ou supprimer un technicien :
+⚡ACTION:{"type":"UPDATE_TECH","nom":"Nom actuel","centre":"Nouveau centre","contrat":"CDI","tel":"06 00 00 00 00"}
+⚡ACTION:{"type":"DELETE_TECH","nom":"Nom Tech"}
+
+10. Ajouter un stock / supprimer :
+⚡ACTION:{"type":"ADD_STOCK","produit":"Speed Polish 25L","centre":"Belleville","qte":2,"pu":96.75,"date":"JJ/MM/AAAA"}
+⚡ACTION:{"type":"DELETE_STOCK","index":0}
+
+11. Ajouter une assurance :
+⚡ACTION:{"type":"ADD_ASSURANCE","nom":"Assurance RC","assureur":"AXA","montant":1200,"expiration":"2027-06-01","centres":"Tous"}
+
+12. Modifier les infos d'un centre :
+⚡ACTION:{"type":"UPDATE_CENTRE","nom":"Belleville","loyer":950,"tel":"01 67 89 01 23"}
+
+13. Exporter CSV :
 ⚡ACTION:{"type":"EXPORT_CSV","source":"badgeuse","mois":"05/2026"}
 ⚡ACTION:{"type":"EXPORT_CSV","source":"cra","mois":"05/2026"}
 ⚡ACTION:{"type":"EXPORT_CSV","source":"techs"}
-(mois format MM/AAAA — optionnel pour badgeuse/cra, si absent = tout)
+⚡ACTION:{"type":"EXPORT_CSV","source":"stock"}
+⚡ACTION:{"type":"EXPORT_CSV","source":"charges"}
+(mois format MM/AAAA — optionnel)
 
 Tu peux enchaîner plusieurs actions dans une seule réponse.
 
-═══ RÈGLES ═══
-- Quand l'utilisateur demande une modification → exécute-la avec ⚡ACTION, ne dis jamais "je ne peux pas".
-- Pour TOUT export (CSV, rapport, liste) → utilise ⚡ACTION avec EXPORT_CSV.
-- Confirme ce que tu fais en une ligne, puis mets l'action.
-- Réponds en 2-4 lignes max sauf demande de texte long (mail, réponse Google...).
-- Ne mets jamais d'explication inutile.
-- Pour les mails et réponses Google : formate clairement avec "Objet :" et "Corps :" ou guillemets.`;
+═══ RÈGLES ABSOLUES ═══
+- Quand l'utilisateur demande une modification → exécute-la DIRECTEMENT avec ⚡ACTION, sans jamais dire "je ne peux pas".
+- Tu as FULL ACCÈS à tout le portail : techniciens, planning, CRA, badgeuse, caisse, stock, charges, assurances, centres.
+- Pour TOUT export → utilise ⚡ACTION EXPORT_CSV.
+- Confirme ce que tu fais en 1-2 lignes, puis mets les actions.
+- Réponds en 3 lignes max sauf demande de texte long (mail, réponse Google...).
+- Pour les mails et réponses Google : formate avec "Objet :" et "Corps :" ou guillemets.`;
 }
 
 // ── Helpers CSV ────────────────────────────────────────────────
@@ -170,7 +195,23 @@ async function _coExecAction(action) {
           return `✅ CSV badgeuse téléchargé (${rows.length - 1} pointages${mois ? ' · ' + mois : ''})`;
         }
 
-        return `❌ Source inconnue : ${src}. Utilise "badgeuse", "cra" ou "techs"`;
+        if (src === 'stock') {
+          const s = typeof STOCK !== 'undefined' ? STOCK : [];
+          const rows = [['Date','Centre','Produit','Quantité','Prix unitaire','Total']];
+          s.forEach(x => rows.push([x.date||'', x.centre||'', x.produit||'', x.qte||0, x.pu||0, ((x.qte||0)*(x.pu||0)).toFixed(2)]));
+          _coDownloadCSV('dreamwash_stock.csv', rows);
+          return `✅ CSV stock téléchargé (${s.length} lignes)`;
+        }
+
+        if (src === 'charges') {
+          const ch = typeof CHARGES !== 'undefined' ? CHARGES : [];
+          const rows = [['Nom','Montant','Catégorie','Échéance']];
+          ch.forEach(x => rows.push([x.nom||'', x.montant||0, x.cat||'', x.ech||'']));
+          _coDownloadCSV('dreamwash_charges.csv', rows);
+          return `✅ CSV charges téléchargé (${ch.length} lignes)`;
+        }
+
+        return `❌ Source inconnue : ${src}. Utilise "badgeuse", "cra", "techs", "stock" ou "charges"`;
       }
 
       case 'ADD_TECH': {
@@ -237,6 +278,120 @@ async function _coExecAction(action) {
         if (typeof renderCharges === 'function') renderCharges();
         if (typeof saveAll === 'function') saveAll();
         return `✅ Charge **${action.nom}** (${action.montant}€) ajoutée`;
+      }
+
+      case 'UPDATE_TECH': {
+        if (!action.nom) return '❌ nom requis';
+        const t = TECHS.find(x => x.nom.toLowerCase() === action.nom.toLowerCase());
+        if (!t) return `❌ Technicien "${action.nom}" introuvable`;
+        if (action.centre !== undefined) t.centre = action.centre;
+        if (action.contrat !== undefined) t.contrat = action.contrat;
+        if (action.tel !== undefined) t.tel = action.tel;
+        if (typeof renderTechs === 'function') renderTechs();
+        if (typeof saveAll === 'function') saveAll();
+        return `✅ **${action.nom}** mis à jour`;
+      }
+
+      case 'DELETE_TECH': {
+        if (!action.nom) return '❌ nom requis';
+        const idx = TECHS.findIndex(x => x.nom.toLowerCase() === action.nom.toLowerCase());
+        if (idx === -1) return `❌ Technicien "${action.nom}" introuvable`;
+        TECHS.splice(idx, 1);
+        if (typeof renderTechs === 'function') renderTechs();
+        if (typeof renderDashboard === 'function') renderDashboard();
+        if (typeof saveAll === 'function') saveAll();
+        return `✅ **${action.nom}** supprimé`;
+      }
+
+      case 'ADD_BADGE': {
+        if (!action.nom || !action.heure) return '❌ nom et heure requis';
+        const today = new Date();
+        const dateStr = action.date || `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+        const entry = {
+          nom: action.nom,
+          type: action.type_badge === 'depart' ? 'depart' : 'arrivee',
+          heure: action.heure,
+          date: dateStr,
+          centre: action.centre || '',
+          timestamp: Date.now()
+        };
+        const ok = window.addBadgeToFirebase ? await window.addBadgeToFirebase(entry) : false;
+        return ok ? `✅ Pointage **${action.type_badge||'arrivée'}** ajouté pour **${action.nom}** à ${action.heure}` : '❌ Erreur Firebase badge';
+      }
+
+      case 'DELETE_BADGE': {
+        if (!action.nom || !action.timestamp) return '❌ nom et timestamp requis';
+        const ok = window.deleteBadgeFromFirebase ? await window.deleteBadgeFromFirebase(action.nom, action.timestamp) : false;
+        return ok ? `✅ Pointage de **${action.nom}** supprimé` : '❌ Pointage introuvable';
+      }
+
+      case 'ADD_CAISSE': {
+        if (!action.nom || action.montant === undefined) return '❌ nom et montant requis';
+        const today = new Date();
+        const dateStr = action.date || `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+        const heureStr = action.heure || `${String(today.getHours()).padStart(2,'0')}:${String(today.getMinutes()).padStart(2,'0')}`;
+        const entry = {
+          nom: action.nom,
+          montant: Number(action.montant),
+          couleur: action.couleur || 'rouge',
+          centre: action.centre || '',
+          date: dateStr,
+          time: heureStr,
+          timestamp: Date.now()
+        };
+        const ok = window.addCaisseEntry ? await window.addCaisseEntry(entry) : false;
+        if (ok && typeof window.refreshCaisse === 'function') await window.refreshCaisse();
+        return ok ? `✅ Déclaration caisse ajoutée : **${action.nom}** — ${Number(action.montant).toFixed(2)}€ (${action.couleur||'rouge'})` : '❌ Erreur Firebase caisse';
+      }
+
+      case 'DELETE_CAISSE': {
+        if (!action.id) return '❌ id requis';
+        const ok = window.deleteCaisseEntry ? await window.deleteCaisseEntry(action.id) : false;
+        if (ok && typeof window.refreshCaisse === 'function') await window.refreshCaisse();
+        return ok ? `✅ Déclaration caisse supprimée` : '❌ Entrée introuvable';
+      }
+
+      case 'ADD_STOCK': {
+        if (!action.produit) return '❌ produit requis';
+        const today = new Date();
+        const dateStr = action.date || `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+        STOCK.unshift({ date: dateStr, centre: action.centre||'', produit: action.produit, qte: Number(action.qte||1), pu: Number(action.pu||0), statut: 'en cours' });
+        if (typeof renderStock === 'function') renderStock();
+        if (typeof saveAll === 'function') saveAll();
+        return `✅ Stock ajouté : **${action.produit}** ×${action.qte||1} @ ${action.centre||'—'}`;
+      }
+
+      case 'DELETE_STOCK': {
+        const i = Number(action.index);
+        if (isNaN(i) || i < 0 || i >= STOCK.length) return '❌ index invalide';
+        const nom = STOCK[i].produit;
+        STOCK.splice(i, 1);
+        if (typeof renderStock === 'function') renderStock();
+        if (typeof saveAll === 'function') saveAll();
+        return `✅ Stock **${nom}** supprimé`;
+      }
+
+      case 'ADD_ASSURANCE': {
+        if (!action.nom) return '❌ nom requis';
+        const exp = action.expiration || '';
+        const expDate = exp ? new Date(exp) : new Date();
+        const jours = Math.max(0, Math.round((expDate - new Date()) / 86400000));
+        ASSURANCES.push({ nom: action.nom, assureur: action.assureur||'', montant: Number(action.montant||0), expiration: exp, centres: action.centres||'Tous', jours, couleur: jours < 30 ? '#D97706' : '#16A34A' });
+        if (typeof renderAssurances === 'function') renderAssurances();
+        if (typeof saveAll === 'function') saveAll();
+        return `✅ Assurance **${action.nom}** ajoutée`;
+      }
+
+      case 'UPDATE_CENTRE': {
+        if (!action.nom) return '❌ nom requis';
+        const c = (typeof CENTRES !== 'undefined' ? CENTRES : []).find(x => x.nom.toLowerCase() === action.nom.toLowerCase());
+        if (!c) return `❌ Centre "${action.nom}" introuvable`;
+        if (action.loyer !== undefined) c.loyer = Number(action.loyer);
+        if (action.tel !== undefined) c.tel = action.tel;
+        if (action.wifi !== undefined) c.wifi = action.wifi;
+        if (action.wifiPwd !== undefined) c.wifiPwd = action.wifiPwd;
+        if (typeof saveAll === 'function') saveAll();
+        return `✅ Centre **${action.nom}** mis à jour`;
       }
 
       default:
