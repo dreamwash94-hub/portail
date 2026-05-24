@@ -7,41 +7,54 @@ export default async function handler(req, res) {
 
   const { messages, systemContext } = req.body;
   const key = process.env.GEMINI_API_KEY;
-  if (!key) return res.status(500).json({ error: 'GEMINI_API_KEY manquante' });
+  if (!key) return res.status(500).json({ error: 'GEMINI_API_KEY manquante dans Vercel env vars' });
 
   try {
-    // Convert chat history to Gemini format (exclude initial assistant welcome)
-    const contents = messages
-      .filter(m => m.role === 'user' || (m.role === 'assistant' && m._include))
-      .map(m => ({
+    // Build contents: system context injected as first user turn (works with all models)
+    const contents = [];
+
+    // First turn: system context as user message + dummy model ack
+    contents.push({ role: 'user', parts: [{ text: `[CONTEXTE SYSTÈME]\n${systemContext}\n[FIN CONTEXTE]\n\nCompris. Réponds toujours en français.` }] });
+    contents.push({ role: 'model', parts: [{ text: 'Compris ! Je suis le Copilote Dreamwash, prêt à vous aider.' }] });
+
+    // Then the real conversation
+    for (const m of messages) {
+      contents.push({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: m.content }]
-      }));
-
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemContext }] },
-          contents,
-          generationConfig: { maxOutputTokens: 2048, temperature: 0.7 }
-        })
-      }
-    );
-
-    const data = await geminiRes.json();
-
-    if (!geminiRes.ok) {
-      console.error('Gemini error:', data);
-      return res.status(500).json({ error: data.error?.message || 'Erreur Gemini' });
+      });
     }
 
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
-      || "Désolé, je n'ai pas pu générer de réponse.";
+    // Try models in order until one works
+    const models = ['gemini-1.5-flash', 'gemini-pro', 'gemini-1.0-pro'];
+    let lastError = null;
 
-    res.json({ reply });
+    for (const model of models) {
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents,
+            generationConfig: { maxOutputTokens: 2048, temperature: 0.7 }
+          })
+        }
+      );
+
+      const data = await geminiRes.json();
+
+      if (geminiRes.ok) {
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
+          || "Désolé, je n'ai pas pu générer de réponse.";
+        return res.json({ reply, model });
+      }
+
+      lastError = data.error?.message || `Erreur modèle ${model}`;
+      console.error(`Model ${model} failed:`, lastError);
+    }
+
+    res.status(500).json({ error: lastError });
   } catch (e) {
     console.error('Handler error:', e);
     res.status(500).json({ error: e.message });
