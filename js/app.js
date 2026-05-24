@@ -165,12 +165,11 @@ async function _loadFicheCA(i) {
     const ca    = (arr) => arr.reduce((s,v) => s + (v.totalTTC||0), 0);
     const fmt   = (n) => n.toFixed(2).replace('.', ',') + ' €';
 
-    const all      = cv;
     const todayV   = cv.filter(v => v.date === todayStr);
     const moisV    = cv.filter(v => v.date && v.date.slice(3) === moisStr);
-    const especes  = all.filter(v => v.paiement === 'especes').reduce((s,v) => s+(v.totalTTC||0), 0);
-    const carte    = all.filter(v => v.paiement === 'carte').reduce((s,v)   => s+(v.totalTTC||0), 0);
-    const tva      = all.reduce((s,v) => s+(v.tva||0), 0);
+    const especes  = moisV.filter(v => v.paiement === 'especes').reduce((s,v) => s+(v.totalTTC||0), 0);
+    const carte    = moisV.filter(v => v.paiement === 'carte').reduce((s,v)   => s+(v.totalTTC||0), 0);
+    const tva      = moisV.reduce((s,v) => s+(v.tva||0), 0);
 
     const kpis = [
       { label: `CA ${moisStr}`,      val: fmt(ca(moisV)),  color: '#F73FA4' },
@@ -178,7 +177,7 @@ async function _loadFicheCA(i) {
       { label: 'Espèces',            val: fmt(especes),    color: '#10b981' },
       { label: 'Carte',              val: fmt(carte),      color: '#3b82f6' },
       { label: 'TVA collectée',      val: fmt(tva),        color: '#f59e0b' },
-      { label: 'Nb ventes (total)',  val: all.length,      color: '#1565C0' },
+      { label: 'Nb ventes',          val: moisV.length,    color: '#1565C0' },
     ];
 
     el.innerHTML = `
