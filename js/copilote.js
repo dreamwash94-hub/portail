@@ -497,7 +497,6 @@ function _renderCopiloteShell() {
 @keyframes coBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
 @keyframes coPulse  { 0%,100%{opacity:1} 50%{opacity:.4} }
 #co-wrap { display:flex; height:calc(100vh - 115px); font-family:'Inter',sans-serif; border-radius:14px; overflow:hidden; border:1px solid #E2E8F0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
-#co-sidebar { width:195px; background:#0F172A; display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto; }
 #co-chat   { flex:1; display:flex; flex-direction:column; overflow:hidden; background:#F8FAFC; }
 #co-messages { flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:12px; }
 #co-messages::-webkit-scrollbar { width:3px; }
@@ -505,36 +504,6 @@ function _renderCopiloteShell() {
 </style>
 
 <div id="co-wrap">
-  <div id="co-sidebar">
-    <div style="padding:14px 10px 6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);">Actions rapides</div>
-    ${[
-      {i:'👷', l:'Ajouter un technicien', t:'Ajoute le technicien '},
-      {i:'📋', l:'Mettre à jour le CRA',  t:'Ajoute au CRA : le technicien '},
-      {i:'📅', l:'Modifier le planning',   t:'Ajoute au planning : '},
-      {i:'⭐', l:'Répondre avis Google',   t:'Réponds à cet avis Google : '},
-      {i:'📧', l:'Rédiger un mail',        t:'Rédige un mail pour '},
-      {i:'📊', l:'Résumé portail',         t:'Donne-moi un résumé complet du portail Dreamwash'},
-      {i:'💡', l:'Conseils',               t:'Quels conseils pour optimiser Dreamwash ?'},
-    ].map(b => `
-      <button onclick="coQuick(${JSON.stringify(b.t)})" style="
-        display:flex;align-items:center;gap:8px;padding:8px;margin:1px 5px;
-        border-radius:7px;border:none;background:transparent;color:rgba(255,255,255,.6);
-        font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;text-align:left;
-        width:calc(100% - 10px);"
-        onmouseover="this.style.background='rgba(255,255,255,.08)';this.style.color='#fff'"
-        onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,.6)'">
-        <span style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;
-          font-size:12px;background:rgba(255,255,255,.07);flex-shrink:0;">${b.i}</span>
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.l}</span>
-      </button>`).join('')}
-    <div style="margin-top:auto;padding:12px;border-top:1px solid rgba(255,255,255,.08);">
-      <div style="display:flex;align-items:center;gap:7px;font-size:10px;color:rgba(255,255,255,.4);">
-        <div style="width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 5px #10b981;animation:coPulse 2s infinite;flex-shrink:0;"></div>
-        Gemini · accès portail complet
-      </div>
-    </div>
-  </div>
-
   <div id="co-chat">
     <div style="background:#fff;border-bottom:1px solid #E2E8F0;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
       <div>
