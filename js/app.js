@@ -1684,12 +1684,20 @@ function craNav(d){craDay=Math.max(0,Math.min(4,craDay+d));document.getElementBy
 function copyCRA(){alert('Planning copié ! Vous pouvez le coller dans la semaine suivante.');}
 function exportCSV(){
   const cnames=CENTRES.map(c=>c.nom);
+  const annee=2026;
+  const moisStr=String(rapportMoisIdx+1).padStart(2,'0')+'/'+annee;
   let csv='Technicien,Jours Présent,'+cnames.join(',')+'\n';
-  TECHS.forEach(t=>{csv+=`${t.nom},${t.jours},${cnames.map(cn=>t.centre===cn?t.jours:0).join(',')}\n`;});
-  const blob=new Blob([csv],{type:'text/csv'});
+  TECHS.forEach(t=>{
+    const techCRA=CRA_DATA[t.nom]||{};
+    const entries=Object.entries(techCRA).filter(([d])=>d.slice(3)===moisStr);
+    const joursPresent=entries.length;
+    const parCentre=cnames.map(cn=>entries.filter(([,c])=>c===cn).length);
+    csv+=`${t.nom},${joursPresent},${parCentre.join(',')}\n`;
+  });
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download=`dreamwash-rapport-${MOIS_NOMS[rapportMoisIdx].toLowerCase()}-2026.csv`;
+  a.download=`dreamwash-rapport-${MOIS_NOMS[rapportMoisIdx].toLowerCase()}-${annee}.csv`;
   a.click();
 }
 
